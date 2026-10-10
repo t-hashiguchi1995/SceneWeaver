@@ -1,0 +1,20 @@
+{
+  "title": "Generation prompt",
+  "positive": "Positive prompt",
+  "negative": "Negative prompt",
+  "tabRendered": "Rendered",
+  "tabSource": "Generation rule",
+  "stateEdited": "Edited",
+  "statePristine": "Matches template",
+  "stateStale": "Context changed",
+  "staleBanner": "This prompt was created from an older shot configuration.",
+  "rebuild": "Rebuild from current settings",
+  "rebuildConfirm": "Discard your edits and rebuild the prompt from the current shot settings?",
+  "keep": "Keep as-is",
+  "resetEdits": "Reset edits",
+  "showDiff": "Show diff",
+  "hideDiff": "Hide diff",
+  "generate": "Generate",
+  "diffTitle": "Changes",
+  "loading": "Preparing prompt…"
+}

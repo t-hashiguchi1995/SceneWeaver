@@ -1,0 +1,7 @@
+{
+  "title": "Jobs",
+  "enqueueStub": "Enqueue stub job",
+  "watching": "Watching SSE for {{id}}",
+  "live": "Live",
+  "attempts": "attempts {{n}}"
+}

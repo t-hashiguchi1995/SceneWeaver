@@ -1,0 +1,11 @@
+{
+  "title": "Projects",
+  "newTitlePlaceholder": "New project title",
+  "newTitleAria": "New project title",
+  "status": "Status",
+  "rating": "Rating",
+  "id": "ID",
+  "createdAt": "Created",
+  "updatedAt": "Updated",
+  "detailHint": "Continue from Story / Wardrobe / Shot screens."
+}

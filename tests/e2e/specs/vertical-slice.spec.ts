@@ -52,11 +52,11 @@ test('SceneWeaver MVP vertical slice (browser)', async ({
   await home.openWardrobe()
   await wardrobe.openOutfit('Cardigan')
   await tryon.generate()
-  await expect(tryon.statusLabel()).toHaveText('Succeeded', { timeout: 40_000 })
+  await expect(tryon.statusLabel()).toHaveText('完了', { timeout: 40_000 })
   await expect(tryon.candidate(0)).toBeVisible()
   await expect(tryon.candidate(3)).toBeVisible()
   await tryon.adoptCandidate(2)
-  await expect(page.getByTestId('tryon-adopted-banner')).toContainText('OutfitState')
+  await expect(page.getByTestId('tryon-adopted-banner')).toContainText('コーディネート')
 
   const studio = await page.evaluate(() =>
     JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}'),
@@ -66,12 +66,14 @@ test('SceneWeaver MVP vertical slice (browser)', async ({
   await home.openShots()
   await shots.setBeatId(studio.beatId)
   await shots.planShot()
+  await expect(page.getByTestId('prompt-editor')).toBeVisible()
   await shots.enablePose(true)
   await shots.generate()
-  await expect(shots.statusLabel()).toHaveText('Succeeded', { timeout: 40_000 })
-  await expect(shots.candidate(0)).toBeVisible()
-  await expect(shots.candidate(3)).toBeVisible()
-  await shots.adoptCandidate(1)
+  await expect(page.getByTestId('generation-review')).toBeVisible()
+  await expect(page.getByTestId('generation-candidate-0')).toBeVisible()
+  await expect(page.getByTestId('generation-candidate-3')).toBeVisible()
+  await page.getByTestId('generation-select-1').click()
+  await page.getByTestId('generation-adopt').click()
   await expect(page.getByTestId('generation-adopted-banner')).toBeVisible()
 
   await home.openCsp()

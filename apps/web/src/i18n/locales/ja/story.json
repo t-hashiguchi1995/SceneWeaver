@@ -1,0 +1,19 @@
+{
+  "title": "ストーリー",
+  "lede": "キャラクター → シーン → 展開 → セリフ → 確定",
+  "project": "プロジェクト",
+  "character": "キャラクター",
+  "selectProject": "プロジェクトを選択…",
+  "selectCharacter": "キャラクターを選択…",
+  "sceneTitle": "シーン名",
+  "createScene": "シーンを作成",
+  "beatIntent": "展開の意図",
+  "createBeat": "展開を作成",
+  "generateDialogue": "セリフ候補を生成",
+  "lockCandidate": "候補 {{n}} を採用",
+  "lockedBanner": "セリフを確定しました",
+  "sceneCreated": "シーンを作成しました: {{title}}",
+  "beatCreated": "展開を作成しました: {{intent}}",
+  "candidatesReady": "セリフ候補の準備ができました",
+  "scriptLocked": "セリフを確定しました"
+}

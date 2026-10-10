@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { formatStatus } from '../../i18n/format'
 import { api } from '../../lib/api'
 
 export const Route = createFileRoute('/projects/')({
@@ -9,6 +11,7 @@ export const Route = createFileRoute('/projects/')({
 })
 
 function ProjectsPage() {
+  const { t } = useTranslation(['project', 'common'])
   const qc = useQueryClient()
   const [title, setTitle] = useState('')
   const projects = useQuery({ queryKey: ['projects'], queryFn: api.listProjects })
@@ -22,7 +25,7 @@ function ProjectsPage() {
 
   return (
     <section className="page" data-testid="projects-page">
-      <h1>Projects</h1>
+      <h1>{t('project:title')}</h1>
       <form
         className="inline-form"
         onSubmit={(e) => {
@@ -32,10 +35,10 @@ function ProjectsPage() {
       >
         <input
           data-testid="project-title-input"
-          aria-label="New project title"
+          aria-label={t('project:newTitleAria')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="New project title"
+          placeholder={t('project:newTitlePlaceholder')}
         />
         <button
           type="submit"
@@ -43,10 +46,10 @@ function ProjectsPage() {
           data-testid="project-create-button"
           disabled={create.isPending}
         >
-          Create
+          {t('common:actions.create')}
         </button>
       </form>
-      {projects.isLoading && <p>Loading…</p>}
+      {projects.isLoading && <p>{t('common:loading')}</p>}
       {projects.error && <p className="error">{(projects.error as Error).message}</p>}
       <ul className="list" data-testid="project-list">
         {(projects.data ?? []).map((p) => (
@@ -54,7 +57,7 @@ function ProjectsPage() {
             <Link to="/projects/$projectId" params={{ projectId: p.id }}>
               {p.title}
             </Link>
-            <span className="meta">{p.status}</span>
+            <span className="meta">{formatStatus(t, p.status)}</span>
           </li>
         ))}
       </ul>

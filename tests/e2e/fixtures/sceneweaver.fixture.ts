@@ -8,6 +8,7 @@ import { ReleasePage } from '../pages/release.page'
 import { WardrobePage } from '../pages/market.page'
 import { StoryPage } from '../pages/story.page'
 import { ShotPage } from '../pages/shot.page'
+import { ReviewPage } from '../pages/review.page'
 import { CspPage } from '../pages/csp.page'
 import { TryOnPage } from '../pages/tryon.page'
 
@@ -20,6 +21,7 @@ type SceneWeaverFixtures = {
   wardrobe: WardrobePage
   tryon: TryOnPage
   shots: ShotPage
+  review: ReviewPage
   release: ReleasePage
   csp: CspPage
   seedScenario: (scenario: string) => Promise<SeedResult>
@@ -51,6 +53,9 @@ export const test = base.extend<SceneWeaverFixtures>({
   },
   shots: async ({ page }, use) => {
     await use(new ShotPage(page))
+  },
+  review: async ({ page }, use) => {
+    await use(new ReviewPage(page))
   },
   release: async ({ page }, use) => {
     await use(new ReleasePage(page))

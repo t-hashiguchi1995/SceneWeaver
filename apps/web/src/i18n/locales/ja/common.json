@@ -1,0 +1,67 @@
+{
+  "appName": "SceneWeaver",
+  "nav": {
+    "home": "ホーム",
+    "projects": "プロジェクト",
+    "characters": "キャラクター",
+    "story": "ストーリー",
+    "wardrobe": "衣装",
+    "shots": "ショット",
+    "review": "生成結果",
+    "csp": "CLIP STUDIO",
+    "release": "公開準備",
+    "integrations": "外部連携",
+    "settings": "設定",
+    "jobs": "処理状況",
+    "capabilities": "機能"
+  },
+  "actions": {
+    "create": "作成",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "adopt": "採用",
+    "reject": "不採用",
+    "regenerate": "再生成",
+    "edit": "編集",
+    "open": "開く",
+    "retry": "再確認",
+    "skip": "あとで"
+  },
+  "loading": "読み込み中…",
+  "notFound": "見つかりません",
+  "yes": "はい",
+  "no": "いいえ",
+  "available": "利用可",
+  "offline": "オフライン",
+  "configured": "設定済み",
+  "notConfigured": "未設定",
+  "status": {
+    "idle": "待機",
+    "queued": "待機中",
+    "running": "処理中",
+    "succeeded": "完了",
+    "failed": "失敗",
+    "blocked": "実行待ち",
+    "stale": "再生成が必要",
+    "adopted": "採用済み",
+    "rejected": "不採用",
+    "cancelled": "キャンセル",
+    "draft": "下書き"
+  },
+  "errors": {
+    "COMFY_UNREACHABLE": "ComfyUIに接続できません",
+    "MODEL_NOT_FOUND": "必要なモデルが見つかりません",
+    "CUSTOM_NODE_MISSING": "必要なカスタムノードが見つかりません",
+    "WORKFLOW_INVALID": "画像生成ワークフローの設定に問題があります",
+    "SUBMIT_FAILED": "生成ジョブの送信に失敗しました",
+    "GENERATION_FAILED": "画像生成に失敗しました",
+    "OUTPUT_NOT_FOUND": "生成結果を取得できませんでした",
+    "TIMEOUT": "画像生成がタイムアウトしました",
+    "generic": "エラーが発生しました",
+    "comfyUnreachableDetail": "{{url}} に接続できませんでした。ComfyUIが起動していることを確認してください。",
+    "openIntegrations": "外部連携設定を開く"
+  },
+  "datetime": {
+    "unknown": "—"
+  }
+}

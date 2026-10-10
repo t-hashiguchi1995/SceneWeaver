@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneWeaver — Prompt & Generation Review UI Specification R1</title>
+<style>
+:root{
+  --bg:#07101d;
+  --bg2:#0b1525;
+  --panel:#101d30;
+  --panel2:#14243a;
+  --panel3:#0c1728;
+  --line:#2c405e;
+  --line2:#38516f;
+  --text:#edf4fb;
+  --muted:#9fb0c4;
+  --cyan:#67e8f9;
+  --green:#6ee7b7;
+  --yellow:#fde68a;
+  --red:#fca5a5;
+  --blue:#93c5fd;
+  --purple:#c4b5fd;
+  --shadow:0 12px 30px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(40,90,130,.18), transparent 28%),
+    linear-gradient(180deg,#07101d,#08111f 50%,#07101d);
+  color:var(--text);
+  font-family:Inter,"Noto Sans JP","Yu Gothic UI","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  line-height:1.65;
+}
+a{color:#8cecf7;text-decoration:none}
+code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+.wrap{width:min(1440px,calc(100% - 32px));margin:auto}
+.top{
+  position:sticky;top:0;z-index:60;
+  background:rgba(7,16,29,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.top-inner{height:58px;display:flex;align-items:center;gap:10px}
+.brand{font-weight:800;letter-spacing:.02em}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 7px;border-radius:999px;font-size:9px;font-weight:700;
+  border:1px solid #3f6274;color:#bff7ff;background:#0f2632;
+}
+.topnav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.topnav a{font-size:10px;color:#b2c0d1;border:1px solid transparent;padding:6px 8px;border-radius:7px}
+.topnav a:hover{border-color:var(--line);background:#0d1929}
+.hero{padding:54px 0 30px}
+.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+h1{font-size:46px;line-height:1.08;margin:8px 0 13px}
+h2{font-size:28px;line-height:1.25;margin:0 0 12px}
+h3{font-size:19px;margin:24px 0 8px}
+h4{font-size:14px;margin:16px 0 7px}
+.lede{color:#b0bfd1;max-width:1050px}
+.section{padding:34px 0;border-top:1px solid rgba(44,64,94,.55)}
+.section-head{display:flex;gap:10px;align-items:center;margin-bottom:9px}
+.section-num{
+  width:29px;height:29px;border-radius:9px;display:grid;place-items:center;
+  background:#12304a;border:1px solid #315775;color:#bdf1ff;font-weight:800;font-size:11px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0e192a);
+  border-radius:13px;padding:13px;box-shadow:var(--shadow);
+}
+.card.flat{box-shadow:none}
+.card h4{margin-top:0}
+.small{font-size:10px;color:var(--muted)}
+.muted{color:var(--muted)}
+.callout{
+  margin:12px 0;border:1px solid #315874;border-left:4px solid var(--cyan);
+  background:#0e2134;border-radius:9px;padding:11px 13px;
+}
+.callout.good{border-left-color:var(--green);background:#0c241e}
+.callout.warn{border-left-color:var(--yellow);background:#2b250f}
+.callout.danger{border-left-color:var(--red);background:#2a1518}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:11px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:9px 10px;border-bottom:1px solid #263954;text-align:left;vertical-align:top}
+th{background:var(--panel2);color:#dbe9f8;font-weight:700}
+tr:last-child td{border-bottom:0}
+pre{
+  white-space:pre-wrap;word-break:break-word;margin:9px 0;
+  background:#06101c;border:1px solid var(--line);border-radius:10px;
+  padding:12px;color:#cce1f5;font-size:11px;line-height:1.58;overflow:auto;
+}
+.status{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;font-size:9px;border:1px solid #40566f;background:#142238}
+.status.ok{color:#a7f3d0;border-color:#356b56;background:#102820}
+.status.warn{color:#fde68a;border-color:#74612e;background:#2a240f}
+.status.bad{color:#fecaca;border-color:#704242;background:#2a1618}
+.flow{
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:12px;
+  background:#091524;border:1px solid var(--line);border-radius:12px
+}
+.flow .node{
+  min-width:120px;text-align:center;border:1px solid #355573;background:#11243a;
+  border-radius:9px;padding:8px;font-size:10px
+}
+.flow .arrow{color:#79d9e7;font-weight:900}
+.screen{
+  margin:16px 0;border:1px solid #3b5270;background:#0a1423;border-radius:16px;
+  box-shadow:0 18px 50px rgba(0,0,0,.34);overflow:hidden;
+}
+.windowbar{height:35px;background:#101b2c;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 10px;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#496079}
+.window-title{margin-left:7px;font-size:10px;color:#aebdd0}
+.app{
+  min-height:690px;display:grid;grid-template-columns:182px 1fr;
+}
+.sidebar{
+  background:#091321;border-right:1px solid var(--line);padding:10px;
+}
+.logo{
+  height:42px;display:flex;align-items:center;padding:0 9px;margin-bottom:7px;
+  border-bottom:1px solid #20334d;font-weight:800;font-size:13px
+}
+.navgroup{font-size:8px;color:#71839a;text-transform:uppercase;letter-spacing:.12em;margin:14px 8px 5px}
+.navitem{
+  padding:7px 9px;border-radius:7px;color:#aebdd0;font-size:10px;margin:2px 0;
+  display:flex;justify-content:space-between;gap:6px
+}
+.navitem.active{background:#18304a;color:#eaf7ff;border:1px solid #31516f}
+.navitem .count{font-size:8px;color:#86b9cc}
+.main{min-width:0}
+.appbar{
+  height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;
+  padding:0 15px;background:#0c1727;gap:10px
+}
+.appbar .crumb{font-size:10px;color:#91a3b7}
+.appbar strong{font-size:12px}
+.appbar .actions{margin-left:auto;display:flex;gap:6px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  border:1px solid #38536f;background:#13253a;color:#dce9f6;
+  border-radius:7px;padding:7px 10px;font-size:9px;font-weight:700
+}
+.btn.primary{background:#0f5564;border-color:#2b8191;color:#e6fdff}
+.btn.green{background:#174b3a;border-color:#357c61;color:#d6ffed}
+.btn.danger{background:#4c2025;border-color:#744249;color:#ffd8dc}
+.btn.ghost{background:transparent}
+.content{padding:13px;min-width:0}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-2px 0 12px}
+.subtab{padding:8px 10px;font-size:9px;color:#8fa1b6;border-bottom:2px solid transparent}
+.subtab.active{color:#e9f7ff;border-color:var(--cyan)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.field label{display:block;font-size:8px;color:#8495a9;margin-bottom:4px}
+.input,.textarea,.select{
+  width:100%;background:#081322;border:1px solid #314863;color:#e5eef8;
+  border-radius:7px;padding:7px 8px;font-size:9px
+}
+.textarea{min-height:82px;line-height:1.48;white-space:pre-wrap}
+.promptbox{
+  border:1px solid #35516e;background:#091726;border-radius:10px;overflow:hidden
+}
+.prompt-head{
+  min-height:38px;display:flex;align-items:center;gap:7px;padding:7px 9px;
+  background:#102037;border-bottom:1px solid #2e4662
+}
+.prompt-tabs{display:flex;gap:3px}
+.prompt-tab{padding:5px 7px;font-size:8px;border-radius:6px;color:#95a8bb}
+.prompt-tab.active{background:#173653;color:#e8f7ff}
+.prompt-meta{margin-left:auto;display:flex;gap:5px;align-items:center}
+.editorgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.editorpane{padding:9px}
+.editorpane + .editorpane{border-left:1px solid #263d58}
+.editorlabel{font-size:8px;color:#91a4b8;margin-bottom:5px;display:flex;justify-content:space-between}
+.editor{
+  min-height:180px;background:#06111e;border:1px solid #2b435f;border-radius:7px;
+  padding:8px;color:#cfe6f7;font:9px/1.55 "SFMono-Regular",Consolas,monospace;
+  white-space:pre-wrap
+}
+.prompt-actions{padding:8px 9px;border-top:1px solid #2b435e;display:flex;gap:6px;align-items:center}
+.prompt-actions .right{margin-left:auto;display:flex;gap:6px}
+.stale{
+  display:flex;align-items:flex-start;gap:8px;background:#2b240f;border:1px solid #75622e;
+  border-radius:8px;padding:8px;margin:8px 0;color:#ffefae;font-size:9px
+}
+.review-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.8fr);gap:10px}
+.candidate-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.candidate{
+  border:1px solid #324c69;background:#0c192a;border-radius:10px;overflow:hidden;position:relative
+}
+.candidate.selected{outline:2px solid #6fe2ef;border-color:#67e8f9}
+.imgph{
+  aspect-ratio:4/3;background:
+    linear-gradient(140deg,rgba(70,120,150,.22),rgba(80,50,100,.18)),
+    repeating-linear-gradient(45deg,#132239,#132239 8px,#102035 8px,#102035 16px);
+  display:grid;place-items:center;color:#6e829a;font-size:10px
+}
+.imgph.tall{aspect-ratio:3/4}
+.candidate-foot{display:flex;align-items:center;gap:6px;padding:7px;font-size:8px}
+.candidate-foot .spacer{flex:1}
+.tag{
+  display:inline-flex;padding:2px 5px;border:1px solid #3a536d;border-radius:999px;
+  font-size:7px;color:#9fb4c8
+}
+.detail{
+  border:1px solid #314a67;background:#0d192a;border-radius:10px;padding:9px;min-width:0
+}
+.detail h4{margin:0 0 7px}
+.detail-image{border:1px solid #304b68;border-radius:8px;overflow:hidden;margin-bottom:8px}
+.detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px}
+.info-list{display:grid;grid-template-columns:85px 1fr;gap:4px 7px;font-size:8px}
+.info-list .k{color:#8093a8}.info-list .v{color:#d8e6f4;overflow:hidden;text-overflow:ellipsis}
+.snapshot{
+  margin-top:8px;border:1px solid #2d4561;background:#071322;border-radius:8px;overflow:hidden
+}
+.snapshot summary{cursor:pointer;padding:7px 8px;font-size:8px;background:#102037}
+.snapshot-body{padding:8px}
+.snapshot pre{font-size:8px;margin:5px 0;max-height:120px}
+.history{
+  display:grid;grid-template-columns:230px 1fr;gap:10px
+}
+.history-list{border:1px solid var(--line);background:#0d192a;border-radius:10px;padding:6px}
+.history-item{
+  padding:8px;border-radius:7px;border:1px solid transparent;margin:3px 0;font-size:8px
+}
+.history-item.active{border-color:#3a607c;background:#15304a}
+.history-item .row{display:flex;justify-content:space-between;gap:8px}
+.history-view{border:1px solid var(--line);background:#0d192a;border-radius:10px;padding:9px}
+.stategrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.statecard{border:1px solid var(--line);background:#0c1829;border-radius:9px;padding:9px;min-height:102px}
+.statecard b{font-size:10px}.statecard p{font-size:8px;color:#9aacbf;margin:6px 0 0}
+.routebox{border:1px solid var(--line);background:#091625;border-radius:10px;padding:10px}
+.route{display:grid;grid-template-columns:250px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid #20344d;font-size:10px}
+.route:last-child{border-bottom:0}
+.route code{color:#b9e9f1}
+.footer{padding:30px 0 60px;color:#718399;font-size:9px;text-align:center}
+@media(max-width:1100px){
+  .review-layout,.history{grid-template-columns:1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .app{grid-template-columns:150px 1fr}
+}
+@media(max-width:780px){
+  h1{font-size:34px}
+  .grid2,.grid3,.grid4,.form-grid,.candidate-grid,.editorgrid,.stategrid{grid-template-columns:1fr}
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .editorpane + .editorpane{border-left:0;border-top:1px solid #263d58}
+  .topnav{display:none}
+  .route{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="wrap top-inner">
+    <div class="brand">SceneWeaver</div>
+    <span class="badge">Prompt & Generation Review UI R1</span>
+    <nav class="topnav">
+      <a href="#principles">原則</a>
+      <a href="#ia">画面構成</a>
+      <a href="#shot-studio">Shot Studio</a>
+      <a href="#review">Generation Review</a>
+      <a href="#history">履歴</a>
+      <a href="#states">状態</a>
+      <a href="#api">API/データ</a>
+      <a href="#e2e">E2E</a>
+    </nav>
+  </div>
+</div>
+
+<main class="wrap">
+<section class="hero">
+  <div class="eyebrow">v0.2 Sprint 3 UI Addendum</div>
+  <h1>Promptを編集し、<br>生成結果と実行時Promptを確認するUI</h1>
+  <p class="lede">
+    Shot Studioで自動展開されたPrompt Draftを確認・編集し、生成後はGeneration Reviewで候補画像と
+    「実際にBackendへ送ったPrompt」を1対1で確認する。Prompt Draftはmutable、GenerationAttemptはimmutable snapshotとする。
+    本書は既存Wireframes R5を置き換えず、Prompt Draft / Generation Review領域の追加仕様として扱う。
+  </p>
+</section>
+
+<section class="section" id="principles">
+  <div class="section-head"><span class="section-num">01</span><h2>UI / UX 原則</h2></div>
+  <div class="grid3">
+    <div class="card"><h4>生成前と生成後を分離</h4><p class="small">Shot Studioは「何を送るか」を編集する場所。Generation Reviewは「何が出たか」「何を送って出たか」を確認する場所。</p></div>
+    <div class="card"><h4>表示するPromptに嘘をつかない</h4><p class="small">Animaがcompiler ruleで生成される場合、存在しないJinjaを見せない。「Anima Compiler v1」を生成元として表示する。</p></div>
+    <div class="card"><h4>過去生成は不変</h4><p class="small">現在のPrompt Draftを変更しても、過去GenerationAttemptの画像・Prompt・Seed・Workflow Hashは変化しない。</p></div>
+  </div>
+  <div class="callout good"><b>標準操作:</b> Shot設定 → Prompt Draft確認/編集 → 生成 → 4候補比較 → 実行時Prompt確認 → Adopt / Reject → 必要ならPrompt編集へ戻って再生成。</div>
+</section>
+
+<section class="section" id="ia">
+  <div class="section-head"><span class="section-num">02</span><h2>画面構成 / Information Architecture</h2></div>
+  <div class="flow">
+    <div class="node">Story / Locked Beat</div><div class="arrow">→</div>
+    <div class="node">Shot Studio<br><span class="small">ShotSpec + PromptDraft</span></div><div class="arrow">→</div>
+    <div class="node">Generation Job</div><div class="arrow">→</div>
+    <div class="node">Generation Review<br><span class="small">候補 + Prompt Snapshot</span></div><div class="arrow">→</div>
+    <div class="node">Adopted Asset</div><div class="arrow">→</div>
+    <div class="node">PagePlan / CSP</div>
+  </div>
+
+  <h3>推奨ルート</h3>
+  <div class="routebox">
+    <div class="route"><code>/projects/:projectId/shots/:shotId</code><div>Shot Studio。Shot設定、Prompt Draft、Generate。</div></div>
+    <div class="route"><code>/projects/:projectId/shots/:shotId/generations</code><div>Generation History。Shotに紐づく過去Attempt一覧。</div></div>
+    <div class="route"><code>/projects/:projectId/shots/:shotId/generations/:attemptId</code><div>Generation Review。候補、実行時Prompt snapshot、provenance、Adopt/Reject。</div></div>
+  </div>
+
+  <div class="callout warn">
+    <b>簡易実装も可:</b> Sprint 3ではShot Studio内を
+    「ショット設定 / プロンプト / 生成結果 / 履歴」のタブ構成にしてもよい。
+    Domain/API上はGenerationAttemptを独立識別できる状態を維持する。
+  </div>
+</section>
+
+<section class="section" id="shot-studio">
+  <div class="section-head"><span class="section-num">03</span><h2>Shot Studio — Prompt Draft編集</h2></div>
+  <p class="lede">生成前の主画面。Semantic設定と、自動展開されたPrompt Draftを同じShot文脈で確認する。</p>
+
+  <div class="screen">
+    <div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="window-title">SceneWeaver — Shot Studio</span></div>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="logo">SceneWeaver</div>
+        <div class="navgroup">制作</div>
+        <div class="navitem">ホーム</div>
+        <div class="navitem">ストーリー</div>
+        <div class="navitem">衣装</div>
+        <div class="navitem active">ショット <span class="count">12</span></div>
+        <div class="navitem">生成結果</div>
+        <div class="navitem">CLIP STUDIO連携</div>
+        <div class="navitem">公開準備</div>
+        <div class="navgroup">システム</div>
+        <div class="navitem">処理状況</div>
+        <div class="navitem">外部連携</div>
+        <div class="navitem">設定</div>
+      </aside>
+      <div class="main">
+        <div class="appbar">
+          <span class="crumb">Project A / Scene 03 / Beat 08</span>
+          <strong>Shot 12</strong>
+          <div class="actions">
+            <span class="status ok">保存済み</span>
+            <button class="btn ghost">生成履歴</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="subtabs">
+            <div class="subtab">ショット設定</div>
+            <div class="subtab active">プロンプト</div>
+            <div class="subtab">生成結果</div>
+            <div class="subtab">履歴</div>
+          </div>
+
+          <div class="grid2">
+            <div class="card flat">
+              <h4>ショット概要</h4>
+              <div class="form-grid">
+                <div class="field"><label>キャラクター</label><div class="select">Character A</div></div>
+                <div class="field"><label>衣装</label><div class="select">制服 / Cardigan</div></div>
+                <div class="field"><label>表情</label><div class="select">少し照れる</div></div>
+                <div class="field"><label>ポーズ</label><div class="select">振り返る</div></div>
+                <div class="field"><label>カメラ</label><div class="select">バストアップ</div></div>
+                <div class="field"><label>視線</label><div class="select">カメラを見る</div></div>
+              </div>
+              <div class="field" style="margin-top:8px">
+                <label>構図メモ</label>
+                <div class="textarea">右上にセリフ領域を確保。背景は放課後の教室。</div>
+              </div>
+            </div>
+
+            <div class="card flat">
+              <h4>Prompt Draft情報</h4>
+              <div class="info-list">
+                <div class="k">生成元</div><div class="v">Anima Compiler v1</div>
+                <div class="k">Template ID</div><div class="v">anima_base</div>
+                <div class="k">Version</div><div class="v">anima_compiler_v1</div>
+                <div class="k">Shot Revision</div><div class="v">3</div>
+                <div class="k">状態</div><div class="v"><span class="status warn">編集済み</span></div>
+                <div class="k">Context</div><div class="v mono">6d4b9e…</div>
+              </div>
+              <div class="callout" style="margin-bottom:0"><b>生成元表示:</b> compiler ruleの場合は説明のみ表示し、偽のJinjaソースは表示しない。</div>
+            </div>
+          </div>
+
+          <div class="stale">
+            <div>⚠</div>
+            <div>
+              <b>ショット設定が変更されています。</b><br>
+              現在のPrompt Draftは変更前の設定をもとにしています。ユーザー編集は自動で上書きしません。
+              <div style="margin-top:6px"><button class="btn">現在の設定から再作成</button> <button class="btn ghost">このまま使用</button></div>
+            </div>
+          </div>
+
+          <div class="promptbox">
+            <div class="prompt-head">
+              <div class="prompt-tabs">
+                <div class="prompt-tab active">展開後</div>
+                <div class="prompt-tab">生成ルール</div>
+              </div>
+              <div class="prompt-meta"><span class="status warn">変更あり</span><span class="small">Prompt Draft #c12f…</span></div>
+            </div>
+            <div class="editorgrid">
+              <div class="editorpane">
+                <div class="editorlabel"><span>Positive Prompt</span><span>編集可</span></div>
+                <div class="editor">1girl, short brown hair, blue eyes,
+school uniform, cardigan,
+slightly embarrassed expression,
+looking at viewer, medium shot,
+classroom, after school,
+warm sunset lighting,
+soft smile</div>
+              </div>
+              <div class="editorpane">
+                <div class="editorlabel"><span>Negative Prompt</span><span>編集可</span></div>
+                <div class="editor">text, watermark, logo,
+extra fingers, malformed hands,
+duplicate person, crowd</div>
+              </div>
+            </div>
+            <div class="prompt-actions">
+              <button class="btn ghost">編集を元に戻す</button>
+              <button class="btn ghost">差分を見る</button>
+              <div class="right">
+                <button class="btn">保存</button>
+                <button class="btn primary">生成する</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Prompt Editorの責務</h3>
+  <table>
+    <thead><tr><th>要素</th><th>表示/操作</th><th>データ源</th></tr></thead>
+    <tbody>
+      <tr><td>Positive / Negative</td><td>展開済み内容をtextareaで直接編集</td><td>PromptDraft.edited_*</td></tr>
+      <tr><td>生成元</td><td>Jinja名またはCompiler Rule名</td><td>source_kind / source_ref</td></tr>
+      <tr><td>編集を元に戻す</td><td>現在Draftのrendered_baseへ戻す</td><td>reset-edits API</td></tr>
+      <tr><td>現在設定から再作成</td><td>最新ResolvedPromptContextからrebuild。編集済みなら確認必須</td><td>rebuild(confirm=true)</td></tr>
+      <tr><td>差分を見る</td><td>Base ↔ Editedをクライアント側diff</td><td>rendered_base_* + edited_*</td></tr>
+      <tr><td>生成</td><td>edited_*をfinalとしてBackendへ送信</td><td>ShotPipeline</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section" id="review">
+  <div class="section-head"><span class="section-num">04</span><h2>Generation Review — 生成結果確認</h2></div>
+  <p class="lede">Promptで生成された結果を確認する専用ビュー。候補画像と「その画像を生成した時点のPrompt Snapshot」を同時に表示する。</p>
+
+  <div class="screen">
+    <div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="window-title">SceneWeaver — Generation Review</span></div>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="logo">SceneWeaver</div>
+        <div class="navgroup">制作</div>
+        <div class="navitem">ホーム</div>
+        <div class="navitem">ストーリー</div>
+        <div class="navitem">衣装</div>
+        <div class="navitem">ショット</div>
+        <div class="navitem active">生成結果 <span class="count">4</span></div>
+        <div class="navitem">CLIP STUDIO連携</div>
+        <div class="navitem">公開準備</div>
+      </aside>
+      <div class="main">
+        <div class="appbar">
+          <span class="crumb">Project A / Shot 12</span>
+          <strong>Generation #G-00123</strong>
+          <div class="actions">
+            <span class="status ok">完了</span>
+            <button class="btn ghost">Shot Studioへ戻る</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="subtabs">
+            <div class="subtab active">候補</div>
+            <div class="subtab">生成情報</div>
+            <div class="subtab">履歴</div>
+          </div>
+
+          <div class="review-layout">
+            <div>
+              <div class="candidate-grid">
+                <div class="candidate">
+                  <div class="imgph tall">候補 1</div>
+                  <div class="candidate-foot"><span class="tag">Seed 4281</span><span class="spacer"></span><span>未選択</span></div>
+                </div>
+                <div class="candidate selected">
+                  <div class="imgph tall">候補 2 — 選択中</div>
+                  <div class="candidate-foot"><span class="tag">Seed 4282</span><span class="spacer"></span><span class="status ok">選択中</span></div>
+                </div>
+                <div class="candidate">
+                  <div class="imgph tall">候補 3</div>
+                  <div class="candidate-foot"><span class="tag">Seed 4283</span><span class="spacer"></span><span>未選択</span></div>
+                </div>
+                <div class="candidate">
+                  <div class="imgph tall">候補 4</div>
+                  <div class="candidate-foot"><span class="tag">Seed 4284</span><span class="spacer"></span><span>未選択</span></div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="detail">
+              <h4>候補 2</h4>
+              <div class="detail-image"><div class="imgph tall">拡大プレビュー</div></div>
+              <div class="detail-actions">
+                <button class="btn green">採用</button>
+                <button class="btn danger">不採用</button>
+                <button class="btn">同条件で再生成</button>
+                <button class="btn primary">Promptを編集して再生成</button>
+              </div>
+
+              <div class="info-list">
+                <div class="k">Model</div><div class="v">Anima</div>
+                <div class="k">生成元</div><div class="v">Anima Compiler v1</div>
+                <div class="k">Seed</div><div class="v">4282</div>
+                <div class="k">Shot Revision</div><div class="v">3</div>
+                <div class="k">Prompt変更</div><div class="v">Yes</div>
+                <div class="k">Prompt Hash</div><div class="v mono">93f8a4…</div>
+                <div class="k">Workflow Hash</div><div class="v mono">2a41c9…</div>
+              </div>
+
+              <details class="snapshot" open>
+                <summary>実際に使用したPromptを見る</summary>
+                <div class="snapshot-body">
+                  <div class="small">Positive</div>
+                  <pre>1girl, short brown hair, blue eyes, school uniform, cardigan, slightly embarrassed expression, looking at viewer, medium shot, classroom, after school, warm sunset lighting, soft smile</pre>
+                  <div class="small">Negative</div>
+                  <pre>text, watermark, logo, extra fingers, malformed hands, duplicate person, crowd</pre>
+                </div>
+              </details>
+
+              <details class="snapshot">
+                <summary>Provenance</summary>
+                <div class="snapshot-body">
+                  <div class="info-list">
+                    <div class="k">Provider</div><div class="v">comfyui</div>
+                    <div class="k">Workflow</div><div class="v">anima_base_v1</div>
+                    <div class="k">External Job</div><div class="v mono">7bc1…</div>
+                    <div class="k">Draft ID</div><div class="v mono">c12f…</div>
+                  </div>
+                </div>
+              </details>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <b>重要:</b> ここに表示するPromptは現在のPromptDraftではなく、
+    <code>GenerationAttempt.final_positive_prompt / final_negative_prompt</code> のimmutable snapshot。
+    Draftを後から変更してもこの画面の内容は変わらない。
+  </div>
+
+  <h3>主操作</h3>
+  <div class="grid4">
+    <div class="card flat"><h4>採用</h4><p class="small">候補Assetをadoptedに変更し、PagePlan/CSPで利用可能にする。</p></div>
+    <div class="card flat"><h4>不採用</h4><p class="small">候補をrejectedにする。過去Attempt/Assetは監査履歴として残す。</p></div>
+    <div class="card flat"><h4>同条件で再生成</h4><p class="small">同じPrompt Snapshotを使用し、新seedで新Attemptを作る。</p></div>
+    <div class="card flat"><h4>Promptを編集して再生成</h4><p class="small">Shot Studioへ戻り、現在Draftへコピー/再編集して新Attemptを生成する。</p></div>
+  </div>
+</section>
+
+<section class="section" id="history">
+  <div class="section-head"><span class="section-num">05</span><h2>Generation History — 過去生成の確認</h2></div>
+  <p class="lede">同一Shotで何度もPromptやseedを変えて生成した場合でも、各Attemptの画像とPromptを後から確認できる。</p>
+
+  <div class="screen">
+    <div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="window-title">SceneWeaver — Generation History</span></div>
+    <div style="padding:12px">
+      <div class="history">
+        <div class="history-list">
+          <div class="history-item active">
+            <div class="row"><b>#4</b><span class="status ok">採用済み</span></div>
+            <div class="small">20:45 / Shot rev 3</div>
+            <div class="small mono">prompt 93f8…</div>
+          </div>
+          <div class="history-item">
+            <div class="row"><b>#3</b><span class="status bad">不採用</span></div>
+            <div class="small">20:39 / Shot rev 3</div>
+            <div class="small mono">prompt 72aa…</div>
+          </div>
+          <div class="history-item">
+            <div class="row"><b>#2</b><span>完了</span></div>
+            <div class="small">20:32 / Shot rev 2</div>
+            <div class="small mono">prompt c9e1…</div>
+          </div>
+          <div class="history-item">
+            <div class="row"><b>#1</b><span>完了</span></div>
+            <div class="small">20:25 / Shot rev 1</div>
+            <div class="small mono">prompt 0bc4…</div>
+          </div>
+        </div>
+        <div class="history-view">
+          <div class="grid2">
+            <div>
+              <div class="imgph tall">Attempt #4 採用画像</div>
+            </div>
+            <div>
+              <h4>Generation Attempt #4</h4>
+              <div class="info-list">
+                <div class="k">Status</div><div class="v">succeeded / adopted</div>
+                <div class="k">Shot revision</div><div class="v">3</div>
+                <div class="k">Seed</div><div class="v">4282</div>
+                <div class="k">Model</div><div class="v">Anima</div>
+                <div class="k">Prompt Hash</div><div class="v mono">93f8a4…</div>
+                <div class="k">Workflow Hash</div><div class="v mono">2a41c9…</div>
+              </div>
+              <details class="snapshot" open>
+                <summary>Prompt Snapshot</summary>
+                <div class="snapshot-body">
+                  <pre>Positive: 1girl, short brown hair, ... warm sunset lighting, soft smile</pre>
+                  <pre>Negative: text, watermark, ... crowd</pre>
+                </div>
+              </details>
+              <div style="margin-top:8px"><button class="btn primary">このPromptから新しいDraftを作る</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="states">
+  <div class="section-head"><span class="section-num">06</span><h2>画面状態 / エラー状態</h2></div>
+  <div class="stategrid">
+    <div class="statecard"><b>Draftなし</b><p>ShotSpecからPromptDraftを自動作成。「プロンプトを作成中」→編集可能状態。</p></div>
+    <div class="statecard"><b>Draft Fresh</b><p>context_hash一致。通常編集・Generate可能。</p></div>
+    <div class="statecard"><b>Draft Modified</b><p>BaseとEditedが異なる。「変更あり」を表示。</p></div>
+    <div class="statecard"><b>Draft Stale</b><p>context_hash不一致。「再作成 / このまま使用」。silent overwrite禁止。</p></div>
+    <div class="statecard"><b>Generating</b><p>queued → running。ボタンを二重送信不可にし、Job進捗へリンク。</p></div>
+    <div class="statecard"><b>Succeeded</b><p>Generation Reviewへ遷移。4候補、Prompt Snapshot、provenance。</p></div>
+    <div class="statecard"><b>Failed</b><p>エラー分類と再試行導線。Prompt Draftは維持。</p></div>
+    <div class="statecard"><b>Blocked</b><p>Comfy offline / model不足。修正導線を表示し、Draftを失わない。</p></div>
+  </div>
+
+  <h3>代表エラーメッセージ</h3>
+  <table>
+    <thead><tr><th>内部コード</th><th>ユーザー表示</th><th>主操作</th></tr></thead>
+    <tbody>
+      <tr><td>COMFY_UNREACHABLE</td><td>ComfyUIに接続できません</td><td>再確認 / 外部連携設定</td></tr>
+      <tr><td>MODEL_NOT_FOUND</td><td>必要なモデルが見つかりません</td><td>診断結果を開く</td></tr>
+      <tr><td>WORKFLOW_INVALID</td><td>画像生成ワークフローの設定に問題があります</td><td>詳細表示</td></tr>
+      <tr><td>PROMPT_DRAFT_STALE</td><td>ショット設定が変更されています</td><td>現在設定から再作成 / このまま使用</td></tr>
+      <tr><td>REBUILD_CONFIRM_REQUIRED</td><td>編集内容が失われます。再作成しますか？</td><td>キャンセル / 再作成</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section" id="data">
+  <div class="section-head"><span class="section-num">07</span><h2>データ責務</h2></div>
+  <table>
+    <thead><tr><th>データ</th><th>Mutable?</th><th>画面</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td>PromptTemplate / Compiler Rule</td><td>No</td><td>Shot Studio read-only</td><td>Git正本。UI編集不可。</td></tr>
+      <tr><td>PromptDraft</td><td>Yes</td><td>Shot Studio</td><td>Positive/Negative編集、reset、rebuild。</td></tr>
+      <tr><td>GenerationAttempt</td><td>No</td><td>Generation Review / History</td><td>Prompt/seed/workflow/provenance snapshot。</td></tr>
+      <tr><td>Generated Asset</td><td>Bytes immutable</td><td>Generation Review</td><td>decisionはadopt/rejectとして別状態。</td></tr>
+      <tr><td>ShotSpec</td><td>Revisioned</td><td>Shot Studio</td><td>変更でDraft staleになり得る。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>PromptDraft</h3>
+  <pre>{
+  "id": "uuid",
+  "shot_id": "shot_12",
+  "template_id": "anima_base",
+  "template_version": "anima_compiler_v1",
+  "source_kind": "compiler_rule",
+  "source_ref": "anima_compiler_v1",
+  "source_shot_revision": 3,
+  "context_hash": "...",
+  "rendered_base_positive": "...",
+  "rendered_base_negative": "...",
+  "edited_positive": "...",
+  "edited_negative": "...",
+  "modified": true,
+  "stale": false
+}</pre>
+
+  <h3>GenerationAttempt Snapshot</h3>
+  <pre>{
+  "prompt_draft_id": "uuid",
+  "template_id": "anima_base",
+  "template_version": "anima_compiler_v1",
+  "source_kind": "compiler_rule",
+  "source_ref": "anima_compiler_v1",
+  "rendered_base_positive": "...",
+  "rendered_base_negative": "...",
+  "final_positive_prompt": "...",
+  "final_negative_prompt": "...",
+  "prompt_hash": "...",
+  "modified": true,
+  "seed": 4282,
+  "workflow_hash": "...",
+  "based_on_shot_revision": 3
+}</pre>
+</section>
+
+<section class="section" id="api">
+  <div class="section-head"><span class="section-num">08</span><h2>API / 画面配線</h2></div>
+  <table>
+    <thead><tr><th>Method / Path</th><th>UI利用</th></tr></thead>
+    <tbody>
+      <tr><td>POST /api/v1/shots/{id}/prompt-draft</td><td>Draft ensure。Shot Studio初回表示。</td></tr>
+      <tr><td>GET /api/v1/shots/{id}/prompt-draft</td><td>現在Draft取得。</td></tr>
+      <tr><td>PUT /api/v1/shots/{id}/prompt-draft</td><td>Positive / Negative編集保存。</td></tr>
+      <tr><td>POST /api/v1/shots/{id}/prompt-draft/reset-edits</td><td>Baseへ戻す。</td></tr>
+      <tr><td>POST /api/v1/shots/{id}/prompt-draft/rebuild</td><td>最新Contextから再作成。編集済みならconfirm必須。</td></tr>
+      <tr><td>GET /api/v1/shots/{id}/prompt-template</td><td>現在Draftのsource_kind/source_refに対応するread-only表示。</td></tr>
+      <tr><td>POST /api/v1/shots/{id}/render</td><td>edited_*をfinalとして生成。</td></tr>
+      <tr><td>GET /api/v1/shots/{id}/generations</td><td>History一覧。</td></tr>
+      <tr><td>GET /api/v1/generations/{attemptId}</td><td>Review詳細 + immutable Prompt Snapshot。</td></tr>
+      <tr><td>PUT /api/v1/assets/{id}/decision</td><td>Adopt / Reject。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section" id="i18n">
+  <div class="section-head"><span class="section-num">09</span><h2>日本語UI / i18n</h2></div>
+  <table>
+    <thead><tr><th>Key例</th><th>日本語</th><th>English fallback</th></tr></thead>
+    <tbody>
+      <tr><td>prompt.tabs.rendered</td><td>展開後</td><td>Rendered</td></tr>
+      <tr><td>prompt.tabs.source</td><td>生成ルール</td><td>Source</td></tr>
+      <tr><td>prompt.actions.resetEdits</td><td>編集を元に戻す</td><td>Reset edits</td></tr>
+      <tr><td>prompt.actions.rebuild</td><td>現在の設定から再作成</td><td>Rebuild from current settings</td></tr>
+      <tr><td>prompt.actions.generate</td><td>生成する</td><td>Generate</td></tr>
+      <tr><td>generation.review.title</td><td>生成結果</td><td>Generation Review</td></tr>
+      <tr><td>generation.actions.adopt</td><td>採用</td><td>Adopt</td></tr>
+      <tr><td>generation.actions.reject</td><td>不採用</td><td>Reject</td></tr>
+      <tr><td>generation.actions.editPrompt</td><td>Promptを編集して再生成</td><td>Edit prompt and regenerate</td></tr>
+      <tr><td>generation.snapshot.prompt</td><td>実際に使用したPrompt</td><td>Prompt used for this generation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section" id="e2e">
+  <div class="section-head"><span class="section-num">10</span><h2>Playwright / E2E</h2></div>
+  <h3>推奨 testid</h3>
+  <pre>prompt-editor
+prompt-positive
+prompt-negative
+prompt-reset-edits
+prompt-rebuild
+prompt-stale-banner
+prompt-generate
+
+generation-review
+generation-candidate-0
+generation-candidate-1
+generation-candidate-2
+generation-candidate-3
+generation-adopt
+generation-reject
+generation-edit-prompt
+generation-prompt-snapshot
+generation-history</pre>
+
+  <h3>Sprint 3 E2Eシナリオ</h3>
+  <pre>Shot作成
+→ PromptDraft自動生成
+→ Positiveに "warm sunset lighting" を追加
+→ Generate
+→ Generation Reviewへ遷移
+→ 候補が4件表示
+→ 「実際に使用したPrompt」に編集内容が存在
+→ Candidate 2をAdopt
+→ Prompt編集へ戻る
+→ Draftをさらに変更
+→ 再生成
+→ 過去AttemptのPrompt Snapshotは変化しない
+→ ShotSpec変更
+→ PromptDraft staleバナー表示
+→ rebuild(confirm=true)
+→ 新しいContext HashでDraft更新</pre>
+
+  <div class="callout good">
+    <b>合格条件:</b> UI上で「現在編集中のPrompt」と「過去生成時に実際に使ったPrompt」を取り違えないこと。
+    Generation Reviewは必ずGenerationAttempt snapshotを表示する。
+  </div>
+</section>
+
+<section class="section" id="scope">
+  <div class="section-head"><span class="section-num">11</span><h2>Sprint 3 / Sprint 4 境界</h2></div>
+  <div class="grid2">
+    <div class="card">
+      <h4>Sprint 3</h4>
+      <p class="small">Shot Studio PromptEditor、Generation Review最小構成、Prompt Snapshot表示、Adopt/Reject、History基礎、Legacy Importer。</p>
+    </div>
+    <div class="card">
+      <h4>Sprint 4+</h4>
+      <p class="small">Try-On PromptEditor、Dialogue PromptEditor、テンプレート複製編集、Character Prompt Preset UI、高度な候補比較、before/after画像比較。</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="section-num">12</span><h2>最終画面フロー</h2></div>
+  <pre>Story
+  ↓
+Locked Beat
+  ↓
+Shot Studio
+  ├ ShotSpec
+  ├ PromptDraft
+  │   ├ 展開済みPrompt
+  │   ├ User Edit
+  │   ├ Reset edits
+  │   └ Rebuild
+  │
+  └ Generate
+      ↓
+Generation Job
+      ↓
+Generation Review
+  ├ 4 Candidates
+  ├ Large Preview
+  ├ Adopt / Reject
+  ├ Prompt Snapshot
+  ├ Seed / Workflow / Model
+  ├ Provenance
+  └ Edit Prompt & Regenerate
+      ↓
+Generation History
+  ├ Attempt #1 — Prompt A
+  ├ Attempt #2 — Prompt B
+  └ Attempt #3 — Prompt C
+      ↓
+Adopted Asset
+      ↓
+PagePlan / CSP Handoff</pre>
+</section>
+
+<div class="footer">
+  SceneWeaver · Prompt & Generation Review UI Specification R1 · v0.2 Sprint 3 Addendum
+</div>
+</main>
+</body>
+</html>

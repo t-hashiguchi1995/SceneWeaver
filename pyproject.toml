@@ -20,6 +20,7 @@ dependencies = [
     "pyyaml>=6.0.2",
     "httpx>=0.28.0",
     "python-multipart>=0.0.17",
+    "keyring>=25.0.0",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +32,7 @@ dev = [
 ]
 
 [project.scripts]
+sceneweaver = "creator_studio.cli:main"
 sceneweaver-api = "creator_studio.cli:run_api"
 sceneweaver-worker = "creator_studio.cli:run_worker"
 

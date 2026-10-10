@@ -1,0 +1,7 @@
+{
+  "title": "CSP Handoff",
+  "lede": "PagePlan / PanelSlot → immutable handoff revision with real panel bytes.",
+  "build": "Build CSP Handoff",
+  "revision": "Revision",
+  "needContext": "project, shot, and adopted render asset required"
+}

@@ -15,6 +15,7 @@ class ShotSpec:
     revision: int
     render_spec: dict[str, Any]
     stale_reason: str | None = None
+    current_prompt_draft_id: str | None = None
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)
 

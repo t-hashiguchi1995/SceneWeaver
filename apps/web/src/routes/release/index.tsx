@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { api } from '../../lib/api'
 
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/release/')({
 })
 
 function ReleasePage() {
+  const { t } = useTranslation('release')
   const [preview, setPreview] = useState<Record<string, unknown> | null>(null)
   const mutate = useMutation({
     mutationFn: () => api.releasePreview('SceneWeaver Preview', 'A local MVP release teaser'),
@@ -18,27 +20,27 @@ function ReleasePage() {
 
   return (
     <section className="page" data-testid="release-page">
-      <h1>Release Preview</h1>
+      <h1>{t('title')}</h1>
       <button
         type="button"
         className="btn primary"
         data-testid="release-preview-button"
         onClick={() => mutate.mutate()}
       >
-        Build edition preview
+        {t('build')}
       </button>
       {editions && (
         <div data-testid="release-editions">
           <article data-testid="release-edition-x">
-            <h2>X Preview</h2>
+            <h2>{t('editionX')}</h2>
             <pre>{JSON.stringify(editions.x, null, 2)}</pre>
           </article>
           <article data-testid="release-edition-pixiv">
-            <h2>pixiv Preview</h2>
+            <h2>{t('editionPixiv')}</h2>
             <pre>{JSON.stringify(editions.pixiv, null, 2)}</pre>
           </article>
           <article data-testid="release-edition-patreon">
-            <h2>Patreon Preview</h2>
+            <h2>{t('editionPatreon')}</h2>
             <pre>{JSON.stringify(editions.patreon, null, 2)}</pre>
           </article>
         </div>

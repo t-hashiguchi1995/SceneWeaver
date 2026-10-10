@@ -1,0 +1,7 @@
+{
+  "title": "処理状況",
+  "enqueueStub": "テストジョブを投入",
+  "watching": "SSE監視中: {{id}}",
+  "live": "ライブ",
+  "attempts": "試行 {{n}}"
+}

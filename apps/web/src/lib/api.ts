@@ -103,6 +103,94 @@ export type RenderResult = {
   output_asset_ids: string[]
   workflow_hash: string
   is_current: boolean
+  prompt_hash?: string
+  final_positive_prompt?: string
+  final_negative_prompt?: string
+}
+
+export type GenerationAttemptSummary = {
+  id: string
+  render_plan_id: string
+  based_on_shot_revision: number
+  status: string
+  seed: number
+  payload: Record<string, unknown>
+  workflow_hash: string
+  output_asset_ids: string[]
+  created_at: string
+  is_current: boolean
+  capability?: string
+  workflow_template_id?: string
+  model_id?: string
+  final_positive_prompt?: string
+  final_negative_prompt?: string
+  prompt_hash?: string
+  source_kind?: string
+  source_ref?: string
+  template_id?: string
+  template_version?: string
+  modified?: boolean
+  asset_decisions?: Record<string, string>
+}
+
+export type PromptDraft = {
+  id: string
+  shot_id: string
+  template_id: string
+  template_version: string
+  source_kind: string
+  source_ref: string
+  template_label: string
+  source_shot_revision: number
+  context_hash: string
+  rendered_base_positive: string
+  rendered_base_negative: string
+  edited_positive: string
+  edited_negative: string
+  modified: boolean
+  modified_positive: boolean
+  modified_negative: boolean
+  stale: boolean
+}
+
+export type UserSettings = {
+  setup_completed: boolean
+  workspace_label: string
+  comfy_url: string
+  image_backend: string
+  llm_provider: string
+  llm_base_url: string
+  llm_model: string
+  llm_api_key_set: boolean
+  secrets_backend: string
+  eagle_enabled: boolean
+  eagle_base_url: string
+  csp_export_dir: string
+  recent_project_ids: string[]
+}
+
+export type DiagnoseCheck = { name: string; ok: boolean; detail: string }
+
+export type ComfyDiagnose = {
+  endpoint: string
+  reachable: boolean
+  detail: string
+  ok: boolean
+  models: DiagnoseCheck[]
+  nodes: DiagnoseCheck[]
+  capabilities: DiagnoseCheck[]
+}
+
+export type SetupStatus = {
+  setup_completed: boolean
+  workspace_label: string
+  comfy: { url: string; reachable: boolean; detail: string; ok: boolean }
+  llm: { provider: string; api_key_set: boolean }
+  eagle: { enabled: boolean; base_url: string }
+  csp_export_dir: string
+  secrets_backend: string
+  models: DiagnoseCheck[]
+  nodes: DiagnoseCheck[]
 }
 
 export const api = {
@@ -121,8 +209,25 @@ export const api = {
       body: JSON.stringify({ kind: 'stub', payload }),
     }),
   capabilities: () => request<Record<string, Capability>>('/api/v1/capabilities'),
+  getSettings: () => request<UserSettings>('/api/v1/settings'),
+  updateSettings: (patch: Partial<UserSettings> & { llm_api_key?: string }) =>
+    request<UserSettings>('/api/v1/settings', {
+      method: 'PUT',
+      body: JSON.stringify(patch),
+    }),
+  setupStatus: () => request<SetupStatus>('/api/v1/setup/status'),
+  completeSetup: () =>
+    request<UserSettings>('/api/v1/setup/complete', { method: 'POST' }),
+  diagnoseComfy: () =>
+    request<ComfyDiagnose>('/api/v1/integrations/comfy/diagnose', { method: 'POST' }),
 
   listCharacters: () => request<Character[]>('/api/v1/characters'),
+  createCharacter: (displayName: string) =>
+    request<Character>('/api/v1/characters', {
+      method: 'POST',
+      body: JSON.stringify({ display_name: displayName }),
+    }),
+
   createScene: (projectId: string, title: string, objective = '') =>
     request<Scene>(`/api/v1/projects/${projectId}/scenes`, {
       method: 'POST',
@@ -172,6 +277,44 @@ export const api = {
 
   planShot: (beatId: string) =>
     request<Shot>(`/api/v1/beats/${beatId}/shots/plan`, { method: 'POST' }),
+  ensurePromptDraft: (shotId: string) =>
+    request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft`, { method: 'POST' }),
+  getPromptDraft: (shotId: string) => request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft`),
+  updatePromptDraft: (shotId: string, editedPositive: string, editedNegative: string) =>
+    request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        edited_positive: editedPositive,
+        edited_negative: editedNegative,
+      }),
+    }),
+  resetPromptEdits: (shotId: string) =>
+    request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft/reset-edits`, { method: 'POST' }),
+  rebuildPromptDraft: (shotId: string, confirm = false) =>
+    request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft/rebuild`, {
+      method: 'POST',
+      body: JSON.stringify({ confirm }),
+    }),
+  getPromptTemplate: (shotId: string) =>
+    request<{ source_kind: string; source_ref: string; label: string; body: string }>(
+      `/api/v1/shots/${shotId}/prompt-template`,
+    ),
+  getGenerationAttempt: (attemptId: string) =>
+    request<GenerationAttemptSummary>(`/api/v1/generation-attempts/${attemptId}`),
+  listGenerationAttempts: (shotId: string) =>
+    request<{ items: GenerationAttemptSummary[]; count: number }>(
+      `/api/v1/shots/${shotId}/generations`,
+    ),
+  getShot: (shotId: string) => request<Shot>(`/api/v1/shots/${shotId}`),
+  getAsset: (assetId: string) =>
+    request<{
+      id: string
+      uri: string
+      sha256: string
+      mime: string
+      kind: string
+      provenance: Record<string, unknown>
+    }>(`/api/v1/assets/${assetId}`),
   renderShot: (shotId: string, usePose = true) =>
     request<RenderResult>(`/api/v1/shots/${shotId}/render`, {
       method: 'POST',
@@ -220,6 +363,7 @@ export type StudioContext = {
   outfitProfileId?: string
   shotId?: string
   generationAssetIds?: string[]
+  generationAttemptId?: string
   adoptedRenderAssetId?: string
   adoptedRenderSha256?: string
   handoffRevision?: string

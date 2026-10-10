@@ -1,0 +1,10 @@
+{
+  "title": "Wardrobe Market",
+  "lede": "Pick an outfit, run Try-On, adopt one of four candidates.",
+  "runTryOn": "Run Try-On",
+  "statusLabel": "Status",
+  "adoptedBanner": "Adopted {{asset}} · Outfit {{outfit}}",
+  "needCharacterOutfit": "character and outfit required",
+  "needCharacterFirst": "Choose a character with “Use in studio” first",
+  "activeCharacter": "Try-On character: {{name}}"
+}

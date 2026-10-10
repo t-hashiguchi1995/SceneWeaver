@@ -126,6 +126,7 @@ def get_state(c: Container = Depends(container)) -> dict[str, Any]:
                     "based_on_shot_revision": row.based_on_shot_revision,
                     "workflow_hash": row.workflow_hash,
                     "output_asset_ids": list(row.output_asset_ids_json or []),
+                    "payload": dict(row.payload_json or {}),
                 }
             )
         for row in uow.session.scalars(select(AssetRow)).all():  # type: ignore[union-attr]

@@ -1,0 +1,67 @@
+{
+  "appName": "SceneWeaver",
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "characters": "Characters",
+    "story": "Story",
+    "wardrobe": "Wardrobe",
+    "shots": "Shots",
+    "review": "Review",
+    "csp": "CLIP STUDIO",
+    "release": "Release",
+    "integrations": "Integrations",
+    "settings": "Settings",
+    "jobs": "Jobs",
+    "capabilities": "Capabilities"
+  },
+  "actions": {
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "adopt": "Adopt",
+    "reject": "Reject",
+    "regenerate": "Regenerate",
+    "edit": "Edit",
+    "open": "Open",
+    "retry": "Retry",
+    "skip": "Skip for now"
+  },
+  "loading": "Loading…",
+  "notFound": "Not found",
+  "yes": "yes",
+  "no": "no",
+  "available": "available",
+  "offline": "offline",
+  "configured": "configured",
+  "notConfigured": "not configured",
+  "status": {
+    "idle": "Idle",
+    "queued": "Queued",
+    "running": "Running",
+    "succeeded": "Succeeded",
+    "failed": "Failed",
+    "blocked": "Blocked",
+    "stale": "Stale — regenerate",
+    "adopted": "Adopted",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "draft": "draft"
+  },
+  "errors": {
+    "COMFY_UNREACHABLE": "Cannot connect to ComfyUI",
+    "MODEL_NOT_FOUND": "Required model not found",
+    "CUSTOM_NODE_MISSING": "Required custom node is missing",
+    "WORKFLOW_INVALID": "Image generation workflow is invalid",
+    "SUBMIT_FAILED": "Failed to submit generation job",
+    "GENERATION_FAILED": "Image generation failed",
+    "OUTPUT_NOT_FOUND": "Could not retrieve generation output",
+    "TIMEOUT": "Image generation timed out",
+    "generic": "Something went wrong",
+    "comfyUnreachableDetail": "Could not reach {{url}}. Make sure ComfyUI is running.",
+    "openIntegrations": "Open Integrations"
+  },
+  "datetime": {
+    "unknown": "—"
+  }
+}

@@ -11,6 +11,11 @@ from creator_studio.infrastructure.db.repositories.story_repo import (
     SqlAlchemySceneRepository,
     SqlAlchemyScriptEventRepository,
 )
+from creator_studio.infrastructure.db.repositories.prompt_repo import (
+    SqlAlchemyLegacyImportRepository,
+    SqlAlchemyPromptDraftRepository,
+    SqlAlchemyPromptPresetRepository,
+)
 from creator_studio.infrastructure.db.repositories.shot_repo import (
     SqlAlchemyGenerationAttemptRepository,
     SqlAlchemyRenderPlanRepository,
@@ -40,6 +45,9 @@ class SqlAlchemyUnitOfWork:
         self.shots: SqlAlchemyShotRepository
         self.render_plans: SqlAlchemyRenderPlanRepository
         self.generation_attempts: SqlAlchemyGenerationAttemptRepository
+        self.prompt_drafts: SqlAlchemyPromptDraftRepository
+        self.prompt_presets: SqlAlchemyPromptPresetRepository
+        self.legacy_imports: SqlAlchemyLegacyImportRepository
 
     def __enter__(self) -> SqlAlchemyUnitOfWork:
         self.session = self._session_factory()
@@ -56,6 +64,9 @@ class SqlAlchemyUnitOfWork:
         self.shots = SqlAlchemyShotRepository(self.session)
         self.render_plans = SqlAlchemyRenderPlanRepository(self.session)
         self.generation_attempts = SqlAlchemyGenerationAttemptRepository(self.session)
+        self.prompt_drafts = SqlAlchemyPromptDraftRepository(self.session)
+        self.prompt_presets = SqlAlchemyPromptPresetRepository(self.session)
+        self.legacy_imports = SqlAlchemyLegacyImportRepository(self.session)
         return self
 
     def __exit__(self, exc_type: object, exc: object, tb: object) -> None:

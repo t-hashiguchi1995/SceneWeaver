@@ -1,0 +1,20 @@
+{
+  "title": "画像生成プロンプト",
+  "positive": "ポジティブプロンプト",
+  "negative": "ネガティブプロンプト",
+  "tabRendered": "展開後",
+  "tabSource": "生成ルール",
+  "stateEdited": "編集済み",
+  "statePristine": "テンプレートどおり",
+  "stateStale": "設定が変更されています",
+  "staleBanner": "このプロンプトは変更前の設定をもとに作成されています。",
+  "rebuild": "現在の設定から再作成",
+  "rebuildConfirm": "編集した内容を破棄して、現在の設定からプロンプトを作り直しますか？",
+  "keep": "このまま使用",
+  "resetEdits": "編集を元に戻す",
+  "showDiff": "差分を見る",
+  "hideDiff": "差分を閉じる",
+  "generate": "生成する",
+  "diffTitle": "変更箇所",
+  "loading": "プロンプトを準備中…"
+}

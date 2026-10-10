@@ -1,0 +1,19 @@
+{
+  "title": "Story",
+  "lede": "Character → Scene → Beat → Dialogue → Lock",
+  "project": "Project",
+  "character": "Character",
+  "selectProject": "Select project…",
+  "selectCharacter": "Select character…",
+  "sceneTitle": "Scene title",
+  "createScene": "Create Scene",
+  "beatIntent": "Beat intent",
+  "createBeat": "Create Beat",
+  "generateDialogue": "Generate Dialogue",
+  "lockCandidate": "Lock candidate {{n}}",
+  "lockedBanner": "Script locked",
+  "sceneCreated": "Scene created: {{title}}",
+  "beatCreated": "Beat created: {{intent}}",
+  "candidatesReady": "Dialogue candidates ready",
+  "scriptLocked": "Script locked"
+}

@@ -3,6 +3,11 @@ from creator_studio.infrastructure.db.models.character import CharacterRow
 from creator_studio.infrastructure.db.models.job import JobRow
 from creator_studio.infrastructure.db.models.project import ProjectRow
 from creator_studio.infrastructure.db.models.story import BeatRow, SceneRow, ScriptEventRow
+from creator_studio.infrastructure.db.models.prompt import (
+    LegacyImportRecordRow,
+    PromptDraftRow,
+    PromptPresetRow,
+)
 from creator_studio.infrastructure.db.models.shot import (
     GenerationAttemptRow,
     RenderPlanRow,
@@ -29,4 +34,7 @@ __all__ = [
     "ShotRow",
     "RenderPlanRow",
     "GenerationAttemptRow",
+    "PromptDraftRow",
+    "PromptPresetRow",
+    "LegacyImportRecordRow",
 ]

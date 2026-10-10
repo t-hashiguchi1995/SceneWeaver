@@ -13,6 +13,8 @@ export class ShotPage {
 
   async planShot() {
     await this.page.getByTestId('shot-plan').click()
+    await this.page.getByTestId('prompt-editor').waitFor({ state: 'visible', timeout: 20_000 })
+    await this.page.getByTestId('shots-page').waitFor({ state: 'visible', timeout: 20_000 })
   }
 
   async enablePose(enabled = true) {
@@ -21,12 +23,25 @@ export class ShotPage {
     if (checked !== enabled) await box.click()
   }
 
-  async generate() {
-    await this.page.getByTestId('shot-generate').click()
+  async appendPositive(fragment: string) {
+    const box = this.page.getByTestId('prompt-positive')
+    const current = await box.inputValue()
+    await box.fill(`${current}, ${fragment}`)
   }
 
-  async adoptCandidate(index: number) {
-    await this.page.getByTestId(`generation-adopt-${index}`).click()
+  async resetEdits() {
+    await this.page.getByTestId('prompt-reset-edits').click()
+  }
+
+  async generate() {
+    await this.page.getByTestId('shot-generate').click()
+    await this.page.getByTestId('generation-review').waitFor({ state: 'visible', timeout: 40_000 })
+    await this.page.getByTestId('generation-candidate-list').waitFor({ state: 'visible', timeout: 40_000 })
+  }
+
+  async openReview() {
+    await this.page.getByTestId('shot-open-review').click()
+    await this.page.getByTestId('generation-review').waitFor({ state: 'visible', timeout: 20_000 })
   }
 
   statusLabel() {
@@ -35,5 +50,9 @@ export class ShotPage {
 
   candidate(index: number) {
     return this.page.getByTestId(`generation-candidate-${index}`)
+  }
+
+  positive() {
+    return this.page.getByTestId('prompt-positive')
   }
 }

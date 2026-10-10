@@ -18,6 +18,7 @@ class ShotRow(Base):
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     render_spec_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     stale_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    current_prompt_draft_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

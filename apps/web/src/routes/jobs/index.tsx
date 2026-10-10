@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useJobEvents } from '../../hooks/useJobEvents'
+import { formatDateTime, formatStatus } from '../../i18n/format'
 import { api } from '../../lib/api'
 
 export const Route = createFileRoute('/jobs/')({
@@ -10,6 +12,7 @@ export const Route = createFileRoute('/jobs/')({
 })
 
 function JobsPage() {
+  const { t, i18n } = useTranslation(['jobs', 'common'])
   const qc = useQueryClient()
   const [watchId, setWatchId] = useState<string | null>(null)
   const jobs = useQuery({ queryKey: ['jobs'], queryFn: api.listJobs, refetchInterval: 500 })
@@ -31,24 +34,25 @@ function JobsPage() {
   return (
     <section className="page" data-testid="jobs-page">
       <div className="row-between">
-        <h1>Jobs</h1>
+        <h1>{t('jobs:title')}</h1>
         <button
           type="button"
           className="btn primary"
           data-testid="job-enqueue-stub"
           onClick={() => enqueue.mutate()}
         >
-          Enqueue stub job
+          {t('jobs:enqueueStub')}
         </button>
       </div>
       {watchId && (
         <p className="hint" data-testid="job-watching">
-          Watching SSE for {watchId}
+          {t('jobs:watching', { id: watchId })}
         </p>
       )}
       {watched.data && (
         <p data-testid="job-live-status">
-          Live: <span data-testid="job-live-status-label">{statusLabel(watched.data.status)}</span>
+          {t('jobs:live')}:{' '}
+          <span data-testid="job-live-status-label">{formatStatus(t, watched.data.status)}</span>
         </p>
       )}
       <ul className="list" data-testid="job-list">
@@ -63,29 +67,13 @@ function JobsPage() {
               {j.kind}
             </button>
             <span className="meta" data-testid="job-status">
-              {statusLabel(j.status)}
+              {formatStatus(t, j.status)}
             </span>
-            <span className="meta">attempts {j.attempts}</span>
+            <span className="meta">{t('jobs:attempts', { n: j.attempts })}</span>
+            <span className="meta">{formatDateTime(j.updated_at, i18n.language)}</span>
           </li>
         ))}
       </ul>
     </section>
   )
-}
-
-function statusLabel(status: string): string {
-  switch (status) {
-    case 'queued':
-      return 'Queued'
-    case 'running':
-      return 'Running'
-    case 'succeeded':
-      return 'Succeeded'
-    case 'failed':
-      return 'Failed'
-    case 'cancelled':
-      return 'Cancelled'
-    default:
-      return status
-  }
 }

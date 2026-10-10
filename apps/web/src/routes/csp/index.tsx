@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { ErrorBanner } from '../../components/ErrorBanner'
 import { api, loadStudioContext, saveStudioContext } from '../../lib/api'
 
 export const Route = createFileRoute('/csp/')({
@@ -9,6 +11,7 @@ export const Route = createFileRoute('/csp/')({
 })
 
 function CspPage() {
+  const { t } = useTranslation('csp')
   const ctx = loadStudioContext()
   const [revision, setRevision] = useState(ctx.handoffRevision ?? '')
   const [path, setPath] = useState(ctx.handoffPath ?? '')
@@ -19,7 +22,7 @@ function CspPage() {
     mutationFn: async () => {
       const current = loadStudioContext()
       if (!current.projectId || !current.shotId || !current.adoptedRenderAssetId) {
-        throw new Error('project, shot, and adopted render asset required')
+        throw new Error(t('needContext'))
       }
       return api.cspHandoff({
         project_id: current.projectId,
@@ -62,8 +65,8 @@ function CspPage() {
 
   return (
     <section className="page" data-testid="csp-page">
-      <h1>CSP Handoff</h1>
-      <p className="lede">PagePlan / PanelSlot → immutable handoff revision with real panel bytes.</p>
+      <h1>{t('title')}</h1>
+      <p className="lede">{t('lede')}</p>
 
       <button
         type="button"
@@ -72,14 +75,14 @@ function CspPage() {
         disabled={build.isPending}
         onClick={() => build.mutate()}
       >
-        Build CSP Handoff
+        {t('build')}
       </button>
 
-      {error && <p className="error">{error}</p>}
+      {error && <ErrorBanner message={error} />}
       {revision && (
         <div data-testid="csp-result">
           <p>
-            Revision <strong data-testid="csp-revision">{revision}</strong>
+            {t('revision')} <strong data-testid="csp-revision">{revision}</strong>
           </p>
           <p className="meta" data-testid="csp-path">
             {path}

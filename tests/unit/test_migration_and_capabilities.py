@@ -29,6 +29,9 @@ EXPECTED_TABLES = {
     "shots",
     "render_plans",
     "generation_attempts",
+    "prompt_drafts",
+    "prompt_presets",
+    "legacy_import_records",
 }
 
 

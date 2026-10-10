@@ -1,0 +1,11 @@
+{
+  "eyebrow": "クリエイターワークスペース",
+  "lede": "ストーリー・衣装・生成・CLIP STUDIO連携・公開プレビューを、ローカルでつなぎます。",
+  "setupBanner": "最初に ComfyUI・LLM・作業フォルダを設定してください。",
+  "openSetup": "セットアップを開く",
+  "recentProjects": "最近のプロジェクト",
+  "noProjects": "プロジェクトはまだありません。",
+  "characters": "キャラクター",
+  "noCharacters": "キャラクターはまだありません —",
+  "openLibrary": "ライブラリを開く"
+}

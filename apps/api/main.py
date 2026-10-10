@@ -10,6 +10,7 @@ from apps.api.routes import (
     csp,
     jobs,
     projects,
+    settings as settings_routes,
     shots,
     story,
     wardrobe,
@@ -22,7 +23,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     get_container()  # warm init + DB
 
-    app = FastAPI(title="SceneWeaver API", version="0.1.0")
+    app = FastAPI(title="SceneWeaver API", version="0.2.0-dev")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list(),
@@ -33,6 +34,7 @@ def create_app() -> FastAPI:
     app.include_router(projects.router)
     app.include_router(jobs.router)
     app.include_router(capabilities.router)
+    app.include_router(settings_routes.router)
     app.include_router(characters.router)
     app.include_router(story.router)
     app.include_router(wardrobe.router)

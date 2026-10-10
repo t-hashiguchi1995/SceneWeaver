@@ -11,14 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CapabilitiesIndexRouteImport } from './routes/capabilities/index'
+import { Route as CharactersIndexRouteImport } from './routes/characters/index'
 import { Route as CspIndexRouteImport } from './routes/csp/index'
+import { Route as IntegrationsIndexRouteImport } from './routes/integrations/index'
 import { Route as JobsIndexRouteImport } from './routes/jobs/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projectId'
 import { Route as ReleaseIndexRouteImport } from './routes/release/index'
+import { Route as ReviewIndexRouteImport } from './routes/review/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SetupIndexRouteImport } from './routes/setup/index'
 import { Route as ShotsIndexRouteImport } from './routes/shots/index'
 import { Route as StoryIndexRouteImport } from './routes/story/index'
 import { Route as WardrobeIndexRouteImport } from './routes/wardrobe/index'
+import { Route as ShotsShotIdIndexRouteImport } from './routes/shots/$shotId/index'
+import { Route as ShotsShotIdGenerationsIndexRouteImport } from './routes/shots/$shotId/generations/index'
+import { Route as ShotsShotIdGenerationsAttemptIdRouteImport } from './routes/shots/$shotId/generations/$attemptId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,9 +38,19 @@ const CapabilitiesIndexRoute = CapabilitiesIndexRouteImport.update({
   path: '/capabilities/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CharactersIndexRoute = CharactersIndexRouteImport.update({
+  id: '/characters/',
+  path: '/characters/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CspIndexRoute = CspIndexRouteImport.update({
   id: '/csp/',
   path: '/csp/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsIndexRoute = IntegrationsIndexRouteImport.update({
+  id: '/integrations/',
+  path: '/integrations/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
@@ -55,6 +73,21 @@ const ReleaseIndexRoute = ReleaseIndexRouteImport.update({
   path: '/release/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewIndexRoute = ReviewIndexRouteImport.update({
+  id: '/review/',
+  path: '/review/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupIndexRoute = SetupIndexRouteImport.update({
+  id: '/setup/',
+  path: '/setup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShotsIndexRoute = ShotsIndexRouteImport.update({
   id: '/shots/',
   path: '/shots/',
@@ -70,43 +103,84 @@ const WardrobeIndexRoute = WardrobeIndexRouteImport.update({
   path: '/wardrobe/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShotsShotIdIndexRoute = ShotsShotIdIndexRouteImport.update({
+  id: '/shots/$shotId/',
+  path: '/shots/$shotId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShotsShotIdGenerationsIndexRoute =
+  ShotsShotIdGenerationsIndexRouteImport.update({
+    id: '/shots/$shotId/generations/',
+    path: '/shots/$shotId/generations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ShotsShotIdGenerationsAttemptIdRoute =
+  ShotsShotIdGenerationsAttemptIdRouteImport.update({
+    id: '/shots/$shotId/generations/$attemptId',
+    path: '/shots/$shotId/generations/$attemptId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities/': typeof CapabilitiesIndexRoute
+  '/characters/': typeof CharactersIndexRoute
   '/csp/': typeof CspIndexRoute
+  '/integrations/': typeof IntegrationsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/release/': typeof ReleaseIndexRoute
+  '/review/': typeof ReviewIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/setup/': typeof SetupIndexRoute
   '/shots/': typeof ShotsIndexRoute
   '/story/': typeof StoryIndexRoute
   '/wardrobe/': typeof WardrobeIndexRoute
+  '/shots/$shotId/': typeof ShotsShotIdIndexRoute
+  '/shots/$shotId/generations/$attemptId': typeof ShotsShotIdGenerationsAttemptIdRoute
+  '/shots/$shotId/generations/': typeof ShotsShotIdGenerationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities': typeof CapabilitiesIndexRoute
+  '/characters': typeof CharactersIndexRoute
   '/csp': typeof CspIndexRoute
+  '/integrations': typeof IntegrationsIndexRoute
   '/jobs': typeof JobsIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/release': typeof ReleaseIndexRoute
+  '/review': typeof ReviewIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/setup': typeof SetupIndexRoute
   '/shots': typeof ShotsIndexRoute
   '/story': typeof StoryIndexRoute
   '/wardrobe': typeof WardrobeIndexRoute
+  '/shots/$shotId': typeof ShotsShotIdIndexRoute
+  '/shots/$shotId/generations/$attemptId': typeof ShotsShotIdGenerationsAttemptIdRoute
+  '/shots/$shotId/generations': typeof ShotsShotIdGenerationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities/': typeof CapabilitiesIndexRoute
+  '/characters/': typeof CharactersIndexRoute
   '/csp/': typeof CspIndexRoute
+  '/integrations/': typeof IntegrationsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/release/': typeof ReleaseIndexRoute
+  '/review/': typeof ReviewIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/setup/': typeof SetupIndexRoute
   '/shots/': typeof ShotsIndexRoute
   '/story/': typeof StoryIndexRoute
   '/wardrobe/': typeof WardrobeIndexRoute
+  '/shots/$shotId/': typeof ShotsShotIdIndexRoute
+  '/shots/$shotId/generations/$attemptId': typeof ShotsShotIdGenerationsAttemptIdRoute
+  '/shots/$shotId/generations/': typeof ShotsShotIdGenerationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -114,50 +188,82 @@ export interface FileRouteTypes {
     | '/'
     | '/projects/$projectId'
     | '/capabilities/'
+    | '/characters/'
     | '/csp/'
+    | '/integrations/'
     | '/jobs/'
     | '/projects/'
     | '/release/'
+    | '/review/'
+    | '/settings/'
+    | '/setup/'
     | '/shots/'
     | '/story/'
     | '/wardrobe/'
+    | '/shots/$shotId/'
+    | '/shots/$shotId/generations/$attemptId'
+    | '/shots/$shotId/generations/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/projects/$projectId'
     | '/capabilities'
+    | '/characters'
     | '/csp'
+    | '/integrations'
     | '/jobs'
     | '/projects'
     | '/release'
+    | '/review'
+    | '/settings'
+    | '/setup'
     | '/shots'
     | '/story'
     | '/wardrobe'
+    | '/shots/$shotId'
+    | '/shots/$shotId/generations/$attemptId'
+    | '/shots/$shotId/generations'
   id:
     | '__root__'
     | '/'
     | '/projects/$projectId'
     | '/capabilities/'
+    | '/characters/'
     | '/csp/'
+    | '/integrations/'
     | '/jobs/'
     | '/projects/'
     | '/release/'
+    | '/review/'
+    | '/settings/'
+    | '/setup/'
     | '/shots/'
     | '/story/'
     | '/wardrobe/'
+    | '/shots/$shotId/'
+    | '/shots/$shotId/generations/$attemptId'
+    | '/shots/$shotId/generations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   CapabilitiesIndexRoute: typeof CapabilitiesIndexRoute
+  CharactersIndexRoute: typeof CharactersIndexRoute
   CspIndexRoute: typeof CspIndexRoute
+  IntegrationsIndexRoute: typeof IntegrationsIndexRoute
   JobsIndexRoute: typeof JobsIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   ReleaseIndexRoute: typeof ReleaseIndexRoute
+  ReviewIndexRoute: typeof ReviewIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+  SetupIndexRoute: typeof SetupIndexRoute
   ShotsIndexRoute: typeof ShotsIndexRoute
   StoryIndexRoute: typeof StoryIndexRoute
   WardrobeIndexRoute: typeof WardrobeIndexRoute
+  ShotsShotIdIndexRoute: typeof ShotsShotIdIndexRoute
+  ShotsShotIdGenerationsAttemptIdRoute: typeof ShotsShotIdGenerationsAttemptIdRoute
+  ShotsShotIdGenerationsIndexRoute: typeof ShotsShotIdGenerationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -176,11 +282,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CapabilitiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/characters/': {
+      id: '/characters/'
+      path: '/characters'
+      fullPath: '/characters/'
+      preLoaderRoute: typeof CharactersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/csp/': {
       id: '/csp/'
       path: '/csp'
       fullPath: '/csp/'
       preLoaderRoute: typeof CspIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/': {
+      id: '/integrations/'
+      path: '/integrations'
+      fullPath: '/integrations/'
+      preLoaderRoute: typeof IntegrationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs/': {
@@ -211,6 +331,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReleaseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/review/': {
+      id: '/review/'
+      path: '/review'
+      fullPath: '/review/'
+      preLoaderRoute: typeof ReviewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup/': {
+      id: '/setup/'
+      path: '/setup'
+      fullPath: '/setup/'
+      preLoaderRoute: typeof SetupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shots/': {
       id: '/shots/'
       path: '/shots'
@@ -232,6 +373,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WardrobeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shots/$shotId/': {
+      id: '/shots/$shotId/'
+      path: '/shots/$shotId'
+      fullPath: '/shots/$shotId/'
+      preLoaderRoute: typeof ShotsShotIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shots/$shotId/generations/': {
+      id: '/shots/$shotId/generations/'
+      path: '/shots/$shotId/generations'
+      fullPath: '/shots/$shotId/generations/'
+      preLoaderRoute: typeof ShotsShotIdGenerationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shots/$shotId/generations/$attemptId': {
+      id: '/shots/$shotId/generations/$attemptId'
+      path: '/shots/$shotId/generations/$attemptId'
+      fullPath: '/shots/$shotId/generations/$attemptId'
+      preLoaderRoute: typeof ShotsShotIdGenerationsAttemptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -239,13 +401,21 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   CapabilitiesIndexRoute: CapabilitiesIndexRoute,
+  CharactersIndexRoute: CharactersIndexRoute,
   CspIndexRoute: CspIndexRoute,
+  IntegrationsIndexRoute: IntegrationsIndexRoute,
   JobsIndexRoute: JobsIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   ReleaseIndexRoute: ReleaseIndexRoute,
+  ReviewIndexRoute: ReviewIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+  SetupIndexRoute: SetupIndexRoute,
   ShotsIndexRoute: ShotsIndexRoute,
   StoryIndexRoute: StoryIndexRoute,
   WardrobeIndexRoute: WardrobeIndexRoute,
+  ShotsShotIdIndexRoute: ShotsShotIdIndexRoute,
+  ShotsShotIdGenerationsAttemptIdRoute: ShotsShotIdGenerationsAttemptIdRoute,
+  ShotsShotIdGenerationsIndexRoute: ShotsShotIdGenerationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

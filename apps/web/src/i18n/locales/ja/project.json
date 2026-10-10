@@ -1,0 +1,11 @@
+{
+  "title": "プロジェクト",
+  "newTitlePlaceholder": "新しいプロジェクト名",
+  "newTitleAria": "新しいプロジェクト名",
+  "status": "状態",
+  "rating": "レーティング",
+  "id": "ID",
+  "createdAt": "作成日時",
+  "updatedAt": "更新日時",
+  "detailHint": "ストーリー / 衣装 / ショットは各画面から続けられます。"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Character Library",
+  "lede": "Reusable characters across projects — profile, visual identity, persona.",
+  "namePlaceholder": "Display name",
+  "nameAria": "New character name",
+  "useInStudio": "Use in studio",
+  "openStory": "Open Story",
+  "activeBanner": "Using in studio: {{name}}"
+}

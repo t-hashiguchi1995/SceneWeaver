@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 
 import { api } from '../../lib/api'
 
@@ -8,21 +9,22 @@ export const Route = createFileRoute('/capabilities/')({
 })
 
 function CapabilitiesPage() {
+  const { t } = useTranslation(['integrations', 'common'])
   const caps = useQuery({ queryKey: ['capabilities'], queryFn: api.capabilities })
 
   return (
     <section className="page">
-      <h1>Capabilities</h1>
-      <p className="lede">Approved model registry only — arbitrary checkpoints are never selectable.</p>
-      {caps.isLoading && <p>Loading…</p>}
+      <h1>{t('integrations:capTitle')}</h1>
+      <p className="lede">{t('integrations:capLede')}</p>
+      {caps.isLoading && <p>{t('common:loading')}</p>}
       <table className="table">
         <thead>
           <tr>
-            <th>Capability</th>
-            <th>Model</th>
-            <th>Configured</th>
-            <th>Runtime</th>
-            <th>Detail</th>
+            <th>{t('integrations:capName')}</th>
+            <th>{t('integrations:capModel')}</th>
+            <th>{t('integrations:capConfigured')}</th>
+            <th>{t('integrations:capRuntime')}</th>
+            <th>{t('integrations:capDetail')}</th>
           </tr>
         </thead>
         <tbody>
@@ -32,8 +34,8 @@ function CapabilitiesPage() {
               <td>
                 <code>{c.model_id}</code>
               </td>
-              <td>{c.configured ? 'yes' : 'no'}</td>
-              <td>{c.runtime_available ? 'available' : 'offline'}</td>
+              <td>{c.configured ? t('common:yes') : t('common:no')}</td>
+              <td>{c.runtime_available ? t('common:available') : t('common:offline')}</td>
               <td>{c.detail}</td>
             </tr>
           ))}

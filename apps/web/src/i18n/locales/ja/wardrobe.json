@@ -1,0 +1,10 @@
+{
+  "title": "衣装マーケット",
+  "lede": "衣装を選び、試着して、4候補から1つを採用します。",
+  "runTryOn": "この衣装を試着",
+  "statusLabel": "状態",
+  "adoptedBanner": "採用 {{asset}} · コーディネート {{outfit}}",
+  "needCharacterOutfit": "キャラクターと衣装を選んでください",
+  "needCharacterFirst": "先にキャラクターライブラリで「スタジオで使う」を押してください",
+  "activeCharacter": "試着キャラクター: {{name}}"
+}

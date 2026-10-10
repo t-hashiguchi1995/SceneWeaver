@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   api,
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/story/')({
 })
 
 function StoryPage() {
+  const { t } = useTranslation('story')
   const ctx = loadStudioContext()
   const [projectId, setProjectId] = useState(ctx.projectId ?? '')
   const [characterId, setCharacterId] = useState(ctx.characterId ?? '')
@@ -33,7 +35,7 @@ function StoryPage() {
     onSuccess: (scene) => {
       setSceneId(scene.id)
       saveStudioContext({ projectId, sceneId: scene.id })
-      setStatus(`Scene created: ${scene.title}`)
+      setStatus(t('sceneCreated', { title: scene.title }))
     },
   })
 
@@ -42,7 +44,7 @@ function StoryPage() {
     onSuccess: (beat) => {
       setBeatId(beat.id)
       saveStudioContext({ beatId: beat.id, characterId })
-      setStatus(`Beat created: ${beat.intent}`)
+      setStatus(t('beatCreated', { intent: beat.intent }))
     },
   })
 
@@ -50,7 +52,7 @@ function StoryPage() {
     mutationFn: () => api.generateDialogue(beatId, characterId),
     onSuccess: (result) => {
       setCandidates(result.candidates)
-      setStatus('Dialogue candidates ready')
+      setStatus(t('candidatesReady'))
     },
     onError: (err) => setStatus((err as Error).message),
   })
@@ -67,20 +69,20 @@ function StoryPage() {
         sceneId,
         projectId,
       })
-      setStatus('Script locked')
+      setStatus(t('scriptLocked'))
     },
   })
 
   return (
     <section className="page" data-testid="story-page">
-      <h1>Story</h1>
-      <p className="lede">Character → Scene → Beat → Dialogue → Lock</p>
+      <h1>{t('title')}</h1>
+      <p className="lede">{t('lede')}</p>
 
       <div className="stack">
         <label>
-          Project
+          {t('project')}
           <select
-            aria-label="Project"
+            aria-label={t('project')}
             data-testid="story-project-select"
             value={projectId}
             onChange={(e) => {
@@ -88,7 +90,7 @@ function StoryPage() {
               saveStudioContext({ projectId: e.target.value })
             }}
           >
-            <option value="">Select project…</option>
+            <option value="">{t('selectProject')}</option>
             {(projects.data ?? []).map((p) => (
               <option key={p.id} value={p.id}>
                 {p.title}
@@ -98,9 +100,9 @@ function StoryPage() {
         </label>
 
         <label>
-          Character
+          {t('character')}
           <select
-            aria-label="Character"
+            aria-label={t('character')}
             data-testid="story-character-select"
             value={characterId}
             onChange={(e) => {
@@ -110,7 +112,7 @@ function StoryPage() {
               saveStudioContext({ characterId: id, characterName: name })
             }}
           >
-            <option value="">Select character…</option>
+            <option value="">{t('selectCharacter')}</option>
             {(characters.data ?? []).map((c) => (
               <option key={c.id} value={c.id}>
                 {c.display_name}
@@ -121,7 +123,7 @@ function StoryPage() {
 
         <div className="inline-form">
           <input
-            aria-label="Scene title"
+            aria-label={t('sceneTitle')}
             data-testid="story-scene-title"
             value={sceneTitle}
             onChange={(e) => setSceneTitle(e.target.value)}
@@ -133,13 +135,13 @@ function StoryPage() {
             disabled={!projectId || createScene.isPending}
             onClick={() => createScene.mutate()}
           >
-            Create Scene
+            {t('createScene')}
           </button>
         </div>
 
         <div className="inline-form">
           <input
-            aria-label="Beat intent"
+            aria-label={t('beatIntent')}
             data-testid="story-beat-intent"
             value={beatIntent}
             onChange={(e) => setBeatIntent(e.target.value)}
@@ -151,7 +153,7 @@ function StoryPage() {
             disabled={!sceneId || createBeat.isPending}
             onClick={() => createBeat.mutate()}
           >
-            Create Beat
+            {t('createBeat')}
           </button>
         </div>
 
@@ -162,7 +164,7 @@ function StoryPage() {
           disabled={!beatId || !characterId || generate.isPending}
           onClick={() => generate.mutate()}
         >
-          Generate Dialogue
+          {t('generateDialogue')}
         </button>
       </div>
 
@@ -182,7 +184,7 @@ function StoryPage() {
               data-testid={`dialogue-lock-${index}`}
               onClick={() => lock.mutate(c)}
             >
-              Lock candidate {index + 1}
+              {t('lockCandidate', { n: index + 1 })}
             </button>
           </li>
         ))}
@@ -190,7 +192,7 @@ function StoryPage() {
 
       {lockedId && (
         <p data-testid="story-locked-banner">
-          Locked event <code>{lockedId}</code>
+          {t('lockedBanner')} <code>{lockedId}</code>
         </p>
       )}
       {(sceneId || beatId) && (

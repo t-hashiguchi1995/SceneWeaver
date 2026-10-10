@@ -1,7 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { ErrorBanner } from '../../components/ErrorBanner'
+import { formatStatus } from '../../i18n/format'
 import { api, loadStudioContext, saveStudioContext } from '../../lib/api'
 
 export const Route = createFileRoute('/wardrobe/')({
@@ -9,6 +12,7 @@ export const Route = createFileRoute('/wardrobe/')({
 })
 
 function WardrobePage() {
+  const { t } = useTranslation(['wardrobe', 'common'])
   const ctx = loadStudioContext()
   const [selectedId, setSelectedId] = useState(ctx.marketplaceItemId ?? '')
   const [candidates, setCandidates] = useState<string[]>([])
@@ -29,7 +33,7 @@ function WardrobePage() {
     mutationFn: async () => {
       const characterId = loadStudioContext().characterId
       const sceneId = loadStudioContext().sceneId
-      if (!characterId || !selectedId) throw new Error('character and outfit required')
+      if (!characterId || !selectedId) throw new Error(t('wardrobe:needCharacterOutfit'))
       setPhase('queued')
       await new Promise((r) => setTimeout(r, 120))
       setPhase('running')
@@ -67,8 +71,19 @@ function WardrobePage() {
 
   return (
     <section className="page" data-testid="wardrobe-page">
-      <h1>Wardrobe Market</h1>
-      <p className="lede">Pick an outfit, run Try-On, adopt one of four candidates.</p>
+      <h1>{t('wardrobe:title')}</h1>
+      <p className="lede">{t('wardrobe:lede')}</p>
+      {ctx.characterId ? (
+        <p className="meta" data-testid="wardrobe-character">
+          {t('wardrobe:activeCharacter', {
+            name: ctx.characterName || ctx.characterId.slice(0, 8),
+          })}
+        </p>
+      ) : (
+        <p className="meta" data-testid="wardrobe-need-character">
+          {t('wardrobe:needCharacterFirst')}
+        </p>
+      )}
 
       <ul className="list" data-testid="market-list">
         {(items.data ?? []).map((i) => (
@@ -100,15 +115,16 @@ function WardrobePage() {
             disabled={tryOn.isPending}
             onClick={() => tryOn.mutate()}
           >
-            Run Try-On
+            {t('wardrobe:runTryOn')}
           </button>
         </div>
       )}
 
       <p className="hint" data-testid="tryon-phase">
-        Status: <span data-testid="tryon-status-label">{phaseLabel(phase)}</span>
+        {t('wardrobe:statusLabel')}:{' '}
+        <span data-testid="tryon-status-label">{formatStatus(t, phase)}</span>
       </p>
-      {error && <p className="error">{error}</p>}
+      {error && <ErrorBanner message={error} />}
 
       <ul className="candidate-grid" data-testid="tryon-candidate-list">
         {candidates.map((id, index) => (
@@ -120,7 +136,7 @@ function WardrobePage() {
               data-testid={`tryon-adopt-${index}`}
               onClick={() => adopt.mutate(id)}
             >
-              Adopt
+              {t('common:actions.adopt')}
             </button>
           </li>
         ))}
@@ -128,24 +144,12 @@ function WardrobePage() {
 
       {adoptedId && (
         <p data-testid="tryon-adopted-banner">
-          Adopted {adoptedId.slice(0, 8)}… · OutfitState {outfitId.slice(0, 8)}…
+          {t('wardrobe:adoptedBanner', {
+            asset: `${adoptedId.slice(0, 8)}…`,
+            outfit: `${outfitId.slice(0, 8)}…`,
+          })}
         </p>
       )}
     </section>
   )
-}
-
-function phaseLabel(phase: string): string {
-  switch (phase) {
-    case 'queued':
-      return 'Queued'
-    case 'running':
-      return 'Running'
-    case 'succeeded':
-      return 'Succeeded'
-    case 'failed':
-      return 'Failed'
-    default:
-      return 'Idle'
-  }
 }

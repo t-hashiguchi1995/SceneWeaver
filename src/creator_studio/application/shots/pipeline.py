@@ -8,8 +8,10 @@ from typing import Any
 import yaml
 
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
-from creator_studio.domain.asset import Asset, AssetKind
+from creator_studio.application.prompt.renderer import PromptRenderer
+from creator_studio.domain.asset import Asset, AssetKind, ReviewDecision
 from creator_studio.domain.ids import BeatId
+from creator_studio.domain.prompt import PromptDraft, compute_context_hash, compute_prompt_hash
 from creator_studio.domain.shot import GenerationAttempt, RenderPlan, ShotSpec
 from creator_studio.domain.timeutil import utc_now
 from creator_studio.infrastructure.prompts import PromptRegistry
@@ -28,26 +30,17 @@ class ShotDTO:
     revision: int
     render_spec: dict[str, Any]
     stale_reason: str | None
+    current_prompt_draft_id: str | None = None
 
 
+# Back-compat alias used by older tests / imports
 class PromptCompiler:
+    def __init__(self) -> None:
+        self._renderer = PromptRenderer()
+
     def compile_anima(self, render_spec: dict[str, Any]) -> dict[str, str]:
-        identity = ",".join(render_spec.get("identity_tags", ["1girl"]))
-        outfit = render_spec.get("outfit_tags", "casual clothes")
-        expression = render_spec.get("expression", {}).get("id", "neutral")
-        pose = render_spec.get("pose", {}).get("id", "standing")
-        camera = render_spec.get("camera", {})
-        positive = (
-            "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, "
-            f"safe, @fuzichoco, @rella, {identity}, {outfit}, {expression}, {pose}, "
-            f"{camera.get('shot', 'medium')}, {camera.get('angle', 'eye_level')}"
-        )
-        negative = (
-            "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, "
-            "sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, "
-            "fewer digits, cropped, signature, watermark, username, artist name"
-        )
-        return {"positive": positive, "negative": negative}
+        rendered = self._renderer.render_anima(render_spec)
+        return {"positive": rendered.positive, "negative": rendered.negative}
 
 
 class ShotPipeline:
@@ -58,12 +51,14 @@ class ShotPipeline:
         image: ImageBackend,
         store: AssetStore,
         prompts: PromptRegistry | None = None,
+        renderer: PromptRenderer | None = None,
     ) -> None:
         self._uow = uow
         self._llm = llm
         self._image = image
         self._store = store
         self._prompts = prompts or PromptRegistry()
+        self._renderer = renderer or PromptRenderer()
         self._compiler = PromptCompiler()
 
     def plan_shot(self, beat_id: str) -> ShotDTO:
@@ -126,21 +121,28 @@ class ShotPipeline:
             if shot.is_stale:
                 raise ValueError("cannot render stale shot")
             capability = "PoseControlledRender" if use_pose else "BaseRender"
-            template_id = "anima_pose_v1" if use_pose else "anima_base_v1"
+            workflow_template_id = "anima_pose_v1" if use_pose else "anima_base_v1"
             model_id, _ = resolve_template_id_for_capability(capability)
-            compiled = self._compiler.compile_anima(shot.render_spec)
+
+            draft = self._ensure_draft_in_uow(uow, shot)
+            # ADR 0010: same final strings → prompt_hash and ImageBackend (byte-for-byte).
+            final_positive = draft.edited_positive
+            final_negative = draft.edited_negative
+            prompt_hash = compute_prompt_hash(final_positive, final_negative)
+            compiled = {"positive": final_positive, "negative": final_negative}
+
             plan = RenderPlan.create(
                 shot.id,
                 shot.revision,
                 capability=capability,
                 provider="pending",
-                template_id=template_id,
+                template_id=workflow_template_id,
                 refs={"pose": pose_asset_uri} if pose_asset_uri else {},
             )
             uow.render_plans.add(plan)
             slots: dict[str, Any] = {
-                "positive_prompt": compiled["positive"],
-                "negative_prompt": compiled["negative"],
+                "positive_prompt": final_positive,
+                "negative_prompt": final_negative,
                 "candidate_count": candidate_count_for_backend(self._image),
             }
             if pose_asset_uri:
@@ -150,7 +152,7 @@ class ShotPipeline:
                 )
             dto = RenderPlanDTO(
                 capability=capability,
-                template_id=template_id,
+                template_id=workflow_template_id,
                 seed=1234,
                 slots=slots,
                 refs=plan.refs,
@@ -171,6 +173,20 @@ class ShotPipeline:
                     "control_model"
                 )
 
+            prompt_snapshot = {
+                "template_id": draft.template_id,
+                "template_version": draft.template_version,
+                "source_kind": draft.source_kind,
+                "source_ref": draft.source_ref,
+                "rendered_base_positive": draft.rendered_base_positive,
+                "rendered_base_negative": draft.rendered_base_negative,
+                "final_positive_prompt": final_positive,
+                "final_negative_prompt": final_negative,
+                "prompt_hash": prompt_hash,
+                "modified": draft.modified,
+                "prompt_draft_id": draft.id,
+            }
+
             outputs: list[str] = []
             workflow_hash = ""
             for artifact in artifacts:
@@ -186,19 +202,19 @@ class ShotPipeline:
                     outputs.append(str(existing.id))
                     continue
                 if not workflow_hash:
-                    workflow_hash = self._fallback_workflow_hash(template_id, slots)
+                    workflow_hash = self._fallback_workflow_hash(workflow_template_id, slots)
                 provenance: dict[str, Any] = {
                     "shot_id": str(shot.id),
                     "based_on_shot_revision": shot.revision,
                     "provider": meta.get("provider") or ref.provider,
-                    "workflow_template_id": meta.get("workflow_template_id") or template_id,
-                    "template_id": template_id,
+                    "workflow_template_id": meta.get("workflow_template_id") or workflow_template_id,
                     "workflow_hash": workflow_hash,
                     "model_id": meta.get("model_id") or model_id,
                     "seed": meta.get("seed", 1234),
                     "external_job_ref": meta.get("external_job_ref") or ref.ref,
-                    "prompt_version": "anima_compiler_v1",
+                    "prompt_version": draft.template_version,
                     "compiled": compiled,
+                    **prompt_snapshot,
                 }
                 if use_pose:
                     provenance["pose_asset_uri"] = pose_asset_uri
@@ -215,7 +231,7 @@ class ShotPipeline:
                 uow.assets.add(asset)
                 outputs.append(str(asset.id))
             if not workflow_hash:
-                workflow_hash = self._fallback_workflow_hash(template_id, slots)
+                workflow_hash = self._fallback_workflow_hash(workflow_template_id, slots)
 
             attempt = GenerationAttempt.create(
                 plan.id,
@@ -227,6 +243,7 @@ class ShotPipeline:
                     "external_job_ref": ref.ref,
                     "provider": ref.provider,
                     "model_id": model_id,
+                    **prompt_snapshot,
                 },
                 workflow_hash=workflow_hash,
                 output_asset_ids=outputs,
@@ -243,7 +260,44 @@ class ShotPipeline:
                 "external_job_ref": ref.ref,
                 "provider": ref.provider,
                 "is_current": attempt.is_current_for(shot.revision),
+                "prompt_hash": prompt_hash,
+                "final_positive_prompt": final_positive,
+                "final_negative_prompt": final_negative,
             }
+
+    def _ensure_draft_in_uow(self, uow: UnitOfWork, shot: ShotSpec) -> PromptDraft:
+        rendered = self._renderer.render_anima(shot.render_spec)
+        if shot.current_prompt_draft_id:
+            draft = uow.prompt_drafts.get(shot.current_prompt_draft_id)
+            if draft is not None:
+                return draft
+        existing = uow.prompt_drafts.get_for_shot_template(
+            shot.id, rendered.template_id, rendered.template_version
+        )
+        if existing is not None:
+            shot.current_prompt_draft_id = existing.id
+            uow.shots.save(shot)
+            return existing
+        draft = PromptDraft.create(
+            shot.id,
+            template_id=rendered.template_id,
+            template_version=rendered.template_version,
+            source_kind=rendered.source_kind,
+            source_ref=rendered.source_ref,
+            source_shot_revision=shot.revision,
+            context_hash=compute_context_hash(
+                shot_revision=shot.revision,
+                render_spec=shot.render_spec,
+                template_id=rendered.template_id,
+                template_version=rendered.template_version,
+            ),
+            rendered_base_positive=rendered.positive,
+            rendered_base_negative=rendered.negative,
+        )
+        uow.prompt_drafts.add(draft)
+        shot.current_prompt_draft_id = draft.id
+        uow.shots.save(shot)
+        return draft
 
     def get_attempt(self, attempt_id: str) -> GenerationAttempt:
         with self._uow as uow:
@@ -251,6 +305,51 @@ class ShotPipeline:
             if attempt is None:
                 raise ValueError("attempt not found")
             return attempt
+
+    def list_attempts_for_shot(self, shot_id: str) -> list[dict[str, Any]]:
+        with self._uow as uow:
+            shot = uow.shots.get(shot_id)
+            if shot is None:
+                raise ValueError("shot not found")
+            attempts = uow.generation_attempts.list_for_shot(shot_id)
+            out: list[dict[str, Any]] = []
+            for attempt in attempts:
+                plan = uow.render_plans.get(attempt.render_plan_id)
+                decisions: dict[str, str] = {}
+                for asset_id in attempt.output_asset_ids:
+                    asset = uow.assets.get(asset_id)
+                    if asset is not None and asset.review_decision != ReviewDecision.PENDING:
+                        decisions[asset_id] = asset.review_decision.value
+                payload = attempt.payload
+                out.append(
+                    {
+                        "id": attempt.id,
+                        "render_plan_id": attempt.render_plan_id,
+                        "based_on_shot_revision": attempt.based_on_shot_revision,
+                        "status": attempt.status,
+                        "seed": attempt.seed,
+                        "payload": payload,
+                        "workflow_hash": attempt.workflow_hash,
+                        "output_asset_ids": attempt.output_asset_ids,
+                        "created_at": attempt.created_at.isoformat(),
+                        "is_current": attempt.is_current_for(shot.revision),
+                        "capability": (plan.capability if plan else payload.get("capability")),
+                        "workflow_template_id": (
+                            plan.template_id if plan else payload.get("workflow_template_id")
+                        ),
+                        "model_id": payload.get("model_id"),
+                        "final_positive_prompt": payload.get("final_positive_prompt"),
+                        "final_negative_prompt": payload.get("final_negative_prompt"),
+                        "prompt_hash": payload.get("prompt_hash"),
+                        "source_kind": payload.get("source_kind"),
+                        "source_ref": payload.get("source_ref"),
+                        "template_id": payload.get("template_id"),
+                        "template_version": payload.get("template_version"),
+                        "modified": bool(payload.get("modified")),
+                        "asset_decisions": decisions,
+                    }
+                )
+            return out
 
     def get_shot(self, shot_id: str) -> ShotDTO:
         with self._uow as uow:
@@ -280,6 +379,7 @@ class ShotPipeline:
             revision=shot.revision,
             render_spec=shot.render_spec,
             stale_reason=shot.stale_reason,
+            current_prompt_draft_id=shot.current_prompt_draft_id,
         )
 
     @staticmethod

@@ -52,3 +52,6 @@ apps/web/openapi.json
 htmlcov/
 .coverage
 coverage/
+
+# Legacy prompt import working copy
+legacy/

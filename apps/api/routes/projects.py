@@ -15,6 +15,7 @@ def create_project(body: ProjectCreate, c: Container = Depends(container)) -> Pr
     dto = c.create_project().execute(
         CreateProjectCommand(title=body.title, content_rating=body.content_rating)
     )
+    c.settings_service().touch_recent_project(dto.id)
     return ProjectOut(**dto.__dict__)
 
 
@@ -28,4 +29,5 @@ def get_project(project_id: str, c: Container = Depends(container)) -> ProjectOu
     dto = c.get_project().execute(project_id)
     if dto is None:
         raise HTTPException(status_code=404, detail="project not found")
+    c.settings_service().touch_recent_project(project_id)
     return ProjectOut(**dto.__dict__)

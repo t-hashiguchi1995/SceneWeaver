@@ -5,6 +5,8 @@ from pathlib import Path
 from creator_studio.adapters.image import ComfyImageBackend, FakeImageBackend
 from creator_studio.adapters.llm import OpenAICompatibleProvider, StubLLMProvider
 from creator_studio.adapters.runtime import ComfyRuntimeProbe, FakeRuntimeProbe
+from creator_studio.adapters.secrets.store import SecretStore
+from creator_studio.adapters.settings.file_store import FileUserSettingsStore
 from creator_studio.application.assets.decisions import SetAssetDecision
 from creator_studio.application.assets.store_asset import StoreAssetBytes
 from creator_studio.application.capabilities.resolve import CapabilityService
@@ -16,6 +18,7 @@ from creator_studio.application.characters.manage import (
     UpdateVisualIdentity,
 )
 from creator_studio.application.dialogue.pipeline import DialoguePipeline
+from creator_studio.application.integrations.diagnose_comfy import DiagnoseComfy
 from creator_studio.application.jobs.manage_jobs import (
     ClaimAndRunStubJob,
     EnqueueJob,
@@ -27,6 +30,9 @@ from creator_studio.application.projects.create_project import (
     GetProject,
     ListProjects,
 )
+from creator_studio.application.prompt.drafts import PromptDraftService
+from creator_studio.application.prompt.renderer import PromptRenderer
+from creator_studio.application.settings.service import SettingsService
 from creator_studio.application.story.manage import CreateBeat, CreateScene
 from creator_studio.application.csp.handoff import CspHandoffService, ReleasePreviewService
 from creator_studio.application.shots.pipeline import ShotPipeline
@@ -52,16 +58,33 @@ class Container:
         self.asset_store = FilesystemAssetStore(self.settings.runtime_path() / "assets")
         self.prompts = PromptRegistry()
         self._image: ImageBackend | None = None
+        self._settings_service: SettingsService | None = None
 
     def uow(self) -> SqlAlchemyUnitOfWork:
         return SqlAlchemyUnitOfWork(self._session_factory)
 
+    def settings_service(self) -> SettingsService:
+        if self._settings_service is None:
+            runtime = self.settings.runtime_path()
+            self._settings_service = SettingsService(
+                FileUserSettingsStore(runtime / "user_settings.json"),
+                SecretStore(runtime / "secrets.json"),
+                bootstrap=self.settings,
+            )
+        return self._settings_service
+
+    def diagnose_comfy(self) -> DiagnoseComfy:
+        return DiagnoseComfy()
+
     def llm(self) -> LLMGateway:
-        if self.settings.llm_provider == "openai_compatible":
+        svc = self.settings_service()
+        user = svc.get()
+        provider = user.get("llm_provider") or self.settings.llm_provider
+        if provider == "openai_compatible":
             return OpenAICompatibleProvider(
-                base_url=self.settings.llm_base_url,
-                api_key=self.settings.llm_api_key,
-                model=self.settings.llm_model,
+                base_url=str(user.get("llm_base_url") or self.settings.llm_base_url),
+                api_key=svc.llm_api_key(),
+                model=str(user.get("llm_model") or self.settings.llm_model),
             )
         return StubLLMProvider()
 
@@ -70,9 +93,11 @@ class Container:
             registry = (
                 Path(self.settings.repo_root()) / self.settings.config_dir / "model_registry.yaml"
             )
-            if self.settings.image_backend == "comfy":
+            backend = self.settings_service().effective_image_backend()
+            comfy_url = self.settings_service().effective_comfy_url()
+            if backend == "comfy":
                 self._image = ComfyImageBackend(
-                    self.settings.comfy_url,
+                    comfy_url,
                     repo_root=self.settings.repo_root(),
                     registry_path=registry,
                     asset_store=self.asset_store,
@@ -80,9 +105,9 @@ class Container:
                     poll_timeout_seconds=self.settings.comfy_poll_timeout_seconds,
                     poll_interval_seconds=self.settings.comfy_poll_interval_seconds,
                 )
-            elif self.settings.image_backend == "comfy_dry":
+            elif backend == "comfy_dry":
                 self._image = ComfyImageBackend(
-                    self.settings.comfy_url,
+                    comfy_url,
                     repo_root=self.settings.repo_root(),
                     registry_path=registry,
                     asset_store=self.asset_store,
@@ -126,9 +151,10 @@ class Container:
         return SetAssetDecision(self.uow())
 
     def comfy_probe(self) -> RuntimeCapabilityProbe:
-        if self.settings.image_backend == "fake":
+        backend = self.settings_service().effective_image_backend()
+        if backend == "fake":
             return FakeRuntimeProbe()
-        return ComfyRuntimeProbe(self.settings.comfy_url)
+        return ComfyRuntimeProbe(self.settings_service().effective_comfy_url())
 
     def capabilities(self) -> CapabilityService:
         registry_path = (
@@ -180,6 +206,12 @@ class Container:
     def adopt_tryon(self) -> AdoptTryOn:
         return AdoptTryOn(self.uow())
 
+    def prompt_renderer(self) -> PromptRenderer:
+        return PromptRenderer()
+
+    def prompt_draft_service(self) -> PromptDraftService:
+        return PromptDraftService(self.uow(), self.prompt_renderer())
+
     def shot_pipeline(self) -> ShotPipeline:
         # Stateless facade; Shot/Plan/Attempt live in SQL (survives process restart).
         return ShotPipeline(
@@ -188,6 +220,7 @@ class Container:
             self.image_backend(),
             self.asset_store,
             self.prompts,
+            self.prompt_renderer(),
         )
 
     def csp_handoff(self) -> CspHandoffService:

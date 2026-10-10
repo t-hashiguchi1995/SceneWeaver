@@ -1,0 +1,9 @@
+{
+  "title": "キャラクターライブラリ",
+  "lede": "複数プロジェクトで再利用できるキャラクター — プロフィール・見た目・ペルソナ。",
+  "namePlaceholder": "表示名",
+  "nameAria": "新しいキャラクター名",
+  "useInStudio": "スタジオで使う",
+  "openStory": "ストーリーを開く",
+  "activeBanner": "スタジオで使用中: {{name}}"
+}

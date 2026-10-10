@@ -32,6 +32,7 @@ class SqlAlchemyShotRepository:
         row.revision = fresh.revision
         row.render_spec_json = fresh.render_spec_json
         row.stale_reason = fresh.stale_reason
+        row.current_prompt_draft_id = fresh.current_prompt_draft_id
         row.updated_at = fresh.updated_at
         return shot
 
@@ -48,6 +49,7 @@ class SqlAlchemyShotRepository:
             revision=shot.revision,
             render_spec_json=shot.render_spec,
             stale_reason=shot.stale_reason,
+            current_prompt_draft_id=shot.current_prompt_draft_id,
             created_at=shot.created_at,
             updated_at=shot.updated_at,
         )
@@ -59,6 +61,7 @@ class SqlAlchemyShotRepository:
             revision=row.revision,
             render_spec=dict(row.render_spec_json or {}),
             stale_reason=row.stale_reason,
+            current_prompt_draft_id=row.current_prompt_draft_id,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -142,6 +145,22 @@ class SqlAlchemyGenerationAttemptRepository:
         row = self._session.get(GenerationAttemptRow, attempt_id)
         if row is None:
             return None
+        return self._from_row(row)
+
+    def list_for_shot(self, shot_id: ShotId | str) -> list[GenerationAttempt]:
+        plan_ids = self._session.scalars(
+            select(RenderPlanRow.id).where(RenderPlanRow.shot_id == str(shot_id))
+        ).all()
+        if not plan_ids:
+            return []
+        rows = self._session.scalars(
+            select(GenerationAttemptRow)
+            .where(GenerationAttemptRow.render_plan_id.in_(list(plan_ids)))
+            .order_by(GenerationAttemptRow.created_at.desc())
+        ).all()
+        return [self._from_row(r) for r in rows]
+
+    def _from_row(self, row: GenerationAttemptRow) -> GenerationAttempt:
         return GenerationAttempt(
             id=row.id,
             render_plan_id=row.render_plan_id,

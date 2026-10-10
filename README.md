@@ -3,8 +3,8 @@
 Character content production workspace that connects story, dialogue, wardrobe,
 image generation, CLIP STUDIO handoff, and release preview into a single workflow.
 
-**MVP implementation plan v1.0: COMPLETE** → product tag target **`v0.1.0`**
-(Semantic Versioning: not `v1.0.0` while Eagle / Publish / Look Builder remain Post-MVP).
+**MVP v0.1.0: COMPLETE.** Next: **v0.2 Applicationization** (Setup / Settings / shell — see [ADR 0008](docs/adr/0008-applicationization-v02.md)).
+Not `v1.0.0` while Eagle / Publish / Look Builder remain later phases.
 
 ## Stack
 
@@ -18,15 +18,35 @@ Schema is **Alembic-only**. API/Worker bootstrap does **not** call `create_all()
 
 ```bash
 uv sync --extra dev
-cp .env.example .env
+cp .env.example .env          # optional once Setup Wizard is used
 mkdir -p runtime
-uv run alembic upgrade head     # required before first start
-uv run sceneweaver-api          # http://127.0.0.1:8000
-uv run sceneweaver-worker       # separate terminal
+uv run alembic upgrade head   # required before first start
+pnpm --dir apps/web install
 
-cd apps/web && pnpm install && pnpm dev   # http://127.0.0.1:5173
-# Optional: regenerate OpenAPI types
-pnpm openapi:gen
+# Recommended: one command launches API + Worker + Web and opens the browser
+uv run sceneweaver start
+
+# Or run pieces separately:
+# uv run sceneweaver-api
+# uv run sceneweaver-worker
+# pnpm --dir apps/web dev
+```
+
+First browser open: **Setup Wizard** (`/setup`) configures Comfy / LLM / CSP paths.
+Secrets (API keys) go to OS keyring or a gitignored file under `runtime/` — never plaintext in SQLite.
+
+**Shot Studio** (`/shots/:shotId`) edits the Prompt Draft before generate.
+**Generation Review** (`/shots/:shotId/generations/:attemptId`) shows candidates plus
+the immutable Attempt prompt snapshot (not the live Draft). Spec:
+`docs/architecture/sceneweaver_prompt_generation_review_ui_spec_r1.html`.
+Git templates / compiler rules stay immutable; finals are snapshotted on GenerationAttempt.
+
+Legacy prompt library import (SFW, idempotent) seeds **Prompt Library / Character
+assets** — it does **not** invent runtime Default Prompt strings (see ADR 0011):
+
+```bash
+uv run python scripts/import_legacy_prompts.py --source /path/to/prompts.zip --dry-run
+uv run python scripts/import_legacy_prompts.py --source /path/to/prompts.zip --apply
 ```
 
 OpenAPI: `http://127.0.0.1:8000/docs`
@@ -48,7 +68,7 @@ Approved models only: `config/model_registry.yaml`.
 
 | Command | What | Needs GPU? | Baseline |
 |---|---|---|---|
-| `uv run pytest` | Domain / Application / contracts (+ API integration) | No | 27 passed |
+| `uv run pytest` | Domain / Application / contracts (+ API integration) | No | 34 passed |
 | `pnpm test:e2e` | Real app + Fake LLM/Image (`runtime-e2e/`) | No | 7 passed |
 | `pnpm test:e2e:live` | Real app + Real Comfy (`runtime-live-test/`) | Yes | 3 passed |
 
@@ -86,6 +106,10 @@ COMFY_BASE_URL=http://127.0.0.1:8188 pnpm test:e2e:live
 | CSP adopted-byte handoff | [0005](docs/adr/0005-csp-handoff-adopted-bytes.md) |
 | E2E harness (mock / live / restart) | [0006](docs/adr/0006-e2e-harness.md) |
 | Real Comfy UseCase smoke | [0007](docs/adr/0007-real-comfy-live-smoke.md) |
+| Applicationization / v0.2 Sprint 1 | [0008](docs/adr/0008-applicationization-v02.md) |
+| Japanese UI / i18n (ja default) | [0009](docs/adr/0009-japanese-ui-i18n.md) |
+| Prompt Draft + Legacy Importer | [0010](docs/adr/0010-prompt-draft-and-legacy-import.md) |
+| Default Prompt Assembly (Sprint 4) | [0011](docs/adr/0011-default-prompt-assembly.md) |
 
 Design authority HTML: `docs/architecture/`.
 

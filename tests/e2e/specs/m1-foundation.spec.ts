@@ -25,9 +25,9 @@ test.describe('M1 Foundation', () => {
     await home.openJobs()
     await jobs.enqueueStub()
     // Worker holds RUNNING long enough for SSE → UI (see worker stub delay).
-    await expect(jobs.liveStatus()).toHaveText('Running', { timeout: 20_000 })
-    await expect(jobs.liveStatus()).toHaveText('Succeeded', { timeout: 20_000 })
-    await expect(page.getByText('Succeeded').first()).toBeVisible()
+    await expect(jobs.liveStatus()).toHaveText('処理中', { timeout: 20_000 })
+    await expect(jobs.liveStatus()).toHaveText('完了', { timeout: 20_000 })
+    await expect(page.getByText('完了').first()).toBeVisible()
 
     const state = await api.state()
     expect(state.project_count).toBeGreaterThanOrEqual(1)
