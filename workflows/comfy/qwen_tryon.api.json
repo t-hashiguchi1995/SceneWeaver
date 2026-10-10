@@ -1,0 +1,113 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": ["1", 0],
+      "lora_name": "Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "3": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+      "type": "qwen_image"
+    }
+  },
+  "4": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    }
+  },
+  "5": {
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": ["2", 0],
+      "shift": 3.1
+    }
+  },
+  "6": {
+    "class_type": "CFGNorm",
+    "inputs": {
+      "model": ["5", 0],
+      "strength": 1.0
+    }
+  },
+  "load_character": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "CHARACTER.png"
+    }
+  },
+  "load_garment": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "GARMENT.png"
+    }
+  },
+  "prompt": {
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "inputs": {
+      "clip": ["3", 0],
+      "prompt": "",
+      "vae": ["4", 0],
+      "image1": ["load_character", 0],
+      "image2": ["load_garment", 0]
+    }
+  },
+  "neg_prompt": {
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "inputs": {
+      "clip": ["3", 0],
+      "prompt": "",
+      "vae": ["4", 0],
+      "image1": ["load_character", 0],
+      "image2": ["load_garment", 0]
+    }
+  },
+  "28": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 640,
+      "height": 832,
+      "batch_size": 1
+    }
+  },
+  "sampler": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 4,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": ["6", 0],
+      "positive": ["prompt", 0],
+      "negative": ["neg_prompt", 0],
+      "latent_image": ["28", 0]
+    }
+  },
+  "40": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["sampler", 0],
+      "vae": ["4", 0]
+    }
+  },
+  "save_image": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "sceneweaver_tryon",
+      "images": ["40", 0]
+    }
+  }
+}

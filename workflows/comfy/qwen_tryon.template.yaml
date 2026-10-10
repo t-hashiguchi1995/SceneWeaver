@@ -1,0 +1,12 @@
+id: qwen_tryon_v1
+backend: comfyui
+capability: OutfitTryOn
+workflow_file: workflows/comfy/qwen_tryon.api.json
+# SceneWeaver-native slot contract. Old project JSON is reference-only.
+slots:
+  edit_prompt: { node: "prompt", input: "prompt" }
+  seed: { node: "sampler", input: "seed" }
+  character_image: { node: "load_character", input: "image" }
+  garment_image: { node: "load_garment", input: "image" }
+outputs:
+  images: ["save_image"]

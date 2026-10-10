@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Character Content Studio — Documentation Index R1</title>
+<style>
+:root{--bg:#08111f;--panel:#101c30;--line:#2b405f;--text:#e9eff9;--muted:#9cacbf;--cyan:#67e8f9;--green:#6ee7b7;--yellow:#fde68a;--red:#fca5a5}
+*{box-sizing:border-box}body{margin:0;background:#08111f;color:var(--text);font-family:Inter,"Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;line-height:1.6}
+a{color:#8deafa}.wrap{width:min(1220px,calc(100% - 36px));margin:auto}.hero{padding:52px 0 28px}h1{font-size:42px;margin:8px 0}.eyebrow{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.lede{color:#afbed0;max-width:920px}.docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.doc{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:14px}.doc h2{font-size:20px;margin:0 0 5px}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:11px;margin:16px 0 40px}th,td{padding:8px;border-bottom:1px solid #253954;text-align:left;vertical-align:top}th{background:#14243a}
+.ok{color:#a7f3d0}.sup{color:#fde68a}.old{color:#fecaca}.callout{border-left:4px solid var(--cyan);background:#0f2033;border-radius:8px;padding:11px 13px;margin:16px 0}
+@media(max-width:800px){.docs{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<section class="hero"><div class="eyebrow">Single entry point</div><h1>Documentation Index & Coverage Ledger</h1>
+<p class="lede">過去の設計内容が新しいUIドキュメントで失われないよう、現在の正本ドキュメントと、過去論点の所在/状態を一元管理する。</p></section>
+
+<div class="docs">
+<div class="doc"><h2><a href="character_content_studio_core_architecture_r2.html">1. Core Architecture R2</a></h2><p>目的、設計原則、Domain、State、Job、DB、API、Error、Test、Phase、Acceptance。</p></div>
+<div class="doc"><h2><a href="character_content_studio_wireframes_r5_project_structure.html">2. Wireframes R5</a></h2><p>HomeからReleaseまでのUI、Wardrobe Market、Try-On、Integration Hub、Repository/Runtime structure。</p></div>
+<div class="doc"><h2><a href="character_content_studio_prompt_technical_spec_r1.html">3. Prompt & Technical Spec R1</a></h2><p>固定モデル、Prompt、Comfy Workflow、Try-On、Dialogue、Shot、Publish技術。</p></div>
+<div class="doc"><h2><a href="character_content_studio_integration_security_spec_r1.html">4. Integration & Security R1</a></h2><p>Eagle/MCP/API/CSP/Blender/Playwright、Trust/Scope/Security policy。</p></div>
+</div>
+
+<div class="callout"><b>Coverageの意味：</b><span class="ok">RETAINED</span> = 現行仕様に記載。 <span class="sup">SUPERSEDED</span> = 方針変更を明示して置換。 <span class="old">HISTORY</span> = 過去資料のみ、実装要件ではない。</div>
+
+<table><thead><tr><th>過去に整理した論点</th><th>Current document</th><th>Status</th></tr></thead><tbody>
+<tr><td>目的・スコープ・非目標</td><td>Core §1</td><td class="ok">RETAINED</td></tr>
+<tr><td>設計原則</td><td>Core §1</td><td class="ok">RETAINED</td></tr>
+<tr><td>全体アーキテクチャ / process</td><td>Core §2</td><td class="ok">RETAINED</td></tr>
+<tr><td>Project/Scene/Beat中心Domain</td><td>Core §3</td><td class="ok">RETAINED</td></tr>
+<tr><td>Visual Identity / Persona分離</td><td>Core §3</td><td class="ok">RETAINED</td></tr>
+<tr><td>Scene State / StateResolver / invalidation</td><td>Core §4</td><td class="ok">RETAINED</td></tr>
+<tr><td>Dialogue Director / Writer / Critic</td><td>Prompt §3 + Core §16</td><td class="ok">RETAINED</td></tr>
+<tr><td>Narration / NarratorProfile</td><td>Prompt DLG-04 + Core §5</td><td class="ok">RETAINED</td></tr>
+<tr><td>Narrative / Presentation分離</td><td>Core §5</td><td class="ok">RETAINED</td></tr>
+<tr><td>Custom Page/Panel Editor</td><td>Core §5/§18</td><td class="sup">SUPERSEDED → CSP</td></tr>
+<tr><td>Custom Balloon/Composition Editor</td><td>Core §5/§18</td><td class="sup">SUPERSEDED → CSP</td></tr>
+<tr><td>SemanticRenderSpec</td><td>Core §6</td><td class="ok">RETAINED</td></tr>
+<tr><td>Comfy Workflow Template / Backend interface</td><td>Core §6 + Prompt Spec</td><td class="ok">RETAINED</td></tr>
+<tr><td>Anima/Qwen/Google固定モデル</td><td>Prompt §0</td><td class="ok">RETAINED</td></tr>
+<tr><td>A1111</td><td>Wireframes structure / Core §18</td><td class="sup">OPTIONAL, not production fixed</td></tr>
+<tr><td>Asset Store / Asset URI / sha256</td><td>Core §7 + Wireframes §4</td><td class="ok">RETAINED</td></tr>
+<tr><td>Eagle同期</td><td>Core §7 + Integration §3</td><td class="ok">RETAINED, upgraded</td></tr>
+<tr><td>Blender / Pose</td><td>Integration §5 + Core §18</td><td class="sup">ADVANCED ONLY</td></tr>
+<tr><td>Virtual Try-On / Wardrobe Market</td><td>Wireframes + Prompt §2</td><td class="ok">RETAINED / EXPANDED</td></tr>
+<tr><td>Generation Review / QA</td><td>Prompt REVIEW-01 + Wireframes</td><td class="ok">RETAINED</td></tr>
+<tr><td>Release / Edition / Publication</td><td>Core §3/§8/§10 + Wireframes</td><td class="ok">RETAINED</td></tr>
+<tr><td>Job Worker / heartbeat / retry</td><td>Core §8</td><td class="ok">RETAINED</td></tr>
+<tr><td>状態遷移</td><td>Core §8</td><td class="ok">RETAINED</td></tr>
+<tr><td>SQLite/WAL/SQLAlchemy/Alembic</td><td>Core §9</td><td class="ok">RETAINED</td></tr>
+<tr><td>DB table design</td><td>Core §9</td><td class="ok">RETAINED</td></tr>
+<tr><td>REST / SSE API</td><td>Core §10</td><td class="ok">RETAINED</td></tr>
+<tr><td>Repository / Workspace structure</td><td>Wireframes R5 §4</td><td class="ok">RETAINED</td></tr>
+<tr><td>Port / Interface</td><td>Wireframes §4 + Core §6</td><td class="ok">RETAINED</td></tr>
+<tr><td>Provenance</td><td>Core §6/§7/§9 + Prompt</td><td class="ok">RETAINED</td></tr>
+<tr><td>Error / Recovery</td><td>Core §11</td><td class="ok">RETAINED</td></tr>
+<tr><td>Security / secrets / MCP scopes</td><td>Integration Spec</td><td class="ok">RETAINED / EXPANDED</td></tr>
+<tr><td>Test strategy</td><td>Core §12</td><td class="ok">RETAINED</td></tr>
+<tr><td>Implementation phases / MVP</td><td>Core §13</td><td class="ok">RETAINED / UPDATED</td></tr>
+<tr><td>旧プロジェクトの扱い</td><td>Wireframes / Core §18</td><td class="ok">RETAINED: knowledge only</td></tr>
+<tr><td>Acceptance criteria</td><td>Core §14 + Prompt §9</td><td class="ok">RETAINED</td></tr>
+<tr><td>Pydantic model examples</td><td>Core §15</td><td class="ok">RETAINED</td></tr>
+<tr><td>Typical Beat sequence</td><td>Core §16</td><td class="ok">RETAINED</td></tr>
+<tr><td>Initial tickets</td><td>Core §17</td><td class="ok">RETAINED / UPDATED</td></tr>
+<tr><td>External interface references</td><td>Integration Spec</td><td class="ok">RETAINED / UPDATED</td></tr>
+</tbody></table>
+</div></body></html>

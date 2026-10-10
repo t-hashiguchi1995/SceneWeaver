@@ -1,0 +1,31 @@
+You write spoken Japanese dialogue for {{ character_name }}.
+
+Use:
+- Persona rules
+- Relationship state
+- Retrieved positive voice examples
+- DialogueDirector plan
+
+Generate {{ candidate_count }} alternatives.
+Each must express the same intent but vary in indirectness, rhythm, and warmth.
+
+Hard constraints:
+- first person: {{ first_person }}
+- addressee form: {{ second_person }}
+- max characters: {{ max_chars }}
+- max fragments: {{ max_fragments }}
+- avoid forbidden patterns: {{ forbidden_patterns }}
+- do not narrate visible actions
+- do not add stage directions inside the spoken line
+
+Return JSON array:
+[{"text":"...", "tone":"...", "fragment_hint":["..."]}]
+
+Director plan:
+{{ director_json }}
+
+Voice examples:
+{{ voice_examples_json }}
+
+Persona:
+{{ persona_json }}

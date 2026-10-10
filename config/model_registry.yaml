@@ -1,0 +1,41 @@
+# Approved models only. Capability Router resolves within this registry.
+# Arbitrary Comfy checkpoints are never exposed as selectable options.
+
+models:
+  anima_base:
+    provider: comfyui
+    checkpoint: anima_baseV10.safetensors
+    capabilities:
+      - BaseRender
+    workflow_template: workflows/comfy/anima_base.template.yaml
+
+  anima_pose:
+    provider: comfyui
+    checkpoint: anima_baseV10.safetensors
+    control_model: anima-lllite-pose-1.safetensors
+    capabilities:
+      - PoseControlledRender
+    workflow_template: workflows/comfy/anima_pose.template.yaml
+
+  qwen_image_edit_2509:
+    provider: comfyui
+    checkpoint: qwen_image_edit_2509_fp8_e4m3fn.safetensors
+    capabilities:
+      - ImageEdit
+      - OutfitTryOn
+      - ExpressionEdit
+    workflow_template: workflows/comfy/qwen_tryon.template.yaml
+
+  google_flash_image:
+    provider: google
+    model: gemini-2.5-flash-image
+    capabilities:
+      - ReferenceAssetGeneration
+
+approved_models:
+  BaseRender: anima_base
+  PoseControlledRender: anima_pose
+  OutfitTryOn: qwen_image_edit_2509
+  ExpressionEdit: qwen_image_edit_2509
+  ImageEdit: qwen_image_edit_2509
+  ReferenceAssetGeneration: google_flash_image

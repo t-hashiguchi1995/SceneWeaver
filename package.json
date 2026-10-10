@@ -1,0 +1,20 @@
+{
+  "name": "sceneweaver",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev:web": "pnpm --dir apps/web dev",
+    "dev:api": "uv run sceneweaver-api",
+    "dev:worker": "uv run sceneweaver-worker",
+    "test": "uv run pytest",
+    "migrate": "uv run alembic upgrade head",
+    "e2e:stack:start": "SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-e2e bash scripts/e2e/start-test-stack.sh",
+    "e2e:stack:stop": "bash scripts/e2e/stop-test-stack.sh",
+    "e2e:stack:reset": "SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-e2e bash scripts/e2e/reset-test-state.sh",
+    "e2e:live:stack:start": "SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-live-test bash scripts/e2e/start-live-stack.sh",
+    "e2e:live:stack:stop": "bash scripts/e2e/stop-live-stack.sh",
+    "e2e": "pnpm e2e:stack:stop; pnpm e2e:stack:start && SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-e2e SCENEWEAVER_E2E_API=http://127.0.0.1:8010 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5174 pnpm --dir tests/e2e test:mock; status=$?; pnpm e2e:stack:stop; exit $status",
+    "test:e2e": "pnpm e2e",
+    "test:e2e:live": "pnpm e2e:live:stack:stop; pnpm e2e:live:stack:start && SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-live-test SCENEWEAVER_E2E_API=http://127.0.0.1:8020 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5175 SCENEWEAVER_ENVIRONMENT=live-test COMFY_BASE_URL=${COMFY_BASE_URL:-http://127.0.0.1:8188} pnpm --dir tests/e2e test:live; status=$?; pnpm e2e:live:stack:stop; exit $status"
+  }
+}

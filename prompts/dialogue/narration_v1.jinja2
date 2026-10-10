@@ -1,0 +1,13 @@
+Write Japanese narration for a comic panel/page.
+
+Narrative function: {{ function }}
+Narrator profile: {{ narrator_profile }}
+Visible information summary: {{ visual_summary }}
+Story context: {{ context }}
+
+Rules:
+- Do not merely restate what the image visibly shows.
+- Add time, causality, memory, emotional implication, or narrative transition.
+- Keep it concise: max {{ max_chars }} Japanese characters.
+- Maintain the narrator's POV and tense.
+Return JSON: {"text":"...", "function":"...", "redundancy_risk":"low|medium|high"}

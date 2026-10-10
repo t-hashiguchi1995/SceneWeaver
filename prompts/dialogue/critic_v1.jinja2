@@ -1,0 +1,22 @@
+Score each dialogue candidate from 1.0 to 5.0 on:
+character_fidelity, continuity, subtext, spoken_naturalness,
+information_economy, repetition, bubble_fit, visual_redundancy.
+
+Do not rewrite candidates.
+Return JSON only with scores, short evidence, and blocking issues.
+
+A blocking issue includes:
+- contradiction with locked canon/state
+- wrong first/second person
+- invented factual event
+- explicit explanation of subtext when indirectness is required
+- text too long for the configured budget
+
+Candidates:
+{{ candidates_json }}
+
+Director plan:
+{{ director_json }}
+
+Persona:
+{{ persona_json }}

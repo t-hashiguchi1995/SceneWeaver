@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Character Content Studio — Product Wireframes R4 — Integrations</title>
+<style>
+:root{
+  --bg:#08111f; --bg2:#0d1728; --panel:#111d30; --panel2:#16243a;
+  --line:#2a3c58; --text:#e8eef9; --muted:#91a3bd; --cyan:#67e8f9;
+  --green:#6ee7b7; --yellow:#fde68a; --red:#fca5a5; --blue:#93c5fd;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#07101d,#0a1424 40%,#07101d);
+  color:var(--text);font-family:Inter,"Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}
+code,pre{font-family:"SFMono-Regular",Consolas,monospace}
+.wrap{width:min(1320px,calc(100% - 40px));margin:auto}
+header.docbar{position:sticky;top:0;z-index:50;height:58px;border-bottom:1px solid var(--line);
+  background:rgba(7,16,29,.94);backdrop-filter:blur(12px);display:flex;align-items:center}
+.docbar .wrap{display:flex;align-items:center;gap:14px}
+.doc-title{font-weight:800;letter-spacing:.02em}
+.doc-badge{font-size:11px;border:1px solid #355071;border-radius:999px;padding:4px 8px;color:#b8c8dc}
+.doc-spacer{flex:1}
+.doc-link{font-size:12px;color:#a8b7cb;padding:7px 9px;border-radius:7px}
+.doc-link:hover{background:#122039;color:white}
+.hero{padding:58px 0 42px}
+.hero-card{border:1px solid #304564;border-radius:24px;padding:40px;background:
+  radial-gradient(circle at 80% 0,#1c3f5b55,transparent 45%),
+  linear-gradient(135deg,#15233b,#111c31)}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#7dd3fc;font-weight:800}
+h1{font-size:clamp(38px,5.4vw,68px);line-height:1.08;margin:12px 0 18px;max-width:1180px}
+.hero p{max-width:920px;color:#b3c0d3;font-size:17px}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.pill{font-size:11px;border:1px solid #304967;background:#102039;border-radius:999px;padding:5px 9px;color:#c7d6ea}
+.section{padding:34px 0}
+.section-head{display:flex;align-items:end;gap:14px;margin-bottom:16px}
+.section-num{font-size:11px;font-weight:800;color:#07101d;background:linear-gradient(135deg,#67e8f9,#a78bfa);border-radius:9px;padding:5px 8px}
+h2{margin:0;font-size:28px}
+.lede{color:#aebdd1;max-width:980px}
+.notice{border-left:4px solid var(--cyan);background:#0f2032;border-radius:8px;padding:12px 14px;color:#c3d3e7}
+.notice.good{border-color:var(--green);background:#0e241e}
+.notice.warn{border-color:var(--yellow);background:#2a230f}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:16px 0}
+.flow span.step{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 11px;font-size:11px}
+.flow i{font-style:normal;color:var(--cyan)}
+.sitemap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.map-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px;min-height:95px}
+.map-card b{display:block;margin-bottom:4px}
+.map-card small{color:var(--muted)}
+.map-card.primary{box-shadow:inset 0 3px 0 var(--cyan)}
+.map-card.green{box-shadow:inset 0 3px 0 var(--green)}
+.map-card.yellow{box-shadow:inset 0 3px 0 var(--yellow)}
+.screen-block{margin:34px 0 48px}
+.screen-title{display:flex;align-items:flex-start;gap:10px;margin:0 0 10px}
+.screen-title h3{font-size:22px;margin:0}
+.route{margin-left:auto;font:11px monospace;color:#89a0c0;border:1px solid var(--line);padding:5px 8px;border-radius:7px}
+.screen-note{color:#98a9bf;font-size:13px;max-width:900px;margin:0 0 12px}
+.browser{width:100%;border:1px solid #334763;border-radius:14px;overflow:hidden;background:#0a1423;box-shadow:0 16px 42px rgba(0,0,0,.26)}
+.browserbar{height:38px;background:#101a2b;border-bottom:1px solid #2c3d5a;display:flex;align-items:center;gap:6px;padding:0 11px}
+.dot{width:8px;height:8px;border-radius:50%;background:#42526b}
+.browserbar .caption{margin-left:8px;font-size:10px;color:#71849f}
+.app{display:grid;grid-template-columns:180px minmax(0,1fr);min-height:610px}
+.nav{background:#0d1727;border-right:1px solid #263752;padding:12px;min-width:0}
+.brand{font-size:13px;font-weight:800;margin:2px 0 15px}
+.navgroup{font-size:8px;color:#607694;letter-spacing:.12em;text-transform:uppercase;margin:14px 8px 5px}
+.navitem{font-size:10px;color:#a8b7cb;padding:7px 8px;border-radius:7px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navitem.active{background:#19314b;color:#e7f8ff}
+.navitem .count{float:right;color:#6e85a3;font-size:9px}
+.main{min-width:0;background:#091321}
+.topbar{height:48px;background:#0e192b;border-bottom:1px solid #273853;display:flex;align-items:center;gap:8px;padding:0 13px}
+.topbar .crumb{font-size:10px;color:#7f94b1}
+.topbar .search{min-width:0;flex:1;max-width:360px;margin-left:10px;background:#0a1423;border:1px solid #2b3e5c;border-radius:7px;padding:6px 9px;font-size:10px;color:#7489a6}
+.topbar .chip{font-size:9px;border:1px solid #35506e;padding:4px 7px;border-radius:999px;color:#bdd0e8;white-space:nowrap}
+.content{padding:14px;min-width:0}
+.pagehead{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.pagehead h4{font-size:18px;margin:0 0 3px}
+.muted{color:var(--muted);font-size:10px}
+.actions{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.btn{font-size:9px;border:1px solid #34516f;background:#111e31;border-radius:7px;padding:6px 9px;color:#c9d6e8;white-space:nowrap}
+.btn.primary{background:#17455d;border-color:#2c7794;color:#e1faff}
+.btn.good{background:#16392f;border-color:#34755e;color:#dbfff0}
+.btn.warn{background:#3a2d13;border-color:#80672b;color:#fff1ba}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.card{border:1px solid #2b3d59;background:#101b2e;border-radius:10px;padding:9px;min-width:0}
+.card h5{font-size:10px;margin:0 0 7px;color:#d3ddec}
+.row{display:flex;gap:7px;align-items:center;border-top:1px solid #22324c;padding:7px 0;font-size:10px;min-width:0}
+.row:first-of-type{border-top:0}
+.grow{flex:1;min-width:0}
+.thumb{width:44px;height:44px;flex:0 0 44px;border-radius:7px;background:linear-gradient(145deg,#435d80,#1d2b44)}
+.heroimg{aspect-ratio:4/5;min-height:230px;border-radius:9px;border:1px solid #334764;background:linear-gradient(145deg,#39506f,#111b2d);position:relative;overflow:hidden}
+.kpi{font-size:22px;font-weight:800}
+.label{font-size:8px;color:#7085a3;margin:7px 0 3px;text-transform:uppercase;letter-spacing:.05em}
+.field{font-size:9px;border:1px solid #2e415f;background:#0e192a;border-radius:6px;padding:6px 7px;color:#c7d4e6;min-height:29px;overflow:hidden}
+.field.tall{min-height:72px}
+.status{font-size:8px;padding:3px 6px;border-radius:999px;border:1px solid #36506e;color:#aac0db;white-space:nowrap}
+.status.ok{border-color:#2f6d57;color:#a7f3d0;background:#11271f}
+.status.warn{border-color:#715e28;color:#fde68a;background:#2a220e}
+.quick{min-height:72px;border:1px solid #30445f;border-radius:9px;background:#101d31;padding:8px;font-size:9px}
+.quick b{display:block;font-size:10px;margin-bottom:3px}
+.timeline{display:flex;gap:6px;overflow:hidden}
+.timeline .beat{min-width:135px;border:1px solid #30435e;border-radius:8px;padding:8px;background:#111d30;font-size:9px}
+.timeline .beat.active{outline:2px solid var(--cyan)}
+.split{display:grid;grid-template-columns:220px minmax(0,1fr) 240px;gap:9px;min-width:0}
+.side{border:1px solid #293b58;background:#0f1b2d;border-radius:10px;padding:9px;min-width:0}
+.outfits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.outfit{border:1px solid #2b3f5c;background:#101c2f;border-radius:9px;padding:6px;font-size:8px;min-width:0}
+.outfit .pic{height:82px;border-radius:6px;background:linear-gradient(145deg,#496181,#1c293f);margin-bottom:5px}
+.outfit.active{outline:2px solid var(--cyan)}
+.trygrid{display:grid;grid-template-columns:minmax(170px,1fr) 38px minmax(170px,1fr);gap:8px;align-items:center}
+.tryarrow{text-align:center;font-size:20px;color:var(--cyan)}
+.results{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.result{border:1px solid #2d405d;background:#101b2e;border-radius:8px;padding:5px;font-size:8px;min-width:0}
+.result .pic{height:105px;border-radius:5px;background:linear-gradient(145deg,#4c6586,#1b273d);margin-bottom:4px}
+.result.best{outline:2px solid var(--green)}
+.shotstage{height:370px;border:1px solid #2f425f;border-radius:10px;background:linear-gradient(145deg,#243754,#0f192a);position:relative;overflow:hidden}
+.person{position:absolute;left:20%;bottom:4%;width:40%;height:78%;border-radius:45% 45% 10px 10px;background:linear-gradient(#627795,#2c415e)}
+.safe{position:absolute;right:5%;top:5%;width:35%;height:22%;border:1px dashed var(--cyan);border-radius:7px;padding:5px;color:var(--cyan);font-size:8px}
+.candidates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.cand{border:1px solid #2d405d;background:#101b2e;border-radius:8px;padding:5px;font-size:8px}
+.cand .pic{height:175px;border-radius:5px;background:linear-gradient(145deg,#466081,#17243b)}
+.cand.best{outline:2px solid var(--green)}
+.pagecard{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #2e405d;background:#101b2e;border-radius:9px;padding:7px;margin-bottom:7px}
+.pagepic{height:88px;background:#eee;border-radius:3px;position:relative}
+.pagepic:before,.pagepic:after{content:"";position:absolute;left:7%;right:7%;border:2px solid #222;background:#aab4c1}
+.pagepic:before{top:7%;height:38%}.pagepic:after{bottom:7%;height:38%}
+.release{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.media{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px}
+.media div{height:55px;border-radius:5px;background:linear-gradient(145deg,#40597b,#1a273d)}
+.assets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.asset{border:1px solid #2d405d;background:#101b2e;border-radius:8px;padding:5px;font-size:8px}
+.asset .pic{height:83px;border-radius:5px;background:linear-gradient(145deg,#415b7c,#1a273d)}
+.footer{padding:50px 0;color:#70839e;font-size:12px;text-align:center}
+@media(max-width:1150px){
+  .sitemap{grid-template-columns:repeat(3,1fr)}
+  .split{grid-template-columns:190px minmax(0,1fr)}
+  .split>.side:last-child{grid-column:1/-1}
+  .outfits{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:880px){
+  .wrap{width:min(100% - 20px,1320px)}
+  .app{grid-template-columns:1fr}
+  .nav{display:none}
+  .grid2,.split{grid-template-columns:1fr}
+  .grid3,.grid4,.release{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .assets{grid-template-columns:repeat(3,1fr)}
+  .sitemap{grid-template-columns:repeat(2,1fr)}
+  .outfits{grid-template-columns:repeat(2,1fr)}
+  .route{display:none}
+}
+@media(max-width:560px){
+  .hero-card{padding:24px}
+  h1{font-size:38px}
+  .grid3,.grid4,.release,.results,.candidates{grid-template-columns:1fr}
+  .trygrid{grid-template-columns:1fr}.tryarrow{transform:rotate(90deg)}
+  .assets,.sitemap{grid-template-columns:1fr 1fr}
+  .topbar .search,.topbar .chip:nth-last-of-type(n+2){display:none}
+}
+
+.market-hero{display:grid;grid-template-columns:1.4fr .8fr;gap:10px}
+.market-banner{border:1px solid #35506e;border-radius:14px;padding:18px;background:linear-gradient(125deg,#193755,#17243a 55%,#23334a)}
+.market-banner h5{font-size:18px;margin:0 0 5px}
+.filterbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:9px 0}
+.filter{font-size:9px;border:1px solid #30445f;border-radius:999px;padding:5px 8px;background:#101c30;color:#b5c6db}
+.marketgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.marketitem{border:1px solid #2d405d;background:#101b2e;border-radius:10px;overflow:hidden;min-width:0}
+.marketpic{height:140px;background:linear-gradient(145deg,#526b8c,#1c293f);position:relative}
+.marketpic .heart{position:absolute;right:6px;top:5px;background:#0b1423cc;border-radius:999px;padding:3px 6px;font-size:9px}
+.marketbody{padding:7px}
+.pricechip{font-size:8px;color:#a7f3d0;border:1px solid #2e6d55;border-radius:999px;padding:2px 5px}
+.sourcechip{font-size:8px;color:#a9c7f2;border:1px solid #36516f;border-radius:999px;padding:2px 5px}
+.marketdetail{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr) 250px;gap:10px}
+.biggarment{aspect-ratio:3/4;border:1px solid #334864;border-radius:12px;background:linear-gradient(145deg,#526d8e,#1d2a40)}
+.colorchip{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #d9e2ef55;margin-right:4px;vertical-align:middle}
+.lookslots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.lookslot{border:1px dashed #3b526f;border-radius:10px;background:#0e192a;padding:7px;min-height:122px;font-size:9px}
+.lookslot .slotpic{height:80px;border-radius:6px;background:linear-gradient(145deg,#40597a,#19253b);margin-bottom:5px}
+.compat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.compat .card{font-size:9px}
+.techref{font-size:9px;color:#83d7e7;border:1px solid #275468;border-radius:999px;padding:3px 6px}
+@media(max-width:1100px){.marketgrid{grid-template-columns:repeat(3,1fr)}.marketdetail{grid-template-columns:1fr 1fr}.marketdetail>.side{grid-column:1/-1}}
+@media(max-width:760px){.market-hero,.marketdetail{grid-template-columns:1fr}.marketgrid{grid-template-columns:repeat(2,1fr)}.lookslots{grid-template-columns:repeat(2,1fr)}}
+
+
+.integration-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.integration-card{border:1px solid #2d405d;background:#101b2e;border-radius:10px;padding:9px;min-height:140px}
+.integration-card .icon{width:36px;height:36px;border-radius:9px;background:#1d3651;display:grid;place-items:center;margin-bottom:7px;font-weight:800}
+.trust{font-size:8px;border:1px solid #346b56;color:#a7f3d0;border-radius:999px;padding:2px 5px}
+.trust.community{border-color:#75632b;color:#fde68a}.trust.browser{border-color:#7d3d3d;color:#fecaca}
+.permission-list{font-size:9px;color:#aebfd4;line-height:1.7}
+.permission-list span{display:block}
+.security-matrix{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.security-box{border:1px solid #2b405d;background:#0f1a2d;border-radius:8px;padding:8px;font-size:9px}
+@media(max-width:1000px){.integration-grid{grid-template-columns:repeat(2,1fr)}.security-matrix{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+<header class="docbar">
+  <div class="wrap">
+    <div class="doc-title">Character Content Studio</div>
+    <div class="doc-badge">Product Wireframes R4 — Integrations</div>
+    <div class="doc-spacer"></div>
+    <a class="doc-link" href="#flow">Flow</a>
+    <a class="doc-link" href="#screens">Screens</a><a class="doc-link" href="character_content_studio_prompt_technical_spec_r1.html">Prompt & Tech Spec ↗</a>
+  </div>
+</header>
+
+<div class="wrap">
+<section class="hero">
+  <div class="hero-card">
+    <div class="eyebrow">Scrap & Build / Product UX Reset</div>
+    <h1>「生成ツール」ではなく<br><span style="white-space:nowrap">作品を完成させる制作スタジオ</span></h1>
+    <p>旧アプリの画面構造は継承しない。Project・Story・Character・Wardrobe・Shot・CLIP STUDIO・Releaseという、実際の制作行為に沿って情報設計をやり直す。Playwrightの旧プロジェクトは投稿手順などの知見だけを参考にする。</p>
+    <div class="pills">
+      <span class="pill">Creator-first</span><span class="pill">Virtual Try-On first-class</span>
+      <span class="pill">CLIP STUDIO coexistence</span><span class="pill">Model-agnostic backend</span>
+      <span class="pill">Human review</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flow">
+  <div class="section-head"><span class="section-num">01</span><h2>製品全体の導線</h2></div>
+  <p class="lede">トップページでは「システムを操作する」のではなく、「続きを作る」「衣装を試す」「画像を生成する」「CSPで仕上げる」「投稿する」という制作タスクから入る。</p>
+  <div class="flow">
+    <span class="step">Home</span><i>→</i><span class="step">Project</span><i>→</i><span class="step">Story</span><i>→</i>
+    <span class="step">Character / Wardrobe</span><i>→</i><span class="step">Virtual Try-On</span><i>→</i>
+    <span class="step">Shot</span><i>→</i><span class="step">Generate / Review</span><i>→</i>
+    <span class="step">CSP Handoff</span><i>→</i><span class="step">Release</span>
+  </div>
+  <div class="sitemap">
+    <div class="map-card primary"><b>Home</b><small>現在地、次の作業、Quick Action</small></div>
+    <div class="map-card primary"><b>Projects</b><small>作品単位の進捗とStory</small></div>
+    <div class="map-card green"><b>Characters</b><small>Identity、Persona、Wardrobe</small></div>
+    <div class="map-card green"><b>Wardrobe Market</b><small>衣装を探す・集める・組み合わせる</small></div><div class="map-card green"><b>Try-On Lab</b><small>衣装を試し、結果を再利用</small></div>
+    <div class="map-card"><b>Shot Studio</b><small>Pose / Camera / Render intent</small></div>
+    <div class="map-card"><b>Review</b><small>生成候補の比較・採用</small></div>
+    <div class="map-card yellow"><b>CSP Handoff</b><small>漫画・レタリング・最終仕上げ</small></div>
+    <div class="map-card"><b>Library</b><small>内部Asset + Eagle Reference</small></div>
+    <div class="map-card"><b>Releases</b><small>X / pixiv / Patreon</small></div>
+    <div class="map-card"><b>Settings</b><small>Backend / Paths / Integrations</small></div>
+  </div>
+  <div class="notice good" style="margin-top:14px"><b>設計変更：</b> ComfyUI、Qwen、Anima、Eagle、Playwrightなどの技術名はトップレベルの主役にしない。ユーザーが「何を作るか」を先に見て、必要なBackendは裏で解決する。</div>
+</section>
+
+<section class="section" id="screens">
+<div class="section-head"><span class="section-num">02</span><h2>主要画面ワイヤーフレーム</h2></div>
+
+<div class="screen-block" id="home">
+  <div class="screen-title"><div><h3>Home — Creator Dashboard</h3><p class="screen-note">アプリ起動後の第一画面。制作中作品と「今すぐやれること」を並べる。</p></div><span class="route">/</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Home</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Character Studio</div><div class="navitem active">⌂ Home</div>
+      <div class="navgroup">Create</div><div class="navitem">Projects <span class="count">4</span></div><div class="navitem">Characters <span class="count">3</span></div><div class="navitem">Wardrobe Market</div><div class="navitem">Try-On Lab</div>
+      <div class="navgroup">Assets</div><div class="navitem">Library</div><div class="navitem">Wardrobe <span class="count">18</span></div><div class="navitem">Wardrobe Market</div>
+      <div class="navgroup">Finish</div><div class="navitem">CSP Handoffs <span class="count">2</span></div><div class="navitem">Releases <span class="count">1</span></div>
+      <div class="navgroup">System</div><div class="navitem">Jobs</div><div class="navitem">Integrations</div><div class="navitem">Settings</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Studio</span><div class="search">⌕ Search projects, characters, assets...</div><span class="chip">Comfy healthy</span><span class="chip">2 jobs</span><span>⚙</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Continue creating</h4><div class="muted">Pick up where you left off, or start with a quick tool.</div></div><div class="actions"><span class="btn">Import</span><span class="btn primary">＋ New project</span></div></div>
+        <div class="grid4">
+          <div class="card"><div class="kpi">3</div><div class="muted">active projects</div></div>
+          <div class="card"><div class="kpi">7</div><div class="muted">images waiting review</div></div>
+          <div class="card"><div class="kpi">2</div><div class="muted">CSP handoffs</div></div>
+          <div class="card"><div class="kpi">1</div><div class="muted">release waiting approval</div></div>
+        </div>
+        <div class="grid2" style="margin-top:9px">
+          <div class="card"><h5>Recent projects</h5>
+            <div class="row"><div class="thumb"></div><div class="grow"><b>放課後の帰り道</b><div class="muted">Scene 03 · Shot planning</div></div><span class="btn primary">Continue</span></div>
+            <div class="row"><div class="thumb"></div><div class="grow"><b>休日デート</b><div class="muted">Wardrobe selection</div></div><span class="btn">Open</span></div>
+            <div class="row"><div class="thumb"></div><div class="grow"><b>Stage Costume Set</b><div class="muted">Try-On results ready</div></div><span class="btn">Review</span></div>
+          </div>
+          <div class="card"><h5>Quick actions</h5><div class="grid3">
+            <div class="quick"><b>👗 Try Outfit</b>Character × garment</div>
+            <div class="quick"><b>💬 Write Scene</b>Dialogue & beats</div>
+            <div class="quick"><b>✨ Generate</b>Single shot</div>
+            <div class="quick"><b>🛍 Wardrobe Market</b>Browse & try outfits</div>
+            <div class="quick"><b>📦 CSP Handoff</b>Prepare project</div>
+            <div class="quick"><b>🚀 Release</b>Platform editions</div>
+          </div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="project">
+  <div class="screen-title"><div><h3>Project — Story & Production Hub</h3><p class="screen-note">Project内では工程ではなく作品を中心にする。StoryとVisualの進捗を同時に確認できる。</p></div><span class="route">/projects/:id</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Project</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">← 放課後の帰り道</div><div class="navitem active">Overview</div><div class="navitem">Story</div><div class="navitem">Cast</div><div class="navitem">Wardrobe</div><div class="navitem">Shots <span class="count">10</span></div><div class="navitem">Review <span class="count">7</span></div><div class="navitem">CSP Handoff</div><div class="navitem">Release</div><div class="navgroup">Project</div><div class="navitem">Assets</div><div class="navitem">History</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Projects / 放課後の帰り道</span><div class="search">Search project...</div><span class="chip">draft</span><span>•••</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Scene 03 — 帰り道</h4><div class="muted">Story, character state and visual work in one place.</div></div><div class="actions"><span class="btn">Preview story</span><span class="btn primary">Continue Beat 02</span></div></div>
+        <div class="timeline">
+          <div class="beat">Scene 01<br><b>教室</b><div class="muted">done</div></div>
+          <div class="beat">Scene 02<br><b>校門</b><div class="muted">done</div></div>
+          <div class="beat active">Scene 03<br><b>帰り道</b><div class="muted">active</div></div>
+          <div class="beat">Scene 04<br><b>駅</b><div class="muted">planned</div></div>
+        </div>
+        <div class="split" style="margin-top:9px">
+          <div class="side"><h5>Beats</h5><div class="row"><span class="status ok">01</span><div class="grow">楽しかったと振り返る</div></div><div class="row"><span class="status warn">02</span><div class="grow"><b>引き止めたい</b><div class="muted">outfit not locked</div></div></div><div class="row"><span class="status">03</span><div class="grow">もう少し一緒に</div></div></div>
+          <div class="card"><h5>Beat 02</h5><div class="label">Locked dialogue</div><div class="field">「……もう帰っちゃうんですか？」</div><div class="label">Intent</div><div class="field">もう少し一緒にいたい</div><div class="label">Visual status</div><div class="field">Outfit verification required</div><div style="margin-top:8px"><span class="btn primary">Open Wardrobe</span></div></div>
+          <div class="side"><h5>Current character state</h5><div class="row"><span>Character</span><b class="grow" style="text-align:right">char_a</b></div><div class="row"><span>Outfit</span><b class="grow" style="text-align:right">cardigan candidate</b></div><div class="row"><span>Emotion</span><b class="grow" style="text-align:right">shy .65</b></div><div class="row"><span>Next</span><span class="status warn">Try-On</span></div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+
+<div class="screen-block" id="market">
+  <div class="screen-title"><div><h3>Wardrobe Market — Browse, collect, try</h3>
+  <p class="screen-note">「購入機能」そのものではなく、衣装候補をマーケットのように探し、コレクションし、その場でキャラクターへ試着できるCatalog UX。Built-in / Generated / Imported / Eagle / External Linkを同じItem schemaで扱う。</p></div>
+  <span class="techref">Tech: MARKET-01 / GARMENT-01</span><span class="route">/market</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Wardrobe Market</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Wardrobe Market</div><div class="navitem active">Discover</div><div class="navitem">New arrivals</div><div class="navitem">Collections</div><div class="navitem">Favorites <span class="count">12</span></div><div class="navitem">My wardrobe</div>
+      <div class="navgroup">Category</div><div class="navitem">Tops</div><div class="navitem">Bottoms</div><div class="navitem">Dresses</div><div class="navitem">Outerwear</div><div class="navitem">Shoes</div><div class="navitem">Accessories</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Market / Discover</span><div class="search">⌕ cardigan, stage, pastel, school...</div><span class="chip">For char_a</span><span class="chip">Scene 03</span></div>
+      <div class="content">
+        <div class="market-hero">
+          <div class="market-banner"><div class="eyebrow">Recommended for current scene</div><h5>放課後・秋・やわらかい雰囲気</h5><div class="muted">Scene tags + current outfit compatibility から候補を絞り込む。推薦自体はルール/metadata scoreで成立し、追加モデルは必須にしない。</div><div style="margin-top:9px"><span class="btn primary">Browse recommendations</span> <span class="btn">Open Look Builder</span></div></div>
+          <div class="card"><h5>Current character</h5><div class="row" style="border:0"><div class="thumb"></div><div class="grow"><b>char_a</b><div class="muted">school uniform → cardigan candidate</div></div></div><span class="btn good">Try selected item</span></div>
+        </div>
+        <div class="filterbar"><span class="filter">Category ▾</span><span class="filter">Style ▾</span><span class="filter">Season ▾</span><span class="filter">Color ▾</span><span class="filter">Region ▾</span><span class="filter">Verified only</span><span class="filter">Try-On ready</span><span class="filter">Source ▾</span></div>
+        <div class="marketgrid">
+          <div class="marketitem"><div class="marketpic"><span class="heart">♡</span></div><div class="marketbody"><b>Soft Knit Cardigan</b><div class="muted">outerwear · autumn</div><div style="margin-top:4px"><span class="sourcechip">generated</span> <span class="pricechip">try-on ready</span></div></div></div>
+          <div class="marketitem"><div class="marketpic"><span class="heart">♥</span></div><div class="marketbody"><b>Classic Blazer</b><div class="muted">outerwear · school</div><div style="margin-top:4px"><span class="sourcechip">imported</span> <span class="pricechip">verified</span></div></div></div>
+          <div class="marketitem"><div class="marketpic"><span class="heart">♡</span></div><div class="marketbody"><b>Pastel Pleated Skirt</b><div class="muted">bottoms · cute</div><div style="margin-top:4px"><span class="sourcechip">built-in</span> <span class="pricechip">try-on ready</span></div></div></div>
+          <div class="marketitem"><div class="marketpic"><span class="heart">♡</span></div><div class="marketbody"><b>Stage Frill Set A</b><div class="muted">outfit · idol</div><div style="margin-top:4px"><span class="sourcechip">Eagle</span> <span class="pricechip">2 refs</span></div></div></div>
+          <div class="marketitem"><div class="marketpic"><span class="heart">♡</span></div><div class="marketbody"><b>Casual Hoodie</b><div class="muted">tops · casual</div><div style="margin-top:4px"><span class="sourcechip">external link</span> <span class="pricechip">import req.</span></div></div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="market-detail">
+  <div class="screen-title"><div><h3>Outfit Detail — Item as reusable production asset</h3><p class="screen-note">衣装は画像一枚ではなく、category/region/style/color/season/prompt/reference/license/provenance/try-on settingsを持つ。</p></div><span class="techref">Tech: MARKET-02 / GARMENT-01</span><span class="route">/market/:itemId</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Outfit Detail</span></div>
+    <div class="app"><aside class="nav"><div class="brand">Market</div><div class="navitem">← Discover</div><div class="navitem active">Item detail</div><div class="navitem">Related</div><div class="navitem">Try-On history</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">Outerwear / Soft Knit Cardigan</span><div class="search">Item ID: out_cardigan_soft_01</div><span class="chip">try-on ready</span></div>
+      <div class="content"><div class="marketdetail">
+        <div><div class="biggarment"></div><div class="muted" style="margin-top:4px">canonical garment plate · white background</div></div>
+        <div><div class="pagehead"><div><h4>Soft Knit Cardigan</h4><div class="muted">Cream oversized knit cardigan with soft cuffs.</div></div></div>
+          <div class="compat"><div class="card"><div class="label">Category</div><b>outerwear</b></div><div class="card"><div class="label">Region</div><b>tops</b></div><div class="card"><div class="label">Season</div><b>autumn / winter</b></div></div>
+          <div class="label">Colors</div><div><span class="colorchip" style="background:#e7dfca"></span><span class="colorchip" style="background:#b9a992"></span></div>
+          <div class="label">Garment prompt</div><div class="field tall">soft cream oversized knit cardigan, ribbed cuffs, relaxed fit, front buttons, warm wool texture</div>
+          <div class="label">Compatibility</div><div class="field">tops region · can layer over shirt · shoes unchanged</div>
+          <div style="margin-top:8px"><span class="btn primary">Try on char_a</span> <span class="btn good">Add to Wardrobe</span> <span class="btn">Add to collection</span></div>
+        </div>
+        <div class="side"><h5>Source & provenance</h5><div class="label">Source</div><div class="field">generated / Nano Banana</div><div class="label">Reference count</div><div class="field">2</div><div class="label">License note</div><div class="field tall">Internal generated asset. If external source is used, store URL/license note and require explicit import.</div><div class="label">Verification</div><div class="field">Try-On: 3 successful sessions</div></div>
+      </div></div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="look-builder">
+  <div class="screen-title"><div><h3>Look Builder — Tops × Bottoms × Shoes × Accessories</h3><p class="screen-note">マーケットのItemを組み合わせ、Outfit Recipeを作る。組み合わせを事前生成せず、Try-On時に必要な順番で編集する。</p></div><span class="techref">Tech: MARKET-03 / TRYON-02</span><span class="route">/look-builder</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Look Builder</span></div>
+    <div class="app"><aside class="nav"><div class="brand">Look Builder</div><div class="navitem active">Current look</div><div class="navitem">Saved looks</div><div class="navitem">Collections</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">Create Look</span><div class="search">For char_a / Scene 03</div><span class="chip">4 slots</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Autumn after-school look</h4><div class="muted">Recipe is semantic; generated combination is created only when you Try-On.</div></div><div class="actions"><span class="btn">Save Look</span><span class="btn primary">Try full look</span></div></div>
+      <div class="lookslots">
+        <div class="lookslot"><div class="slotpic"></div><b>Top / Outer</b><div>Soft Knit Cardigan</div><span class="btn">Replace</span></div>
+        <div class="lookslot"><div class="slotpic"></div><b>Bottom</b><div>Pastel Pleated Skirt</div><span class="btn">Replace</span></div>
+        <div class="lookslot"><div class="slotpic"></div><b>Shoes</b><div>Brown Loafers</div><span class="btn">Replace</span></div>
+        <div class="lookslot"><div class="slotpic"></div><b>Accessory</b><div>Small Shoulder Bag</div><span class="btn">Replace</span></div>
+      </div>
+      <div class="grid2" style="margin-top:8px"><div class="card"><h5>Apply order</h5><div class="row"><span>1</span><div class="grow">tops/outerwear</div></div><div class="row"><span>2</span><div class="grow">bottoms</div></div><div class="row"><span>3</span><div class="grow">shoes</div></div><div class="row"><span>4</span><div class="grow">accessory if supported</div></div></div><div class="card"><h5>Compatibility warnings</h5><div class="row"><span class="status ok">OK</span><div class="grow">No region conflict</div></div><div class="row"><span class="status warn">Check</span><div class="grow">Cardigan overlaps school shirt sleeves</div></div></div></div>
+      </div></main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="character">
+  <div class="screen-title"><div><h3>Character — Identity & Wardrobe</h3><p class="screen-note">キャラクターを「プロンプト設定」ではなく、再利用可能な制作資産として扱う。</p></div><span class="route">/characters/:id</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Character</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">char_a</div><div class="navitem">Overview</div><div class="navitem">Identity refs</div><div class="navitem active">Wardrobe <span class="count">8</span></div><div class="navitem">Expressions</div><div class="navitem">Pose presets</div><div class="navitem">Voice / Persona</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Characters / char_a / Wardrobe</span><div class="search">Search wardrobe...</div><span class="chip">identity locked</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Wardrobe</h4><div class="muted">Create, test and reuse outfits across projects.</div></div><div class="actions"><span class="btn">＋ Add outfit</span><span class="btn primary">👗 Try outfit</span></div></div>
+        <div class="grid2">
+          <div class="card"><div class="row" style="border:0"><div class="thumb" style="width:72px;height:86px;flex-basis:72px"></div><div class="grow"><b>char_a</b><div class="muted">4 identity refs · canonical face locked</div><div style="margin-top:5px"><span class="status">anime_daily</span> <span class="status ok">verified</span></div></div><span class="btn">Edit identity</span></div></div>
+          <div class="card"><h5>Current project use</h5><div class="row"><div class="grow">Scene 01–02</div><b>School Uniform</b></div><div class="row"><div class="grow">Scene 03</div><b>Cardigan candidate</b></div></div>
+        </div>
+        <h5 style="margin:12px 0 7px">Outfits</h5>
+        <div class="outfits">
+          <div class="outfit active"><div class="pic"></div><b>School Uniform</b><div class="muted">verified</div></div>
+          <div class="outfit"><div class="pic"></div><b>Cardigan</b><div class="muted">3 refs · untested</div></div>
+          <div class="outfit"><div class="pic"></div><b>Stage A</b><div class="muted">2 refs</div></div>
+          <div class="outfit"><div class="pic"></div><b>Summer Casual</b><div class="muted">Qwen-ready</div></div>
+          <div class="outfit"><div class="pic"></div><b>＋ New outfit</b><div class="muted">image / prompt</div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="tryon">
+  <div class="screen-title"><div><h3>Virtual Try-On Lab — Character × Outfit</h3><p class="screen-note">衣装差分を作るだけではなく、「この衣装をこのキャラの正式なWardrobeとして採用できるか」を比較・検証する。</p></div><span class="techref">Tech: TRYON-01</span><span class="route">/try-on</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Virtual Try-On</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Try-On Lab</div><div class="navitem active">New session</div><div class="navitem">History</div><div class="navgroup">Presets</div><div class="navitem">Keep identity</div><div class="navitem">Keep pose</div><div class="navitem">Full body</div><div class="navitem">Upper body</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">char_a + cardigan_02</span><div class="search">Project context: 放課後の帰り道 / Scene 03</div><span class="chip">Image Edit</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Try cardigan_02</h4><div class="muted">Change clothing while preserving identity, pose and background.</div></div><div class="actions"><span class="btn">Save preset</span><span class="btn primary">Generate 4</span></div></div>
+        <div class="split">
+          <div class="side"><h5>Source rules</h5><div class="label">Character</div><div class="field">char_a</div><div class="label">Base image</div><div class="heroimg" style="min-height:220px"></div><div class="label">Preserve</div><div class="field tall">☑ face<br>☑ hair<br>☑ pose<br>☑ background<br>☐ accessories</div></div>
+          <div>
+            <div class="trygrid">
+              <div><div class="heroimg"> </div><div class="muted" style="text-align:center;margin-top:3px">Source character</div></div>
+              <div class="tryarrow">＋</div>
+              <div><div class="heroimg"></div><div class="muted" style="text-align:center;margin-top:3px">Garment reference</div></div>
+            </div>
+            <div class="results">
+              <div class="result"><div class="pic"></div><b>A</b> · face .96</div>
+              <div class="result"><div class="pic"></div><b>B</b> · cloth .92</div>
+              <div class="result"><div class="pic"></div><b>C</b> · pose drift</div>
+              <div class="result best"><div class="pic"></div><b>D ★</b> · best overall</div>
+            </div>
+          </div>
+          <div class="side"><h5>Provider & adoption</h5><div class="label">Capability</div><div class="field">OutfitTryOn</div><div class="label">Resolved provider</div><div class="field">Qwen Image Edit</div><div class="label">Garment priority</div><div class="field">0.80</div><div class="label">Identity priority</div><div class="field">1.00</div><div style="margin-top:9px"><span class="btn good" style="display:block;text-align:center">Adopt D to Wardrobe</span><span class="btn" style="display:block;text-align:center;margin-top:5px">Use only in this Scene</span></div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="story">
+  <div class="screen-title"><div><h3>Story — Beat & Script Editor</h3><p class="screen-note">セリフは画像の後付けではなく、演技とShotを駆動する意味データとして確定する。</p></div><span class="techref">Tech: DLG-01..04</span><span class="route">/projects/:id/story</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Story</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Story</div><div class="navitem">Scene 01 ✓</div><div class="navitem">Scene 02 ✓</div><div class="navitem active">Scene 03</div><div class="navitem">Scene 04</div><div class="navgroup">Beat 02</div><div class="navitem active">Speech</div><div class="navitem">Narration</div><div class="navitem">Inner voice</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Scene 03 / Beat 02</span><div class="search">Search previous dialogue...</div><span class="chip">persona loaded</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Beat 02 — 引き止めたい</h4><div class="muted">Subtext: 寂しいとは直接言わない</div></div><div class="actions"><span class="btn">Generate again</span><span class="btn good">Lock selected</span></div></div>
+        <div class="grid2">
+          <div><div class="card"><h5>Dialogue candidates</h5><div class="row"><span>○</span><div class="grow"><b>「……もう帰っちゃうんですか？」</b></div><span class="status ok">4.8</span></div><div class="row"><span>○</span><div class="grow">「このあと、まだ時間あります？」</div><span class="status">4.4</span></div><div class="row"><span>○</span><div class="grow">「もう少しだけ、付き合ってくれません？」</div><span class="status">4.2</span></div></div>
+          <div class="grid3" style="margin-top:8px"><div class="card"><div class="label">Intent</div><b>stay together</b></div><div class="card"><div class="label">Emotion</div><b>shy .65</b></div><div class="card"><div class="label">Action</div><b>turn back</b></div></div></div>
+          <div class="card"><h5>Context</h5><div class="label">Character voice</div><div class="field tall">「えへへ、もっと褒めてもいいんですよ？」<br><br>「じゃあ、一緒に行きません？」</div><div class="label">Current wardrobe</div><div class="field">cardigan_02 · verified</div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="shot">
+  <div class="screen-title"><div><h3>Shot Studio — Pose / Camera / Composition</h3><p class="screen-note">モデルのパラメータを直接触る画面ではなく、絵としてどう見せるかを決める。ProviderはCapability Routerが解決する。</p></div><span class="techref">Tech: SHOT-01 / IMG-01</span><span class="route">/projects/:id/shots/:id</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Shot Studio</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Shot Studio</div><div class="navitem active">Shot 02-A</div><div class="navitem">＋ Alternate shot</div><div class="navgroup">Visual</div><div class="navitem">Character</div><div class="navitem">Pose</div><div class="navitem">Camera</div><div class="navitem">References</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Beat 02 → Shot 02-A</span><div class="search">「……もう帰っちゃうんですか？」</div><span class="chip">script locked</span></div>
+      <div class="content">
+        <div class="pagehead"><div><h4>Visual direction</h4><div class="muted">Reserve space for lettering before generation.</div></div><div class="actions"><span class="btn">Pose workbench</span><span class="btn primary">Generate 4</span></div></div>
+        <div class="split">
+          <div class="side"><h5>Character state</h5><div class="label">Outfit</div><div class="field">cardigan_02 ✓</div><div class="label">Expression</div><div class="field">shy / light blush</div><div class="label">Pose</div><div class="field">look over shoulder</div><div class="label">Gaze</div><div class="field">toward viewer</div></div>
+          <div><div class="shotstage"><div class="safe">lettering safe area</div><div class="person"></div></div><div class="muted" style="text-align:center;margin-top:3px">composition preview</div></div>
+          <div class="side"><h5>Camera & backend</h5><div class="label">Shot</div><div class="field">medium</div><div class="label">Angle</div><div class="field">eye level</div><div class="label">Capability</div><div class="field">PoseControlledRender</div><div class="label">Resolved</div><div class="field">Anima + LLLite Pose</div></div>
+        </div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="review">
+  <div class="screen-title"><div><h3>Generation Review — Compare & Adopt</h3><p class="screen-note">自動スコアは並べ替え補助。最終採用は人間が行う。</p></div><span class="techref">Tech: REVIEW-01</span><span class="route">/projects/:id/review</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Review</span></div>
+    <div class="app"><aside class="nav"><div class="brand">Review</div><div class="navitem active">Current run</div><div class="navitem">Previous runs</div><div class="navgroup">QA</div><div class="navitem">Identity</div><div class="navitem">Pose</div><div class="navitem">Outfit</div><div class="navitem">Artifacts</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">Shot 02-A · 4 candidates</span><div class="search">seed group 3819</div><span class="chip">complete</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Choose the image</h4><div class="muted">You can create variations from any candidate without losing the original run.</div></div><div class="actions"><span class="btn">Regenerate</span><span class="btn">Variation</span></div></div>
+        <div class="candidates"><div class="cand"><div class="pic"></div><b>A</b><div class="muted">identity .94 · pose .88</div></div><div class="cand best"><div class="pic"></div><b>B ★</b><div class="muted">identity .97 · pose .94</div><span class="btn good">Adopted</span></div><div class="cand"><div class="pic"></div><b>C</b><div class="muted">outfit mismatch</div></div><div class="cand"><div class="pic"></div><b>D</b><div class="muted">hand warning</div></div></div>
+        <div class="grid2" style="margin-top:8px"><div class="card"><h5>Provenance</h5><div class="row"><span>Base</span><b class="grow" style="text-align:right">Anima Base v1</b></div><div class="row"><span>Pose</span><b class="grow" style="text-align:right">LLLite pose-1</b></div><div class="row"><span>Outfit</span><b class="grow" style="text-align:right">cardigan_02</b></div></div><div class="card"><h5>Next actions</h5><span class="btn primary">Add to CSP Handoff</span> <span class="btn">Expression variation</span> <span class="btn">Try another outfit</span></div></div>
+      </div></main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="csp">
+  <div class="screen-title"><div><h3>CSP Handoff — Human Finishing Boundary</h3><p class="screen-note">ページ・コマ・フキダシ・文字・最終仕上げはCLIP STUDIO PAINT EXへ任せる。Studioは準備・受け渡し・戻りの管理に徹する。</p></div><span class="techref">Tech: CSP-01</span><span class="route">/projects/:id/csp</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">CSP Handoff</span></div>
+    <div class="app"><aside class="nav"><div class="brand">CSP Handoff</div><div class="navitem active">Pages</div><div class="navitem">Script export</div><div class="navitem">References</div><div class="navitem">Export watcher</div><div class="navgroup">Actions</div><div class="navitem">Open handoff folder</div><div class="navitem">Copy page text</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">Handoff revision r004</span><div class="search">Watching csp_export/r004</div><span class="chip">2 / 3 ready</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Prepare CLIP STUDIO package</h4><div class="muted">Clean art, page text and references only. Native CSP editing remains in CSP.</div></div><div class="actions"><span class="btn">Rebuild</span><span class="btn primary">Open handoff folder</span></div></div>
+        <div class="pagecard"><div class="pagepic"></div><div><b>Page 01</b><div class="muted">2 panels · 2 speech events · clean art ready</div></div><span class="status ok">ready</span></div>
+        <div class="pagecard"><div class="pagepic"></div><div><b>Page 02</b><div class="muted">3 panels · narration included</div></div><span class="status ok">ready</span></div>
+        <div class="pagecard"><div class="pagepic"></div><div><b>Page 03</b><div class="muted">Shot 03-C has no adopted image</div></div><span class="status warn">blocked</span></div>
+        <div class="grid2"><div class="card"><h5>Package</h5><div class="row"><span>clean images</span><b class="grow" style="text-align:right">5</b></div><div class="row"><span>page text</span><b class="grow" style="text-align:right">3</b></div><div class="row"><span>layout refs</span><b class="grow" style="text-align:right">3</b></div></div><div class="card"><h5>Return from CSP</h5><div class="row"><span>Watcher</span><span class="status ok">active</span></div><div class="row"><span>Detected exports</span><b class="grow" style="text-align:right">0</b></div></div></div>
+      </div></main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="release">
+  <div class="screen-title"><div><h3>Release Center — Platform Editions</h3><p class="screen-note">CSPから戻った完成ページを媒体ごとのEditionへ展開する。投稿はPreviewとApprovalの後。</p></div><span class="techref">Tech: PUB-01..03</span><span class="route">/releases/:id</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Release</span></div>
+    <div class="app"><aside class="nav"><div class="brand">Release r005</div><div class="navitem active">Overview</div><div class="navitem">X</div><div class="navitem">pixiv</div><div class="navitem">Patreon</div><div class="navitem">History</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">放課後の帰り道</span><div class="search">3 final pages imported</div><span class="chip">approval required</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Build editions</h4><div class="muted">Media order, copy, visibility and AI metadata are independent per platform.</div></div><div class="actions"><span class="btn">Validate all</span><span class="btn warn">Approve release</span></div></div>
+        <div class="release">
+          <div class="card"><h5>X</h5><div class="media"><div></div><div></div><div></div></div><div class="field tall">放課後の帰り道。<br>#創作</div><div style="margin-top:6px"><span class="btn">Preview</span></div></div>
+          <div class="card"><h5>pixiv</h5><div class="media"><div></div><div></div><div></div></div><div class="field tall">Title + tags<br>AI-generated: yes</div><div style="margin-top:6px"><span class="btn">Preview</span></div></div>
+          <div class="card"><h5>Patreon</h5><div class="media"><div></div><div></div><div></div></div><div class="field tall">Full-res + variants<br>Tier: supporter</div><div style="margin-top:6px"><span class="btn">Preview</span></div></div>
+        </div>
+      </div></main></div>
+  </div>
+</div>
+
+
+<div class="screen-block" id="integrations">
+  <div class="screen-title"><div><h3>Integration Hub — APIs / Plugins / MCP</h3>
+  <p class="screen-note">既存製品の能力をStudioへ接続する場所。接続方式、権限、信頼レベル、最後のHealth Checkを可視化し、危険な統合を無意識に有効化しない。</p></div>
+  <span class="techref">Tech: INT-01 / SEC-01</span><span class="route">/integrations</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Integration Hub</span></div>
+    <div class="app"><aside class="nav">
+      <div class="brand">Integrations</div><div class="navitem active">Connected</div><div class="navitem">Available</div><div class="navitem">Permissions</div><div class="navitem">Audit log</div>
+      <div class="navgroup">Trust</div><div class="navitem">Official</div><div class="navitem">Vetted local</div><div class="navitem">Browser automation</div>
+    </aside><main class="main">
+      <div class="topbar"><span class="crumb">Integrations / Connected</span><div class="search">⌕ Eagle, ComfyUI, Blender...</div><span class="chip">localhost only</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Connected tools</h4><div class="muted">Prefer official APIs/MCP. Powerful write operations require explicit scopes and approval.</div></div><div class="actions"><span class="btn">Security scan</span><span class="btn primary">＋ Add integration</span></div></div>
+      <div class="integration-grid">
+        <div class="integration-card"><div class="icon">E</div><b>Eagle</b> <span class="trust">OFFICIAL</span><div class="muted">Official MCP + Web API v2</div><div class="permission-list"><span>✓ read assets/tags/folders</span><span>✓ add/update metadata</span><span>✓ smart folders/comments</span><span>✕ direct library filesystem writes</span></div><span class="status ok">healthy</span></div>
+        <div class="integration-card"><div class="icon">C</div><b>ComfyUI</b> <span class="trust">OFFICIAL MCP</span><div class="muted">MCP for discovery; fixed API workflow for production</div><div class="permission-list"><span>✓ inspect models/nodes/workflows</span><span>✓ dev workflow runs</span><span>✓ production fixed workflow adapter</span><span>✕ arbitrary agent workflow in publish path</span></div><span class="status ok">healthy</span></div>
+        <div class="integration-card"><div class="icon">CS</div><b>CLIP STUDIO</b> <span class="trust">OFFICIAL</span><div class="muted">Plugin store + Auto Action + file handoff</div><div class="permission-list"><span>✓ filter plugins</span><span>✓ auto actions / shortcuts</span><span>✓ handoff + batch export</span><span>✕ unsupported native document automation</span></div><span class="status">manual app</span></div>
+        <div class="integration-card"><div class="icon">B</div><b>Blender</b> <span class="trust community">RESTRICTED MCP</span><div class="muted">Named ops only / workspace allowlist</div><div class="permission-list"><span>✓ scene read</span><span>✓ pose/camera operations</span><span>✓ export into project workspace</span><span>✕ arbitrary Python/shell in production</span></div><span class="status warn">audit required</span></div>
+      </div>
+      <div class="card" style="margin-top:9px"><h5>Security policy</h5><div class="security-matrix"><div class="security-box"><b>1. Official local API/MCP</b><br>Preferred</div><div class="security-box"><b>2. Official OAuth API</b><br>Scoped tokens</div><div class="security-box"><b>3. Vetted OSS MCP</b><br>Pin + sandbox/allowlist</div><div class="security-box"><b>4. File bridge</b><br>Safe fallback</div><div class="security-box"><b>5. Playwright</b><br>Last resort</div></div></div>
+      <div class="grid2" style="margin-top:9px"><div class="card"><h5>Recent permission events</h5><div class="row"><span>Eagle</span><div class="grow">Add adopted image + tags</div><span class="status ok">allowed</span></div><div class="row"><span>Blender</span><div class="grow">execute arbitrary Python</div><span class="status warn">blocked</span></div></div><div class="card"><h5>Connection defaults</h5><div class="row"><span>Bind</span><b class="grow" style="text-align:right">127.0.0.1</b></div><div class="row"><span>Remote integrations</span><b class="grow" style="text-align:right">OAuth/API key vault</b></div><div class="row"><span>Secrets in DB</span><b class="grow" style="text-align:right">Never</b></div></div></div>
+      </div>
+    </main></div>
+  </div>
+</div>
+
+<div class="screen-block" id="library">
+  <div class="screen-title"><div><h3>Library — References & Generated Assets</h3><p class="screen-note">Eagleは外部カタログとして統合し、Studio内Assetと同じ検索体験で扱う。</p></div><span class="route">/library</span></div>
+  <div class="browser"><div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="caption">Library</span></div>
+    <div class="app"><aside class="nav"><div class="brand">Library</div><div class="navitem active">All</div><div class="navitem">Identity refs</div><div class="navitem">Outfits</div><div class="navitem">Poses</div><div class="navitem">Backgrounds</div><div class="navitem">Generated</div><div class="navitem">Published</div></aside>
+    <main class="main"><div class="topbar"><span class="crumb">Assets</span><div class="search">⌕ cardigan, char_a, pose:turn...</div><span class="chip">Eagle linked</span></div>
+      <div class="content"><div class="pagehead"><div><h4>Asset Library</h4><div class="muted">Internal immutable assets + external references.</div></div><div class="actions"><span class="btn">Sync Eagle</span><span class="btn primary">＋ Import</span></div></div>
+        <div class="assets">
+          <div class="asset"><div class="pic"></div><b>face_ref_01</b><div class="muted">identity</div></div><div class="asset"><div class="pic"></div><b>cardigan_02</b><div class="muted">outfit</div></div><div class="asset"><div class="pic"></div><b>turn_pose</b><div class="muted">pose</div></div><div class="asset"><div class="pic"></div><b>school_gate</b><div class="muted">background</div></div><div class="asset"><div class="pic"></div><b>shot_02_B</b><div class="muted">adopted</div></div><div class="asset"><div class="pic"></div><b>stage_A_ref</b><div class="muted">Eagle ref</div></div>
+        </div>
+      </div></main></div>
+  </div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head"><span class="section-num">03</span><h2>スクラップ&ビルドで削るもの</h2></div>
+<div class="grid3">
+  <div class="card"><h5>旧Experiment / Trial中心UI</h5><p class="muted">研究用の実行単位を製品UIの中心には置かない。GenerationAttemptは裏の履歴に退避。</p></div>
+  <div class="card"><h5>巨大な万能Pipeline画面</h5><p class="muted">Dialogue・生成・投稿を1画面/1サービスに詰め込まない。ユーザー行為で画面を分割する。</p></div>
+  <div class="card"><h5>自作漫画編集ソフト</h5><p class="muted">コマ枠・本格レタリング・ページ編集はCSPに任せる。StudioはHandoffの品質を上げる。</p></div>
+</div>
+<div class="notice warn" style="margin-top:12px"><b>旧プロジェクトから残すのはコードではなく知識：</b> 投稿サイトの実際の操作手順、ComfyUI workflowの動作実績、モデル資産、Eagle運用ノウハウなど。新しいUIやDomainを旧クラス構成に合わせる必要はない。</div>
+</section>
+</div>
+<footer class="footer">Character Content Studio · Product Wireframes R4 — Integrations · 2026-10-10</footer>
+</body></html>

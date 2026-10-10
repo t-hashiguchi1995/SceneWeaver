@@ -1,0 +1,54 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+
+# Node
+node_modules/
+apps/web/dist/
+apps/web/node_modules/
+*.tsbuildinfo
+
+# Env & secrets
+.env
+.env.local
+*.pem
+
+# Runtime (DB, assets, logs, sessions)
+runtime/
+!runtime/.gitkeep
+runtime-test/
+!runtime-test/.gitkeep
+runtime-e2e/
+!runtime-e2e/.gitkeep
+runtime-live-test/
+!runtime-live-test/.gitkeep
+
+# Playwright
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/.auth/
+scripts/e2e/*.pid
+scripts/e2e/*.log
+scripts/e2e/live-*.pid
+scripts/e2e/live-*.log
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Generated OpenAPI (committed schema.d.ts is OK; raw dump optional)
+apps/web/openapi.json
+
+# Coverage
+htmlcov/
+.coverage
+coverage/

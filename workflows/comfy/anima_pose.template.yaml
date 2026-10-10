@@ -1,0 +1,12 @@
+id: anima_pose_v1
+backend: comfyui
+capability: PoseControlledRender
+workflow_file: workflows/comfy/anima_pose.api.json
+slots:
+  positive_prompt: { node: "6", input: "text" }
+  negative_prompt: { node: "7", input: "text" }
+  seed: { node: "12", input: "seed" }
+  pose_image: { node: "42", input: "image" }
+  control_strength: { node: "71", input: "strength" }
+outputs:
+  images: ["90"]

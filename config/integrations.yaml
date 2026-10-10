@@ -1,0 +1,24 @@
+integrations:
+  eagle:
+    mode: official_mcp_and_web_api
+    endpoint: http://127.0.0.1:41595
+    enabled: false
+    scopes:
+      - read_assets
+      - write_metadata
+
+  comfyui:
+    endpoint: http://127.0.0.1:8188
+    mcp_usage: development_and_introspection
+    production_mode: fixed_workflow_adapter
+
+  clip_studio:
+    mode: file_handoff
+    handoff_root: runtime/projects/{project_id}/csp_handoff
+    export_root: runtime/projects/{project_id}/csp_export
+
+  blender:
+    mode: restricted_provider
+    enabled: false
+    allow_arbitrary_python: false
+    workspace_only: true

@@ -1,0 +1,21 @@
+app:
+  name: SceneWeaver
+  api_version: v1
+
+paths:
+  runtime_dir: runtime
+  assets_subdir: assets
+  projects_subdir: projects
+  logs_subdir: logs
+
+jobs:
+  lease_seconds: 30
+  heartbeat_interval_seconds: 10
+  max_attempts_default: 3
+  poll_interval_seconds: 1.0
+
+security:
+  bind_host: 127.0.0.1
+  cors_origins:
+    - http://127.0.0.1:5173
+    - http://localhost:5173

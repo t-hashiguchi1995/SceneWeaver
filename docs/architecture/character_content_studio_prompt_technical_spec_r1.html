@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Character Content Studio — Prompt & Technical Specification R1</title>
+<style>
+:root{--bg:#08111f;--panel:#101c30;--panel2:#14243a;--line:#2b405f;--text:#e9eff9;--muted:#9aabc1;--cyan:#67e8f9;--green:#6ee7b7;--yellow:#fde68a;--red:#fca5a5}
+*{box-sizing:border-box}body{margin:0;background:#08111f;color:var(--text);font-family:Inter,"Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;line-height:1.65}
+a{color:#8eeeff}.wrap{width:min(1240px,calc(100% - 36px));margin:auto}.top{position:sticky;top:0;z-index:20;background:#08111fee;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.top .wrap{height:58px;display:flex;align-items:center;gap:12px}.title{font-weight:800}.spacer{flex:1}.nav a{font-size:11px;margin-left:8px;color:#a9b8cb}
+.hero{padding:48px 0 28px}.hero h1{font-size:42px;line-height:1.1;margin:8px 0}.eyebrow{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.lede{color:#aebdd0;max-width:920px}.section{padding:26px 0}.section h2{font-size:26px;margin:0 0 9px}.section h3{font-size:19px;margin:24px 0 9px}.section h4{font-size:15px;margin:18px 0 7px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:14px;margin:10px 0}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:9px;border-bottom:1px solid #243854;text-align:left;vertical-align:top}th{background:#14243a;color:#cfe1f7}
+pre{white-space:pre-wrap;word-break:break-word;background:#07101d;border:1px solid #2b405e;border-radius:10px;padding:12px;color:#cfe3f7;font-size:11px;line-height:1.55}
+code{color:#b9eaf3}.badge{display:inline-block;font-size:9px;padding:3px 6px;border-radius:999px;border:1px solid #33516f;color:#a9c9e6}.ok{border-color:#316e59;color:#a7f3d0}.warn{border-color:#755f28;color:#fde68a}
+.callout{border-left:4px solid var(--cyan);background:#0f2134;border-radius:8px;padding:11px 13px;margin:12px 0}.callout.good{border-color:var(--green);background:#0f241f}.callout.warn{border-color:var(--yellow);background:#2b240f}
+.spec{border:1px solid var(--line);background:var(--panel);border-radius:14px;margin:18px 0;overflow:hidden}.spechead{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#14243a;border-bottom:1px solid var(--line)}.spechead h3{margin:0;font-size:17px}.specbody{padding:14px}.kv{display:grid;grid-template-columns:170px 1fr;border-top:1px solid #263a56}.kv:first-child{border-top:0}.kv>b,.kv>div{padding:7px 5px;font-size:11px}.kv>b{color:#94abc7}
+.prompt{border:1px solid #31506d;border-radius:10px;margin:10px 0}.prompt .ph{background:#112943;padding:7px 10px;font-size:10px;color:#a9eaf3;border-bottom:1px solid #31506d}.prompt pre{margin:0;border:0;border-radius:0;background:#091522}
+.toc{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.toc a{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px;font-size:10px;color:#b8c7d9}
+.small{font-size:10px;color:var(--muted)}ul{padding-left:20px}
+@media(max-width:850px){.grid2,.grid3,.toc{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.kv>b{padding-bottom:0}}
+</style></head><body>
+<div class="top"><div class="wrap"><div class="title">Character Content Studio</div><span class="badge">Prompt & Technical Spec R1</span><div class="spacer"></div><div class="nav"><a href="character_content_studio_wireframes_r3_wardrobe_market.html">Wireframes ↗</a></div></div></div>
+<div class="wrap">
+<section class="hero"><div class="eyebrow">Mandatory implementation reference</div><h1>各機能の Prompt / Model / Workflow / Data Contract</h1>
+<p class="lede">画面仕様だけでは実装判断がぶれないよう、各機能に対して「何を入力し、どの固定モデル・技術を使い、どのPromptをコンパイルし、何を保存するか」を定義する。旧プロジェクトのコード構造は継承しないが、共有リポジトリで動作確認されていたモデル/Workflow資産はProductionの固定制約として利用する。</p></section>
+
+<section class="section"><h2>0. Fixed Model Registry</h2>
+<div class="callout warn"><b>固定するのはモデル/Workflow資産だけ。</b> Domain、API、UI、DB、Prompt architectureは全面再設計可能。A1111のcheckpointはリポジトリで固定されずruntime discoveryだったため、Production必須経路には含めない。</div>
+<table><thead><tr><th>Provider</th><th>固定モデル/資産</th><th>Capability</th><th>主用途</th></tr></thead><tbody>
+<tr><td>ComfyUI / Anima</td><td><code>anima_baseV10.safetensors</code><br><code>qwen_3_06b_base.safetensors</code><br><code>qwen_image_vae.safetensors</code></td><td>BaseRender</td><td>キャラ画像、Panel clean art</td></tr>
+<tr><td>ComfyUI / Anima LLLite</td><td><code>anima-lllite-pose-1.safetensors</code></td><td>PoseControlledRender</td><td>OpenPose準拠の構図固定</td></tr>
+<tr><td>ComfyUI / Qwen Image Edit</td><td><code>qwen_image_edit_2509_fp8_e4m3fn.safetensors</code><br><code>Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors</code><br><code>qwen_2.5_vl_7b_fp8_scaled.safetensors</code><br><code>qwen_image_vae.safetensors</code></td><td>ImageEdit / OutfitTryOn / ExpressionEdit</td><td>衣装、トップス/ボトムス、靴、表情、髪型差分</td></tr>
+<tr><td>Google Image Provider</td><td><code>gemini-2.5-flash-image</code> (既定)<br><code>gemini-3-pro-image-preview</code> (利用可能)</td><td>ReferenceAssetGeneration</td><td>衣装プレート、参照素材生成/正規化</td></tr>
+</tbody></table>
+<h4>Anima共通品質Prompt</h4>
+<pre>year 2025, newest, masterpiece, best quality, score_9, score_8, highres,
+{safety}, @fuzichoco, @rella,
+{character_tags},
+{scene_and_shot_tags}</pre>
+<h4>Anima共通Negative</h4>
+<pre>worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts,
+sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit,
+fewer digits, cropped, signature, watermark, username, artist name</pre>
+</section>
+
+<section class="section"><h2>1. Function Index</h2>
+<div class="toc">
+<a href="#market01">MARKET-01 Wardrobe Market</a><a href="#garment01">GARMENT-01 Garment Plate</a><a href="#tryon01">TRYON-01 Full Try-On</a><a href="#tryon02">TRYON-02 Look Recipe</a>
+<a href="#dlg01">DLG-01 Dialogue Director</a><a href="#dlg02">DLG-02 Line Writer</a><a href="#dlg03">DLG-03 Critic</a><a href="#dlg04">DLG-04 Narration</a>
+<a href="#shot01">SHOT-01 Visual Director</a><a href="#img01">IMG-01 Anima Render</a><a href="#edit01">EDIT-01 Expression</a><a href="#review01">REVIEW-01 Review</a>
+<a href="#csp01">CSP-01 Handoff</a><a href="#pub01">PUB-01 X</a><a href="#pub02">PUB-02 pixiv</a><a href="#pub03">PUB-03 Patreon</a>
+</div></section>
+
+<section class="section"><h2>2. Wardrobe Market / Virtual Try-On</h2>
+
+<div class="spec" id="market01"><div class="spechead"><h3>MARKET-01 — Wardrobe Market Search / Recommendation</h3><span class="badge ok">No new model required</span></div><div class="specbody">
+<div class="kv"><b>Purpose</b><div>衣装をマーケット型UIで発見し、Project/Character contextに合わせて絞る。</div></div>
+<div class="kv"><b>Technology</b><div>SQLite FTS5 + structured filters。category, region, style, season, color, source, verified, compatibilityをindex。推薦は最初はrule score。</div></div>
+<div class="kv"><b>Required prompt</b><div>なし。生成AIを使わず成立させる。自然言語検索が必要ならLLMGatewayで検索条件JSONへ変換するだけで、画像生成モデルは増やさない。</div></div>
+<div class="kv"><b>Score example</b><div><code>0.30 scene_style + 0.25 season + 0.20 character_compatibility + 0.15 color + 0.10 favorite/history</code></div></div>
+<div class="kv"><b>Output</b><div>MarketplaceItem IDs + score + reason。</div></div>
+</div></div>
+
+<div class="spec" id="garment01"><div class="spechead"><h3>GARMENT-01 — Garment Plate Generation / Import Normalization</h3><span class="badge">gemini-2.5-flash-image</span></div><div class="specbody">
+<div class="kv"><b>Purpose</b><div>Try-Onに使いやすい、白背景・人物なし・衣類単体のcanonical referenceを作る。</div></div>
+<div class="kv"><b>Technology</b><div>Google Image Provider。カテゴリ別aspect ratio。生成/写真importの2モード。</div></div>
+<div class="prompt"><div class="ph">Canonical prompt — create</div><pre>Japanese fashion apparel terminology encyclopedia illustration plate.
+Isolated single garment, front view, centered on a pure white background.
+No person, no face, no body, no mannequin, no hanger, no stand, no extra props.
+No text, no watermark, no logo, no collage.
+Clean colored fashion illustration, even studio lighting,
+high detail of silhouette, fabric, seams, and trims.
+
+Create a fashion encyclopedia plate of the garment described below.
+Category: {category_en}. {category_hint}.
+Item name: {name}.
+Garment: {garment_description}.</pre></div>
+<div class="prompt"><div class="ph">Canonical prompt — import from photo</div><pre>Redraw the clothing from the input image as a fashion encyclopedia plate.
+Keep the garment's colors, silhouette, fabric, prints, seams, trims,
+and distinctive details.
+Remove any person, mannequin, background, clutter, duplicated items,
+logos that are not part of the garment design, and unrelated props.
+Output one isolated garment centered on pure white background.
+No text, no watermark, no collage.
+Category: {category_en}. {category_hint}.</pre></div>
+<div class="kv"><b>Save</b><div>canonical image, source URI/hash, prompt version, model id, category, region, garment description, license note。</div></div>
+</div></div>
+
+<div class="spec" id="tryon01"><div class="spechead"><h3>TRYON-01 — Full Outfit Virtual Try-On</h3><span class="badge">Qwen Image Edit 2509</span></div><div class="specbody">
+<div class="kv"><b>Inputs</b><div>image1=character source, image2=garment plate, Outfit semantic description, preserve flags。</div></div>
+<div class="kv"><b>Workflow</b><div><code>stand_tryon_qwen_edit.api.json</code>相当のTemplateを新システム用slot契約で包む。</div></div>
+<div class="prompt"><div class="ph">Full outfit</div><pre>Change only the clothing of the anime character in image 1
+to match the outfit shown in image 2.
+
+Preserve exactly:
+- character identity and facial features
+- hairstyle and hair color
+- body proportions
+- pose and hand positions
+- camera framing
+- background and lighting
+
+Fit the garment naturally to the body.
+Do not paste a flat cutout onto the character.
+Do not redesign the character.
+Do not add unrelated accessories.
+
+Target outfit description:
+{outfit_description}
+
+Footwear instruction:
+{footwear_instruction}</pre></div>
+<div class="kv"><b>Candidate policy</b><div>4候補を生成。元画像はimmutable。採用結果はderived Assetとして保存。</div></div>
+<div class="kv"><b>Human checks</b><div>identity drift / garment fidelity / pose drift / layering / unintended accessory。</div></div>
+</div></div>
+
+<div class="spec" id="tryon02"><div class="spechead"><h3>TRYON-02 — Look Recipe: Tops / Bottoms / Shoes</h3><span class="badge">Qwen Image Edit 2509</span></div><div class="specbody">
+<div class="kv"><b>Technique</b><div>一度に全アイテムを要求せず、regionごとに順次edit。各stepの採用Assetを次stepのimage1へ渡す。</div></div>
+<div class="prompt"><div class="ph">Tops / outerwear edit</div><pre>Change only the upper-body clothing of the anime character in image 1
+to match the TOP garment shown in image 2.
+
+Ignore any skirt, pants, shoes, or unrelated item visible in image 2.
+Keep exactly the same face, hair, pose, lower-body clothing, shoes,
+background, framing, and lighting.
+Fit the top naturally on the body; do not overlay a flat cutout.
+
+Target top:
+{garment_description}</pre></div>
+<div class="prompt"><div class="ph">Bottoms edit</div><pre>Change only the lower-body clothing of the anime character in image 1
+to match the BOTTOM garment shown in image 2.
+
+Ignore any top, shirt, sleeves, or unrelated upper-body item in image 2.
+Keep exactly the same face, hair, pose, upper-body clothing, shoes,
+background, framing, and lighting.
+Fit the bottoms naturally on the body.
+
+Target bottoms:
+{garment_description}</pre></div>
+<div class="prompt"><div class="ph">Shoes edit</div><pre>Keep the exact same anime character, face, hair, pose, clothing,
+camera framing, and background from image 1.
+Change only the footwear to:
+{shoes_description}.
+Do not change any other garment or body feature.</pre></div>
+<div class="kv"><b>Order</b><div>tops/outerwear → bottoms → shoes → optional accessory。Conflict ruleはMarketplaceItem.regionで判定。</div></div>
+</div></div>
+</section>
+
+<section class="section"><h2>3. Dialogue / Narration</h2>
+<p class="small">Dialogue LLMはImage Model Registryとは別のLLMGateway。Promptは固定バージョン管理し、structured JSONを必須とする。</p>
+
+<div class="spec" id="dlg01"><div class="spechead"><h3>DLG-01 — Dialogue Director</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">director_v1</div><pre>You are a dialogue director for a character-driven comic.
+
+Do NOT write the final line yet.
+Given the character persona, relationship state, scene objective,
+previous beats, and current beat goal, decide the communicative action.
+
+Return JSON only:
+{
+  "speaker_id": "...",
+  "addressee_ids": ["..."],
+  "speech_act": "...",
+  "intent": "...",
+  "subtext": "...",
+  "emotion": {"name":"...", "intensity":0.0},
+  "delivery": {"volume":"...", "pace":"...", "pause_before":false},
+  "action_hint": "...",
+  "information_to_convey": ["..."],
+  "information_to_avoid_repeating": ["..."]
+}
+
+Constraints:
+- Preserve continuity with previous beats.
+- Prefer subtext over directly explaining emotion.
+- Do not invent facts not present in context.</pre></div>
+</div></div>
+
+<div class="spec" id="dlg02"><div class="spechead"><h3>DLG-02 — Character Line Writer</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">writer_v1</div><pre>You write spoken Japanese dialogue for {character_name}.
+
+Use:
+- Persona rules
+- Relationship state
+- Retrieved positive voice examples
+- DialogueDirector plan
+
+Generate {candidate_count} alternatives.
+Each must express the same intent but vary in indirectness, rhythm, and warmth.
+
+Hard constraints:
+- first person: {first_person}
+- addressee form: {second_person}
+- max characters: {max_chars}
+- max fragments: {max_fragments}
+- avoid forbidden patterns: {forbidden_patterns}
+- do not narrate visible actions
+- do not add stage directions inside the spoken line
+
+Return JSON array:
+[{"text":"...", "tone":"...", "fragment_hint":["..."]}]</pre></div>
+</div></div>
+
+<div class="spec" id="dlg03"><div class="spechead"><h3>DLG-03 — Dialogue Critic</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">critic_v1</div><pre>Score each dialogue candidate from 1.0 to 5.0 on:
+character_fidelity, continuity, subtext, spoken_naturalness,
+information_economy, repetition, bubble_fit, visual_redundancy.
+
+Do not rewrite candidates.
+Return JSON only with scores, short evidence, and blocking issues.
+
+A blocking issue includes:
+- contradiction with locked canon/state
+- wrong first/second person
+- invented factual event
+- explicit explanation of subtext when indirectness is required
+- text too long for the configured budget</pre></div>
+</div></div>
+
+<div class="spec" id="dlg04"><div class="spechead"><h3>DLG-04 — Narration Writer</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">narration_v1</div><pre>Write Japanese narration for a comic panel/page.
+
+Narrative function: {function}
+Narrator profile: {narrator_profile}
+Visible information summary: {visual_summary}
+Story context: {context}
+
+Rules:
+- Do not merely restate what the image visibly shows.
+- Add time, causality, memory, emotional implication, or narrative transition.
+- Keep it concise: max {max_chars} Japanese characters.
+- Maintain the narrator's POV and tense.
+Return JSON: {"text":"...", "function":"...", "redundancy_risk":"low|medium|high"}</pre></div>
+</div></div>
+</section>
+
+<section class="section"><h2>4. Shot / Image Generation</h2>
+<div class="spec" id="shot01"><div class="spechead"><h3>SHOT-01 — Visual Director</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">shot_planner_v1</div><pre>Convert the locked Beat and ScriptEvent into a visual shot specification.
+
+Return JSON only:
+{
+  "expression": {"id":"...", "intensity":0.0},
+  "pose": {"id":"...", "action":"..."},
+  "gaze": "...",
+  "camera": {"shot":"closeup|bust|medium|fullbody|wide", "angle":"..."},
+  "composition": {
+    "character_position":"left|center|right",
+    "reserved_lettering_region":"upper_left|upper_right|none"
+  },
+  "scene_requirements": ["..."],
+  "reference_roles": ["identity","outfit","pose","background"],
+  "required_capabilities": ["BaseRender","PoseControlledRender"]
+}
+
+Do not output Stable Diffusion prompt text.
+Do not change locked dialogue or outfit state.</pre></div>
+</div></div>
+
+<div class="spec" id="img01"><div class="spechead"><h3>IMG-01 — Anima Prompt Compiler / Render</h3><span class="badge">Anima Base v1.0</span></div><div class="specbody">
+<div class="kv"><b>Input</b><div>SemanticRenderSpec + Character visual traits + verified Outfit + Scene + Camera + Pose artifact。</div></div>
+<div class="prompt"><div class="ph">Compiled positive template</div><pre>year 2025, newest, masterpiece, best quality, score_9, score_8, highres,
+{safety}, @fuzichoco, @rella,
+{identity_tags},
+{outfit_tags},
+{expression_tags},
+{pose/action_tags},
+{camera_tags},
+{scene_tags},
+{lighting_tags},
+{composition_tags},
+{reserved_space_hint}</pre></div>
+<div class="kv"><b>Pose</b><div>OpenPose画像がある場合はAnima LLLite Pose Workflowを選択。通常ShotはBaseRender。</div></div>
+<div class="kv"><b>Provenance</b><div>compiled prompt, negative, checkpoint, CLIP, VAE, LLLite weight, seed, workflow JSON hash, refs hash。</div></div>
+</div></div>
+
+<div class="spec" id="edit01"><div class="spechead"><h3>EDIT-01 — Expression Edit</h3><span class="badge">Qwen Image Edit 2509</span></div><div class="specbody">
+<div class="prompt"><div class="ph">expression edit</div><pre>Keep the exact same character identity, body, pose, outfit, hairstyle,
+camera framing, lighting, and background from image 1.
+Change only the facial expression to:
+{expression_description}.
+Do not change clothing, shoes, pose, body proportions, or character identity.</pre></div>
+</div></div>
+</section>
+
+<section class="section"><h2>5. Review / CSP / Publication</h2>
+<div class="spec" id="review01"><div class="spechead"><h3>REVIEW-01 — Generation Review</h3><span class="badge ok">Human final decision</span></div><div class="specbody">
+<div class="kv"><b>Required model</b><div>なし。MVPはdeterministic checks + metadata + human review。新しいVision modelを必須依存にしない。</div></div>
+<div class="kv"><b>Checks</b><div>dimension/file integrity, expected candidate count, seed/workflow presence, state mismatch flags。identity/pose automated scoreはoptional extension。</div></div>
+<div class="kv"><b>Actions</b><div>adopt, reject, regenerate, expression edit, try another outfit, create alternate shot。</div></div>
+</div></div>
+
+<div class="spec" id="csp01"><div class="spechead"><h3>CSP-01 — CLIP STUDIO Handoff</h3><span class="badge ok">No prompt/model</span></div><div class="specbody">
+<div class="kv"><b>Technology</b><div>File package + export watcher。CSP native file formatの直接操作を要件にしない。</div></div>
+<div class="kv"><b>Output</b><div><code>panel_*_clean.png</code>, page text, <code>script_events.tsv</code>, layout reference, lettering hint, manifest。</div></div>
+<div class="kv"><b>CSP role</b><div>Page management, Story Editor, frame border, balloon/text, 3D pose, final finishing, batch export。</div></div>
+</div></div>
+
+<div class="spec" id="pub01"><div class="spechead"><h3>PUB-01 — X Copy Generator</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">x_copy_v1</div><pre>Create a concise Japanese social post for this release.
+Goal: teaser, not full synopsis.
+Use the locked title, release summary, and allowed hashtags only.
+Do not invent credits or claims.
+Respect configured character limit.
+Return JSON: {"text":"...", "hashtags":["..."], "alt_text":["..."]}</pre></div>
+</div></div>
+
+<div class="spec" id="pub02"><div class="spechead"><h3>PUB-02 — pixiv Metadata Generator</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">pixiv_copy_v1</div><pre>Create Japanese pixiv metadata from the release manifest.
+Return JSON:
+{"title":"...", "description":"...", "tags":["..."]}
+
+Rules:
+- describe the work, not the generation pipeline
+- use only known character/scene facts
+- include configured AI-generated disclosure separately in payload, not invented prose
+- do not add copyrighted franchise tags unless present in project metadata</pre></div>
+</div></div>
+
+<div class="spec" id="pub03"><div class="spechead"><h3>PUB-03 — Patreon Post Generator</h3></div><div class="specbody">
+<div class="prompt"><div class="ph">patreon_copy_v1</div><pre>Create a Japanese supporter post.
+Inputs: release title, short story context, included files, variant list,
+behind-the-scenes notes that actually exist.
+
+Structure:
+1. short greeting
+2. what is included
+3. one brief production note
+4. closing
+
+Do not claim exclusive variants or process material unless files are present.
+Return JSON: {"title":"...", "body_markdown":"...", "attachment_order":["asset_id"]}</pre></div>
+</div></div>
+</section>
+
+<section class="section"><h2>6. Mandatory Prompt Engineering Rules</h2>
+<div class="grid2">
+<div class="card"><h3>Semantic before textual prompt</h3><ul><li>DBの正本はIntent/Outfit/Pose/Camera等。</li><li>最終promptはCompiler output。</li><li>Prompt変更でProjectデータをmigrationしない。</li></ul></div>
+<div class="card"><h3>One edit, one responsibility</h3><ul><li>Try-Onで表情を同時変更しない。</li><li>Expression Editで衣装を変えない。</li><li>Tops/Bottoms/Shoesをregion別に処理。</li></ul></div>
+<div class="card"><h3>Locked data is immutable</h3><ul><li>Lock済みセリフをVision/Image側が書き換えない。</li><li>採用元Assetをin-place編集しない。</li><li>新しい結果は派生revision。</li></ul></div>
+<div class="card"><h3>Every generation is reproducible</h3><ul><li>Prompt version</li><li>compiled payload</li><li>model/workflow IDs</li><li>seed and refs hashes</li></ul></div>
+</div>
+</section>
+
+<section class="section"><h2>7. Marketplace Data Contract</h2>
+<pre>{
+  "id": "out_cardigan_soft_01",
+  "title": "Soft Knit Cardigan",
+  "category": "outerwear",
+  "region": "tops",
+  "style_tags": ["soft", "casual", "school"],
+  "season_tags": ["autumn", "winter"],
+  "colors": ["cream"],
+  "garment_description": "soft cream oversized knit cardigan...",
+  "source": {
+    "kind": "generated|imported|eagle|external_link",
+    "uri": "...",
+    "license_note": "..."
+  },
+  "references": ["asset://..."],
+  "canonical_plate_asset_id": "asset_...",
+  "tryon": {
+    "supported": true,
+    "default_capability": "OutfitTryOn",
+    "region": "tops"
+  },
+  "verification": {
+    "status": "untested|tested|verified",
+    "successful_sessions": 3
+  }
+}</pre>
+<div class="callout good"><b>外部マーケット連携：</b>ライセンスや利用条件が不明な外部衣装を自動転載・ミラーしない。外部URLとlicense noteを保持し、ユーザーが正規に取得した素材を明示的にImportしてcanonical plate化する。</div>
+</section>
+
+<section class="section"><h2>8. Implementation Placement</h2>
+<pre>src/creator_studio/
+  domain/
+    wardrobe/
+      marketplace_item.py
+      outfit_recipe.py
+      outfit_state.py
+    story/
+    shot/
+    generation/
+  application/
+    wardrobe/
+      search_market.py
+      build_look.py
+      run_tryon.py
+      adopt_tryon.py
+    dialogue/
+    generation/
+  adapters/
+    image/
+      comfy_anima.py
+      comfy_qwen_edit.py
+      google_image.py
+    assets/
+      eagle.py
+    authoring/
+      clip_studio_handoff.py
+  prompts/
+    dialogue/
+    visual/
+    publishing/
+  workflows/
+    comfy/
+      anima_base.template.yaml
+      anima_pose.template.yaml
+      qwen_tryon.template.yaml
+      qwen_expression.template.yaml</pre>
+</section>
+
+<section class="section"><h2>9. Acceptance Criteria</h2>
+<ul>
+<li>Wardrobe MarketのItemを検索し、Detailから1クリックでTry-Onへ送れる。</li>
+<li>Tops/Bottoms/ShoesをLook Recipeとして保存し、region別Qwen editで順次適用できる。</li>
+<li>各Generation結果から使用Prompt version / fixed model / workflow / seed / refsへ辿れる。</li>
+<li>Story、Try-On、Shot、Expression、Publishの各機能にPrompt/技術仕様が存在し、コード内に独自promptを散在させない。</li>
+<li>Production Image PathはAnima / Anima LLLite / Qwen Image Edit / Google Image Providerだけで完結する。</li>
+<li>旧アプリのExperiment/Trial/Pipeline schemaへの互換性を設計要件にしない。</li>
+</ul>
+</section>
+</div></body></html>

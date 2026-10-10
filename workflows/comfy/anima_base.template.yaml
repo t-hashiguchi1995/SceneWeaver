@@ -1,0 +1,10 @@
+id: anima_base_v1
+backend: comfyui
+capability: BaseRender
+workflow_file: workflows/comfy/anima_base.api.json
+slots:
+  positive_prompt: { node: "6", input: "text" }
+  negative_prompt: { node: "7", input: "text" }
+  seed: { node: "12", input: "seed" }
+outputs:
+  images: ["90"]

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Character Content Studio — Core Architecture R2</title>
+<style>
+:root{--bg:#08111f;--panel:#101c30;--panel2:#14243a;--line:#2b405f;--text:#e9eff9;--muted:#9cacbf;--cyan:#67e8f9;--green:#6ee7b7;--yellow:#fde68a;--red:#fca5a5}
+*{box-sizing:border-box}body{margin:0;background:#08111f;color:var(--text);font-family:Inter,"Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;line-height:1.65}
+a{color:#8feafa}.wrap{width:min(1240px,calc(100% - 36px));margin:auto}.top{position:sticky;top:0;z-index:20;background:#08111fee;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.top .wrap{height:58px;display:flex;align-items:center;gap:12px}.spacer{flex:1}.top a{font-size:11px;color:#aab8ca;margin-left:8px}
+.hero{padding:48px 0 28px}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--cyan)}h1{font-size:43px;line-height:1.08;margin:8px 0 12px}
+.lede{color:#afbed0;max-width:980px}.section{padding:28px 0}h2{font-size:27px;margin:0 0 10px}h3{font-size:19px;margin:22px 0 8px}h4{font-size:15px;margin:16px 0 7px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:13px;margin:9px 0}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:12px}th,td{padding:9px;border-bottom:1px solid #253954;text-align:left;vertical-align:top}th{background:var(--panel2);color:#d7e5f6}
+pre{white-space:pre-wrap;word-break:break-word;background:#07101d;border:1px solid var(--line);border-radius:10px;padding:12px;color:#cde2f7;font-size:11px;line-height:1.55}
+code{color:#c5edf4}.badge{display:inline-block;font-size:9px;border:1px solid #38634f;color:#a7f3d0;border-radius:999px;padding:3px 6px}.badge.warn{border-color:#78632b;color:#fde68a}.badge.old{border-color:#7b3b3b;color:#fecaca}
+.callout{border-left:4px solid var(--cyan);background:#0e2033;border-radius:8px;padding:11px 13px;margin:12px 0}.callout.good{border-color:var(--green);background:#0f241f}.callout.warn{border-color:var(--yellow);background:#2b240f}
+.state{font-family:monospace;color:#c7eaf2}.small{font-size:10px;color:var(--muted)}
+.toc{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.toc a{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px;font-size:10px;color:#bad0e6}
+@media(max-width:860px){.grid2,.grid3,.toc{grid-template-columns:1fr}}
+</style></head><body>
+<div class="top"><div class="wrap"><b>Character Content Studio</b><span class="badge">Core Architecture R2</span><div class="spacer"></div>
+<a href="character_content_studio_documentation_index_r1.html">Docs Index</a>
+<a href="character_content_studio_wireframes_r5_project_structure.html">Wireframes</a>
+<a href="character_content_studio_prompt_technical_spec_r1.html">Prompt/Tech</a>
+<a href="character_content_studio_integration_security_spec_r1.html">Integration/Security</a>
+</div></div>
+<div class="wrap">
+<section class="hero"><div class="eyebrow">Canonical architecture specification</div><h1>過去の設計論点を統合した<br>Core Architecture</h1>
+<p class="lede">初期v1.0、漫画/レタリング検討、既存製品活用、Virtual Try-On、Integration/MCP方針を統合し、現在も有効な設計判断だけを正本として整理する。UI、Prompt、Securityの詳細は別ドキュメントへ分離する。</p></section>
+
+<section class="section"><h2>0. Documentation Authority</h2>
+<div class="grid2">
+<div class="card"><b>Core Architecture R2</b><p class="small">Domain / State / Process / Persistence / Job / API / Error / Test / Phase / Acceptance。設計の中心。</p></div>
+<div class="card"><b>Wireframes R5</b><p class="small">画面、導線、Repository/Runtime folder structure。</p></div>
+<div class="card"><b>Prompt & Technical Spec R1</b><p class="small">固定Model、Prompt、Workflow、機能単位技術。</p></div>
+<div class="card"><b>Integration & Security R1</b><p class="small">Eagle/MCP/API/CSP/Blender/Playwrightの接続と権限。</p></div>
+</div>
+<div class="callout good"><b>原則：</b>過去文書と矛盾する場合は、この4文書の最新版を優先する。過去文書は設計経緯の参照資料。</div>
+</section>
+
+<section class="section"><h2>1. 目的・非目標・設計原則</h2>
+<h3>目的</h3>
+<ul>
+<li>同一キャラクターの見た目、口調、関係性、衣装を継続管理しながら複数Scene/作品を制作する。</li>
+<li>セリフ・ナレーション・演技を起点に、Pose/Camera/Outfit/画像生成へ接続する。</li>
+<li>固定された生成モデルをCapability経由で使い、生成条件を再現可能に保存する。</li>
+<li>Virtual Try-On、Wardrobe Market、Eagle、ComfyUI、CLIP STUDIO、投稿先を一つの制作フローへ統合する。</li>
+</ul>
+<h3>非目標</h3>
+<ul>
+<li>CLIP STUDIO相当のページ・コマ・吹き出し編集ソフトを再実装しない。</li>
+<li>任意ComfyUI Workflowを自動理解する汎用ノードエディタを作らない。</li>
+<li>旧PlaywrightアプリのDB/クラス/API互換を維持しない。</li>
+<li>初期からマイクロサービス化しない。</li>
+<li>人間承認なしの完全自律公開を標準にしない。</li>
+</ul>
+<h3>設計原則</h3>
+<table><thead><tr><th>原則</th><th>意味</th></tr></thead><tbody>
+<tr><td>Semantic First</td><td>prompt文字列よりScene/Beat/Outfit/Pose等の意味データを正本にする。</td></tr>
+<tr><td>Human in the Loop</td><td>セリフ、採用画像、衣装採用、公開は人間がLock/Approvalできる。</td></tr>
+<tr><td>Adapter Boundary</td><td>MCP tool名、Comfy node ID、Playwright selectorをDomainへ漏らさない。</td></tr>
+<tr><td>Reproducibility</td><td>model/workflow/prompt/seed/ref/hashを保存。</td></tr>
+<tr><td>Idempotency</td><td>Job再実行・Publish再試行で重複副作用を防ぐ。</td></tr>
+<tr><td>Progressive Complexity</td><td>CSP/Blender/高度制御は必要な場合のみ。</td></tr>
+<tr><td>Immutable Approval</td><td>承認後のEdition/Script revisionは凍結し、変更時は新revision。</td></tr>
+<tr><td>Observable Jobs</td><td>長時間処理はDB-backed Jobとして進捗・失敗・再試行を追跡。</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>2. 全体アーキテクチャ / Process</h2>
+<pre>React Web
+   |
+FastAPI creator-api
+   |
+Application Use Cases
+   +-- Story / Dialogue
+   +-- Wardrobe / Market / Try-On
+   +-- Shot / Generation
+   +-- Asset / Library
+   +-- CSP Handoff
+   +-- Release / Publish
+   |
+Ports
+   |
+Adapters
+   +-- ComfyUI (Anima / Qwen Edit)
+   +-- Google Image Provider
+   +-- Eagle API / MCP
+   +-- CSP File Bridge
+   +-- Blender Restricted Provider
+   +-- Publisher API / Playwright
+   |
+SQLite + Asset Store + Persistent Jobs</pre>
+<table><thead><tr><th>Process</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td>creator-api</td><td>REST/SSE、UseCase、validation、UI gateway</td></tr>
+<tr><td>creator-worker</td><td>LLM、generation、try-on、asset sync、publish等の長時間Job</td></tr>
+<tr><td>creator-web</td><td>React UI</td></tr>
+<tr><td>ComfyUI</td><td>固定Workflowでの画像生成/編集</td></tr>
+<tr><td>Eagle / CSP / Blender</td><td>外部制作製品。Adapter/MCP/File bridgeで接続。</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>3. Core Domain Model</h2>
+<table><thead><tr><th>Entity</th><th>Role</th></tr></thead><tbody>
+<tr><td>Project</td><td>1作品/シリーズ制作単位。</td></tr>
+<tr><td>Scene</td><td>場所・時間・目的・初期状態。</td></tr>
+<tr><td>Beat</td><td>会話/演技上の最小意味単位。intent/subtext/action/emotion。</td></tr>
+<tr><td>ScriptEvent</td><td>speech / inner_voice / narration / caption / offpanel_voice / sfx。</td></tr>
+<tr><td>Character</td><td>人物識別。</td></tr>
+<tr><td>VisualIdentity</td><td>髪、目、体格、identity refs、生成上の視覚定義。</td></tr>
+<tr><td>Persona</td><td>一人称、二人称、口調、価値観、禁止表現、VoiceExample。</td></tr>
+<tr><td>RelationshipState</td><td>相手との距離、呼称、callbacks、継続状態。</td></tr>
+<tr><td>MarketplaceItem</td><td>衣装候補。category/region/style/source/license/refs。</td></tr>
+<tr><td>OutfitProfile</td><td>再利用可能な衣装定義。</td></tr>
+<tr><td>OutfitRecipe</td><td>tops/bottoms/shoes/accessoriesの組合せ。</td></tr>
+<tr><td>ShotSpec</td><td>expression/pose/gaze/camera/compositionの意味表現。</td></tr>
+<tr><td>RenderPlan</td><td>capability/provider/workflow/reference/compiled promptを決める実行計画。</td></tr>
+<tr><td>GenerationAttempt</td><td>1回の生成実行。seed/payload/status/runtime。</td></tr>
+<tr><td>Asset</td><td>入力/生成/派生ファイルとprovenance。</td></tr>
+<tr><td>CspHandoff</td><td>CSPへ渡すrevision付きpackage。</td></tr>
+<tr><td>Release</td><td>公開可能なmaster package。</td></tr>
+<tr><td>ReleaseEdition</td><td>X/pixiv/Patreon別の媒体仕様。</td></tr>
+<tr><td>PublicationJob</td><td>外部公開副作用のJob。</td></tr>
+<tr><td>IntegrationConnection</td><td>Provider、version、trust、scope、health。</td></tr>
+</tbody></table>
+
+<h3>Visual Identity と Persona は分離</h3>
+<p>見た目を変えず話し方だけ更新、同一Personaを別生成Workflowで描画、という変更を可能にするため1オブジェクトにまとめない。</p>
+</section>
+
+<section class="section"><h2>4. 継続状態 / State Resolver / Invalidation</h2>
+<p>Sceneは初期状態を持ち、Beatごとの差分を順に適用して「その時点の有効状態」を解決する。</p>
+<pre>Scene.initial_state
+  + Beat01.state_delta
+  + Beat02.state_delta
+  ...
+  = EffectiveState(at Beat N)</pre>
+<h3>EffectiveStateの主項目</h3>
+<ul><li>outfit / accessories / hairstyle</li><li>emotion baseline</li><li>relationship state</li><li>held objects / location substate</li><li>known callbacks / story facts</li></ul>
+<h3>Invalidation Rules</h3>
+<table><thead><tr><th>変更</th><th>Staleになるもの</th><th>維持可能</th></tr></thead><tbody>
+<tr><td>Locked Script本文変更</td><td>Visual Director提案、ShotSpec、未採用Generation、lettering hint</td><td>過去Asset自体</td></tr>
+<tr><td>Outfit変更</td><td>ShotのOutfit関連RenderPlan、生成候補</td><td>ScriptEvent</td></tr>
+<tr><td>Pose/Camera変更</td><td>RenderPlan、生成候補</td><td>Locked Script、Outfit State</td></tr>
+<tr><td>Prompt template version変更</td><td>既存Resultはstaleにしない</td><td>Provenanceで旧version保持</td></tr>
+<tr><td>Release Edition本文変更</td><td>Approval</td><td>Master asset</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>5. Narrative / Manga Semantics と CSP境界</h2>
+<div class="callout warn"><b>過去の漫画設計を完全削除しない。</b> Page/Panel/Balloonの「自作編集UI」は廃止するが、物語と表示を分ける概念は保持する。</div>
+<pre>Narrative:
+Project → Scene → Beat → ScriptEvent
+
+Presentation planning:
+ScriptEvent → presentation_hint
+Beat → panel_hint / shot candidates
+
+Authoring:
+CLIP STUDIO PAINT EX
+  Page / Panel / Frame / Balloon / Text / Lettering</pre>
+<table><thead><tr><th>Concept</th><th>Status</th></tr></thead><tbody>
+<tr><td>ScriptEvent</td><td><span class="badge">RETAINED</span> speech/narration等の意味データ</td></tr>
+<tr><td>NarratorProfile</td><td><span class="badge">RETAINED</span> ナレーション文体</td></tr>
+<tr><td>TextFragment / lettering hint</td><td><span class="badge">RETAINED LIGHTWEIGHT</span> CSPへ渡す参考情報</td></tr>
+<tr><td>Custom Page/Panel Editor</td><td><span class="badge old">SUPERSEDED</span> CSP EXへ移管</td></tr>
+<tr><td>Custom Balloon Vector Editor</td><td><span class="badge old">SUPERSEDED</span> CSP Balloon/Textへ移管</td></tr>
+<tr><td>Layout Optimizer</td><td><span class="badge warn">OPTIONAL FUTURE</span> CSP用参考レイアウト生成のみ</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>6. Image Generation / Backend Contract</h2>
+<h3>SemanticRenderSpec</h3>
+<pre>{
+  "character_id": "char_a",
+  "outfit_state_id": "outfit_state_...",
+  "emotion": {"name": "shy", "intensity": 0.65},
+  "pose_id": "look_over_shoulder",
+  "gaze": "toward_viewer",
+  "scene_id": "scene_03",
+  "camera": {"shot": "medium", "angle": "eye_level"},
+  "composition": {"reserved_lettering_region": "upper_right"},
+  "style_profile_id": "anime_daily_v2"
+}</pre>
+<h3>ImageBackend Port</h3>
+<pre>class ImageBackend(Protocol):
+    def capabilities(self) -> set[str]: ...
+    def validate(self, plan: RenderPlan) -> ValidationResult: ...
+    def submit(self, plan: RenderPlan) -> ExternalJobRef: ...
+    def poll(self, ref: ExternalJobRef) -> JobProgress: ...
+    def collect(self, ref: ExternalJobRef) -> list[GeneratedArtifact]: ...
+    def cancel(self, ref: ExternalJobRef) -> None: ...</pre>
+<h3>Workflow Template Contract</h3>
+<pre>id: anima_pose_v1
+backend: comfyui
+workflow_file: workflows/comfy/anima_pose.api.json
+capabilities:
+  - PoseControlledRender
+slots:
+  positive_prompt: {node: "6", input: "text"}
+  negative_prompt: {node: "7", input: "text"}
+  seed: {node: "12", input: "seed"}
+  pose_image: {node: "42", input: "image"}
+outputs:
+  images: ["90"]</pre>
+<p class="small">固定Model、Prompt本文、Workflow詳細はPrompt & Technical Specを正とする。</p>
+</section>
+
+<section class="section"><h2>7. Asset Store / URI / Eagle Sync</h2>
+<h3>Asset URI</h3>
+<pre>asset://01J...          # Studio正本
+eagle://ITEM_ID         # Eagle external reference
+file:///...             # temporary external file
+comfy://output/...      # import前のComfy output</pre>
+<h3>Content Addressed Store</h3>
+<p>内部Assetはsha256を持ち、同一byte contentの重複を検出。生成時に外部参照を使う場合は原則Studio Assetへsnapshotして再現性を固定する。</p>
+<h3>Eagle Sync</h3>
+<table><thead><tr><th>Direction</th><th>Data</th><th>Timing</th></tr></thead><tbody>
+<tr><td>Eagle → Studio</td><td>identity/outfit/background/pose reference</td><td>参照として採用した時にsnapshot</td></tr>
+<tr><td>Studio → Eagle</td><td>adopted/final/published asset</td><td>採用/Release確定時</td></tr>
+<tr><td>Metadata</td><td>character/outfit/scene/status/release tags</td><td>official API/MCP経由</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>8. Job Orchestration / State Machines</h2>
+<h3>Job Worker Rules</h3>
+<ul>
+<li><code>jobs</code> tableを正本にし、workerがqueuedをclaim。</li>
+<li><code>heartbeat_at</code>更新。stale running jobはrecovery対象。</li>
+<li><code>max_attempts</code>, <code>retry_policy</code>, <code>external_job_ref</code>, <code>progress_json</code>。</li>
+<li>UIはSSEでeventを受信し、切断後もDB状態から復元。</li>
+<li>Publishは<code>approval_at</code>必須。</li>
+</ul>
+<h3>State Machines</h3>
+<pre>Project:
+draft → story → visual_production → csp_finishing → release_ready → published → archived
+
+ScriptEvent:
+draft → candidate → selected → locked → superseded
+
+GenerationJob:
+queued → running → succeeded | failed | cancelled | blocked
+
+Asset:
+generated → shortlisted → adopted | rejected → handed_off → released
+
+ReleaseEdition:
+draft → validating → ready → approval_required → approved → publishing → published | failed
+
+PublicationJob:
+queued → publishing → published | ambiguous | failed</pre>
+<div class="callout warn"><b>ambiguous:</b> 外部サイト投稿が成功したか判定不能な場合。自動retryせず人間確認。</div>
+</section>
+
+<section class="section"><h2>9. Persistence / Database</h2>
+<p>初期版はSQLite + WAL、SQLAlchemy 2.x + Alembic、API schemaはPydantic v2。大容量binaryはAsset Storeへ。</p>
+<table><thead><tr><th>Table</th><th>Main columns</th></tr></thead><tbody>
+<tr><td>projects</td><td>id, title, status, content_rating, created_at, updated_at</td></tr>
+<tr><td>characters</td><td>id, display_name, visual_identity_id, persona_id</td></tr>
+<tr><td>personas</td><td>speech_rules_json, voice_examples_json</td></tr>
+<tr><td>relationship_states</td><td>project_id, character_id, partner_id, state_json, revision</td></tr>
+<tr><td>marketplace_items</td><td>category, region, semantic_json, source_json, verification_json</td></tr>
+<tr><td>outfit_profiles</td><td>character_id, semantic_json, generation_json</td></tr>
+<tr><td>outfit_recipes</td><td>slots_json, compatibility_json</td></tr>
+<tr><td>scenes</td><td>project_id, seq, objective, initial_state_json</td></tr>
+<tr><td>beats</td><td>scene_id, seq, intent, subtext, emotion_json, action, state_delta_json</td></tr>
+<tr><td>script_events</td><td>beat_id, kind, speaker_id, text, locked, revision</td></tr>
+<tr><td>shots</td><td>beat_id, render_spec_json, revision, stale_reason</td></tr>
+<tr><td>render_plans</td><td>shot_id, capability, provider, template_id, refs_json</td></tr>
+<tr><td>generation_attempts</td><td>render_plan_id, status, seed, payload_json, workflow_hash</td></tr>
+<tr><td>assets</td><td>sha256, uri, kind, mime, metadata_json, provenance_json</td></tr>
+<tr><td>asset_links</td><td>asset_id, entity_type, entity_id, role</td></tr>
+<tr><td>csp_handoffs</td><td>project_id, revision, manifest_json, status</td></tr>
+<tr><td>releases</td><td>project_id, title, status, revision</td></tr>
+<tr><td>release_editions</td><td>release_id, platform, payload_json, validation_json, revision</td></tr>
+<tr><td>publication_jobs</td><td>edition_id, status, external_id, result_json, approval_at</td></tr>
+<tr><td>jobs</td><td>kind, status, payload_json, progress_json, attempts, heartbeat_at</td></tr>
+<tr><td>integration_connections</td><td>provider, version, trust_level, scopes_json, health_json</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>10. REST / SSE API Contract</h2>
+<table><thead><tr><th>Method / Path</th><th>Use</th></tr></thead><tbody>
+<tr><td>POST /api/v1/projects</td><td>Project作成</td></tr>
+<tr><td>GET /api/v1/projects/{id}</td><td>Project全体取得</td></tr>
+<tr><td>POST /api/v1/projects/{id}/scenes</td><td>Scene作成</td></tr>
+<tr><td>POST /api/v1/scenes/{id}/beats</td><td>Beat作成</td></tr>
+<tr><td>POST /api/v1/beats/{id}/script-events/plan</td><td>ScriptEvent計画</td></tr>
+<tr><td>POST /api/v1/script-events/{id}/candidates</td><td>候補生成</td></tr>
+<tr><td>PUT /api/v1/script-events/{id}/lock</td><td>選択/編集/Lock</td></tr>
+<tr><td>GET /api/v1/market/items</td><td>Wardrobe Market検索</td></tr>
+<tr><td>POST /api/v1/tryon/sessions</td><td>Try-On Job作成</td></tr>
+<tr><td>POST /api/v1/tryon/sessions/{id}/adopt</td><td>衣装結果採用</td></tr>
+<tr><td>POST /api/v1/beats/{id}/shots/plan</td><td>Visual Director</td></tr>
+<tr><td>PUT /api/v1/shots/{id}</td><td>Shot手修正</td></tr>
+<tr><td>POST /api/v1/shots/{id}/render</td><td>Generation Job</td></tr>
+<tr><td>PUT /api/v1/assets/{id}/decision</td><td>adopt/reject</td></tr>
+<tr><td>POST /api/v1/csp/handoffs</td><td>CSP package作成</td></tr>
+<tr><td>POST /api/v1/releases</td><td>Release作成</td></tr>
+<tr><td>POST /api/v1/releases/{id}/build</td><td>Edition生成</td></tr>
+<tr><td>POST /api/v1/editions/{id}/approve</td><td>公開承認</td></tr>
+<tr><td>POST /api/v1/editions/{id}/publish</td><td>PublicationJob</td></tr>
+<tr><td>GET /api/v1/jobs/{id}/events</td><td>SSE進捗</td></tr>
+<tr><td>GET /api/v1/capabilities</td><td>Model/Workflow/Integration capability</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>11. Error / Recovery</h2>
+<table><thead><tr><th>Failure</th><th>Behavior</th></tr></thead><tbody>
+<tr><td>ComfyUI offline</td><td>Jobをblocked/queued保持。UIでhealth表示。データ消失なし。</td></tr>
+<tr><td>Workflow validation error</td><td>実行前にslot/node mismatchを検出しsubmitしない。</td></tr>
+<tr><td>VRAM/OOM</td><td>失敗理由保存。retry actionで低解像度/別workflowを提示。</td></tr>
+<tr><td>Eagle offline</td><td>Studio内部Assetで継続。sync pending。</td></tr>
+<tr><td>Blender integration failure</td><td>CSP 3D / OpenPose手動経路へfallback。</td></tr>
+<tr><td>CSP export未検出</td><td>handoffは保持し、watcher再開可能。</td></tr>
+<tr><td>Playwright selector破損</td><td>Publication failed、step/URL/screenshot保存。</td></tr>
+<tr><td>Publish ambiguous</td><td>自動retry禁止。人間確認。</td></tr>
+<tr><td>App/Worker restart</td><td>DB Job stateから復帰。stale runningをrequeue候補に。</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>12. Test Strategy</h2>
+<table><thead><tr><th>Layer</th><th>Test</th></tr></thead><tbody>
+<tr><td>Domain</td><td>state transition, lock, revision, invalidation, outfit compatibility</td></tr>
+<tr><td>Prompt Compiler</td><td>semantic input → expected constraints / golden test</td></tr>
+<tr><td>Workflow Compiler</td><td>slot patch, missing node, hash, snapshot</td></tr>
+<tr><td>Adapters</td><td>Comfy/Eagle/MCP mock contract tests</td></tr>
+<tr><td>Asset Store</td><td>hash duplicate, snapshot, provenance chain</td></tr>
+<tr><td>API</td><td>Pydantic validation, idempotency, permissions</td></tr>
+<tr><td>UI</td><td>Project → Try-On → Shot → Review → CSP → Release E2E</td></tr>
+<tr><td>Publisher</td><td>dry-run, selector smoke, explicit real-publish flag</td></tr>
+<tr><td>Recovery</td><td>worker kill, stale job, offline services, ambiguous publish</td></tr>
+</tbody></table>
+</section>
+
+<section class="section"><h2>13. Implementation Phases</h2>
+<table><thead><tr><th>Phase</th><th>Scope</th><th>Done</th></tr></thead><tbody>
+<tr><td>P0 Foundation</td><td>repo, SQLite/Alembic, Asset Store, Worker, React shell</td><td>GPUなしでProject/Job表示</td></tr>
+<tr><td>P1 Story</td><td>Character/Persona/Scene/Beat/ScriptEvent</td><td>候補→編集→Lock</td></tr>
+<tr><td>P2 Wardrobe</td><td>Market, OutfitProfile, garment plate, Try-On</td><td>検索→試着→採用→Scene適用</td></tr>
+<tr><td>P3 Image Core</td><td>ShotSpec, Anima, Qwen Edit, Review</td><td>4候補→採用→再現</td></tr>
+<tr><td>P4 Integrations</td><td>Eagle/MCP, CSP handoff, Pose bridge</td><td>外部製品を安全に使用</td></tr>
+<tr><td>P5 Release</td><td>Edition, Approval, Publish</td><td>X/pixiv/Patreon preview→publish</td></tr>
+<tr><td>P6 Advanced</td><td>Blender restricted, optional layout recommendation, video</td><td>高度制作を追加</td></tr>
+</tbody></table>
+<h3>MVP vertical slice</h3>
+<p>Character選択 → Scene/Beat → Script候補→Lock → Marketで衣装選択→Try-On→採用 → Shot/Pose → Animaで4枚 → 1枚採用 → CSP Handoff → CSP Export取り込み → Release Preview。</p>
+</section>
+
+<section class="section"><h2>14. Acceptance Criteria</h2>
+<ul>
+<li>同一Characterで5 Beat以上を作り、状態継続とOutfit変更履歴を追跡できる。</li>
+<li>Lock済みScriptは画像生成/再生成で変更されない。</li>
+<li>Market → Try-On → Wardrobe採用 → Scene適用が成立。</li>
+<li>固定WorkflowをTemplate差替えだけで切り替えられApplication修正不要。</li>
+<li>採用画像からShotSpec、prompt version、seed、workflow snapshot、参照Assetへ遡れる。</li>
+<li>Eagle停止中でも既存Projectを閲覧/編集できる。</li>
+<li>worker/application再起動後にJob状態を復旧できる。</li>
+<li>CSP HandoffとBatch Export Round-tripが成立。</li>
+<li>X/pixiv/Patreon Editionを独立Previewし、Approval後にPublishできる。</li>
+<li>Integrationはtrust/scope/auditを持ち、Productionで任意code executionを要求しない。</li>
+</ul>
+</section>
+
+<section class="section"><h2>15. Pydantic Contract Examples</h2>
+<pre>from pydantic import BaseModel, Field
+from typing import Literal
+
+class EmotionSpec(BaseModel):
+    name: str
+    intensity: float = Field(ge=0.0, le=1.0)
+
+class BeatSpec(BaseModel):
+    speaker_id: str | None = None
+    intent: str
+    subtext: str = ""
+    emotion: EmotionSpec
+    action: str = ""
+    state_delta: dict = {}
+
+class ScriptEventSpec(BaseModel):
+    kind: Literal["speech","inner_voice","narration","caption","offpanel_voice","sfx"]
+    speaker_id: str | None = None
+    text: str = ""
+    locked: bool = False
+
+class CameraSpec(BaseModel):
+    shot: Literal["closeup","bust","medium","fullbody","wide"]
+    angle: str = "eye_level"
+
+class SemanticRenderSpec(BaseModel):
+    character_id: str
+    outfit_state_id: str | None = None
+    emotion: EmotionSpec
+    pose_id: str | None = None
+    gaze: str | None = None
+    scene_id: str
+    camera: CameraSpec
+    style_profile_id: str</pre>
+</section>
+
+<section class="section"><h2>16. Typical Beat Sequence</h2>
+<pre>User
+  → create/update Beat
+  → generate ScriptEvent candidates
+     → Dialogue Director
+     → Voice retrieval
+     → Line Writer
+     → Critic
+  ← candidates
+User edits/selects/locks
+  → resolve EffectiveState
+  → optional Wardrobe Market / Try-On
+  → Visual Director
+  ← ShotSpec
+User adjusts pose/camera
+  → RenderPlan
+  → generation job queued
+Worker
+  → Prompt/Workflow compile
+  → ComfyUI fixed workflow
+  → collect outputs + provenance
+UI
+  ← candidates
+User adopts
+  → add to CSP Handoff
+  → CSP finishing
+  → batch export
+Studio
+  → Release build
+  → Platform preview
+  → Approval
+  → Publisher</pre>
+</section>
+
+<section class="section"><h2>17. First Implementation Tickets</h2>
+<ol>
+<li>New repo + SQLAlchemy/Alembic + projects/scenes/beats/jobs/assets minimal schema。</li>
+<li>React shell + Home/Project + SSE Job monitor。</li>
+<li>Character/Persona/ScriptEvent structured generation + lock API。</li>
+<li>Wardrobe Market schema + search/filter + OutfitDetail。</li>
+<li>Garment plate + Qwen Try-On + adopt flow。</li>
+<li>SemanticRenderSpec + WorkflowTemplate validator。</li>
+<li>Anima backend + Generation Review。</li>
+<li>Eagle official integration + internal snapshot。</li>
+<li>CSP handoff/export watcher。</li>
+<li>Release/Edition + Publisher interface。</li>
+<li>Integration Hub + trust/scope/audit。</li>
+<li>Blender restricted provider / advanced pose。</li>
+</ol>
+</section>
+
+<section class="section"><h2>18. Superseded Decision Ledger</h2>
+<table><thead><tr><th>Old decision</th><th>Current decision</th></tr></thead><tbody>
+<tr><td>Composition Editorを標準仕上げにする</td><td><b>CSP EXを標準Authoring/Finishing</b>。StudioはPreview/Handoff。</td></tr>
+<tr><td>Custom Page/Panel/Balloon Editor</td><td><b>廃止</b>。Narrative semanticsだけ保持しCSPへ。</td></tr>
+<tr><td>Blenderを主要Pose設計経路</td><td><b>CSP 3D / OpenPoseを標準、Blenderは高度Shot</b>。</td></tr>
+<tr><td>A1111をProduction副系</td><td><b>Optional/experiment</b>。固定Production model registryには含めない。</td></tr>
+<tr><td>Eagleを単純REST Adapter</td><td><b>Official MCP + Web API v2を積極利用</b>。</td></tr>
+<tr><td>旧Playwrightアプリの機能流用</td><td><b>コード互換なし</b>。投稿手順など知見のみ参考。</td></tr>
+</tbody></table>
+</section>
+</div></body></html>

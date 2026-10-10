@@ -1,0 +1,22 @@
+Convert the locked Beat and ScriptEvent into a visual shot specification.
+
+Return JSON only:
+{
+  "expression": {"id":"...", "intensity":0.0},
+  "pose": {"id":"...", "action":"..."},
+  "gaze": "...",
+  "camera": {"shot":"closeup|bust|medium|fullbody|wide", "angle":"..."},
+  "composition": {
+    "character_position":"left|center|right",
+    "reserved_lettering_region":"upper_left|upper_right|none"
+  },
+  "scene_requirements": ["..."],
+  "reference_roles": ["identity","outfit","pose","background"],
+  "required_capabilities": ["BaseRender","PoseControlledRender"]
+}
+
+Do not output Stable Diffusion prompt text.
+Do not change locked dialogue or outfit state.
+
+Beat:
+{{ beat_json }}
