@@ -65,6 +65,7 @@ class PromptDraft:
     rendered_base_negative: str
     edited_positive: str
     edited_negative: str
+    assembly_metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)
 
@@ -153,3 +154,4 @@ class RenderedPrompt:
     source_kind: SourceKind
     source_ref: str
     label: str
+    assembly_metadata: dict[str, Any] = field(default_factory=dict)

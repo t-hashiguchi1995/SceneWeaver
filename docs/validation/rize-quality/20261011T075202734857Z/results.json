@@ -1,0 +1,600 @@
+{
+  "seed": 20261011,
+  "width": 768,
+  "height": 1024,
+  "cfg": 4,
+  "sampler": "er_sde",
+  "scheduler": "simple",
+  "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+  "user_prompt_sha256": "24f3d0ab580c7f385f194b701f3cd911adb359fe0dd0fd73ce3e33ad93c3ad30",
+  "cases": [
+    {
+      "id": "basic_8",
+      "label": "簡易タグ・8 steps",
+      "positive": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+      "steps": 8,
+      "generation": {
+        "shot_id": "7bcb4c0a668d4c9b872d2e0d8f",
+        "shot_revision": 2,
+        "render_plan_id": "2d7f3141dd5b4db3bd24471387",
+        "generation_attempt_id": "a190eedb3d4e40488d7d0305e1",
+        "output_asset_ids": [
+          "ea2f1eee5a2044199e39cc6a7c",
+          "859815bc480e4bfe83b7132115",
+          "fcf544c6d784441899abe7f0cf",
+          "ff6b000640894c02b7144cfeeb"
+        ],
+        "workflow_hash": "01201a0f8ad0797a7b4c3dfffba87cc69cfcfef5a46a368d08ad743884a2085c",
+        "external_job_ref": "dcc97457-84be-43d3-826f-ad183a6ca19b",
+        "provider": "comfyui",
+        "is_current": true,
+        "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+        "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+      },
+      "snapshot": {
+        "config_hash": "b69fe967b164d463b25f16dbe65af6efef09d431afa7bda45d1f839667db5716",
+        "backend_kind": "ComfyImageBackendhttp://127.0.0.1:8188",
+        "capability": "BaseRender",
+        "workflow_template_id": "anima_base_v1",
+        "model_id": "anima_base",
+        "refs": {},
+        "slots": {
+          "positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+          "negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "candidate_count": 4,
+          "sampling_steps": 8,
+          "sampling_cfg": 4
+        },
+        "based_on_shot_revision": 2,
+        "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+        "prompt_snapshot": {
+          "template_id": "anima_compiler",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "anima_compiler_v1",
+          "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+          "modified": true,
+          "prompt_draft_id": "259cf9056836473ba17d9c77b9",
+          "draft_was_stale": false
+        },
+        "control_model": null
+      },
+      "assets": [
+        {
+          "file": "images/basic_8-1.png",
+          "asset_id": "ea2f1eee5a2044199e39cc6a7c",
+          "sha256": "4f34b850ba7a78d6af575af3625edeedd90f96713dce95cbc6bb95225cde5d40",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "7bcb4c0a668d4c9b872d2e0d8f",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "01201a0f8ad0797a7b4c3dfffba87cc69cfcfef5a46a368d08ad743884a2085c",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "dcc97457-84be-43d3-826f-ad183a6ca19b",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+            "modified": true,
+            "prompt_draft_id": "259cf9056836473ba17d9c77b9",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/basic_8-2.png",
+          "asset_id": "859815bc480e4bfe83b7132115",
+          "sha256": "8eb76507a8d197a061b5acee4ed5717a7ac0a672cfa8b508cae356a64a74eacf",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "7bcb4c0a668d4c9b872d2e0d8f",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "01201a0f8ad0797a7b4c3dfffba87cc69cfcfef5a46a368d08ad743884a2085c",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "dcc97457-84be-43d3-826f-ad183a6ca19b",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+            "modified": true,
+            "prompt_draft_id": "259cf9056836473ba17d9c77b9",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/basic_8-3.png",
+          "asset_id": "fcf544c6d784441899abe7f0cf",
+          "sha256": "a0927f8058c1d8a104aa2359d16e57a863baea0ca46a1f4eca79e3808ccf2ec4",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "7bcb4c0a668d4c9b872d2e0d8f",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "01201a0f8ad0797a7b4c3dfffba87cc69cfcfef5a46a368d08ad743884a2085c",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "dcc97457-84be-43d3-826f-ad183a6ca19b",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+            "modified": true,
+            "prompt_draft_id": "259cf9056836473ba17d9c77b9",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/basic_8-4.png",
+          "asset_id": "ff6b000640894c02b7144cfeeb",
+          "sha256": "ca8bc9184572a3b432519538a2cc556cc4e8a17d2db9f1647924644920f2c4b9",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "7bcb4c0a668d4c9b872d2e0d8f",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "01201a0f8ad0797a7b4c3dfffba87cc69cfcfef5a46a368d08ad743884a2085c",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "dcc97457-84be-43d3-826f-ad183a6ca19b",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "masterpiece, best quality, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, large breasts, alternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer, anime illustration",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "d2a64346cb08b5fcd19e649ab8d72f0a18bdb069337b37eed77567f8586bd9c9",
+            "modified": true,
+            "prompt_draft_id": "259cf9056836473ba17d9c77b9",
+            "draft_was_stale": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "user_8",
+      "label": "ご提示Promptそのまま・8 steps",
+      "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+      "steps": 8,
+      "generation": {
+        "shot_id": "4ea1a56ade624cfbbffad39d05",
+        "shot_revision": 2,
+        "render_plan_id": "12cfe4bb80604b52a9825b954e",
+        "generation_attempt_id": "00a6cc0b6f9c4009a8cb211dd2",
+        "output_asset_ids": [
+          "f2b84b41bb5a4a28809bdf85d2",
+          "85801bee1f8f4d1ba4138accdc",
+          "cecc1235b2b24418b0fbc7d386",
+          "42d06b76746d46d0929e5fb596"
+        ],
+        "workflow_hash": "2434f52f2e34e3c75da0c9326e93b28b18bcceea3778d31f7f4376aa1e051f92",
+        "external_job_ref": "38466736-e9f2-442b-b694-99271d1c482e",
+        "provider": "comfyui",
+        "is_current": true,
+        "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+        "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+      },
+      "snapshot": {
+        "config_hash": "b69fe967b164d463b25f16dbe65af6efef09d431afa7bda45d1f839667db5716",
+        "backend_kind": "ComfyImageBackendhttp://127.0.0.1:8188",
+        "capability": "BaseRender",
+        "workflow_template_id": "anima_base_v1",
+        "model_id": "anima_base",
+        "refs": {},
+        "slots": {
+          "positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+          "negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "candidate_count": 4,
+          "sampling_steps": 8,
+          "sampling_cfg": 4
+        },
+        "based_on_shot_revision": 2,
+        "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+        "prompt_snapshot": {
+          "template_id": "anima_compiler",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "anima_compiler_v1",
+          "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+          "modified": true,
+          "prompt_draft_id": "fa666a147a174450bd329b20af",
+          "draft_was_stale": false
+        },
+        "control_model": null
+      },
+      "assets": [
+        {
+          "file": "images/user_8-1.png",
+          "asset_id": "f2b84b41bb5a4a28809bdf85d2",
+          "sha256": "b4ca91b9150402e4800b1361ebbfa4dd7bc8633241052319a80a34c53199f8f7",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "4ea1a56ade624cfbbffad39d05",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "2434f52f2e34e3c75da0c9326e93b28b18bcceea3778d31f7f4376aa1e051f92",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "38466736-e9f2-442b-b694-99271d1c482e",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "fa666a147a174450bd329b20af",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_8-2.png",
+          "asset_id": "85801bee1f8f4d1ba4138accdc",
+          "sha256": "49b345a7840d0bec492cc5959d3fee5c054a2641324b7cdf1eec615e69886f40",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "4ea1a56ade624cfbbffad39d05",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "2434f52f2e34e3c75da0c9326e93b28b18bcceea3778d31f7f4376aa1e051f92",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "38466736-e9f2-442b-b694-99271d1c482e",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "fa666a147a174450bd329b20af",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_8-3.png",
+          "asset_id": "cecc1235b2b24418b0fbc7d386",
+          "sha256": "04cdbf0f73e61cba705eca0831e29e7ce9920faf2b63b0296ef43214e9f664aa",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "4ea1a56ade624cfbbffad39d05",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "2434f52f2e34e3c75da0c9326e93b28b18bcceea3778d31f7f4376aa1e051f92",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "38466736-e9f2-442b-b694-99271d1c482e",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "fa666a147a174450bd329b20af",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_8-4.png",
+          "asset_id": "42d06b76746d46d0929e5fb596",
+          "sha256": "6a8e0a884eebeb09a4a6803f68760d696fde0ee049b0989a8a64ee2583614d57",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "4ea1a56ade624cfbbffad39d05",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "2434f52f2e34e3c75da0c9326e93b28b18bcceea3778d31f7f4376aa1e051f92",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "38466736-e9f2-442b-b694-99271d1c482e",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "fa666a147a174450bd329b20af",
+            "draft_was_stale": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "user_24",
+      "label": "ご提示Promptそのまま・24 steps",
+      "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+      "steps": 24,
+      "generation": {
+        "shot_id": "f388250303bc48bfa5d3ab4f6d",
+        "shot_revision": 2,
+        "render_plan_id": "496885cd4bb54f3ca94980167f",
+        "generation_attempt_id": "f7fbcc1a358247ad8203d8ec61",
+        "output_asset_ids": [
+          "5dadb46a302f4ef582f340151e",
+          "34f099223ae34c249a41ea00f0",
+          "d06af56acb344c8a9a1525cce5",
+          "98ee4601a67345d3846a7e1a30"
+        ],
+        "workflow_hash": "fbf1a3096b731a6cd3e4b695e790a4b7fca9e0ae5b0958d82009268366863098",
+        "external_job_ref": "f4b05b8d-4d1c-47d1-8536-cda7489042fc",
+        "provider": "comfyui",
+        "is_current": true,
+        "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+        "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+      },
+      "snapshot": {
+        "config_hash": "b69fe967b164d463b25f16dbe65af6efef09d431afa7bda45d1f839667db5716",
+        "backend_kind": "ComfyImageBackendhttp://127.0.0.1:8188",
+        "capability": "BaseRender",
+        "workflow_template_id": "anima_base_v1",
+        "model_id": "anima_base",
+        "refs": {},
+        "slots": {
+          "positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+          "negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "candidate_count": 4,
+          "sampling_steps": 24,
+          "sampling_cfg": 4
+        },
+        "based_on_shot_revision": 2,
+        "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+        "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+        "prompt_snapshot": {
+          "template_id": "anima_compiler",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "anima_compiler_v1",
+          "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+          "modified": true,
+          "prompt_draft_id": "4ea3ffee170f4e0da2f40d21d7",
+          "draft_was_stale": false
+        },
+        "control_model": null
+      },
+      "assets": [
+        {
+          "file": "images/user_24-1.png",
+          "asset_id": "5dadb46a302f4ef582f340151e",
+          "sha256": "09560e9f241eb4067c0549935ba2400b056f5e6d4d6ca1368dc2900730467c01",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "f388250303bc48bfa5d3ab4f6d",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "fbf1a3096b731a6cd3e4b695e790a4b7fca9e0ae5b0958d82009268366863098",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "f4b05b8d-4d1c-47d1-8536-cda7489042fc",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "4ea3ffee170f4e0da2f40d21d7",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_24-2.png",
+          "asset_id": "34f099223ae34c249a41ea00f0",
+          "sha256": "756730594435b24fba475d3a0229ef985948d048ce4a0194bc2bfab5598562fa",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "f388250303bc48bfa5d3ab4f6d",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "fbf1a3096b731a6cd3e4b695e790a4b7fca9e0ae5b0958d82009268366863098",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "f4b05b8d-4d1c-47d1-8536-cda7489042fc",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "4ea3ffee170f4e0da2f40d21d7",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_24-3.png",
+          "asset_id": "d06af56acb344c8a9a1525cce5",
+          "sha256": "91616a6964deb66412e637529fc3a4806c1a9c151674bb30977b34b38dcb86f5",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "f388250303bc48bfa5d3ab4f6d",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "fbf1a3096b731a6cd3e4b695e790a4b7fca9e0ae5b0958d82009268366863098",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "f4b05b8d-4d1c-47d1-8536-cda7489042fc",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "4ea3ffee170f4e0da2f40d21d7",
+            "draft_was_stale": false
+          }
+        },
+        {
+          "file": "images/user_24-4.png",
+          "asset_id": "98ee4601a67345d3846a7e1a30",
+          "sha256": "5b7146cdbf92e0ed363aff37790da87fb38c642479c0055d6beb92824fcd1c33",
+          "width": 768,
+          "height": 1024,
+          "provenance": {
+            "shot_id": "f388250303bc48bfa5d3ab4f6d",
+            "based_on_shot_revision": 2,
+            "provider": "comfyui",
+            "workflow_template_id": "anima_base_v1",
+            "workflow_hash": "fbf1a3096b731a6cd3e4b695e790a4b7fca9e0ae5b0958d82009268366863098",
+            "model_id": "anima_base",
+            "seed": 20261011,
+            "external_job_ref": "f4b05b8d-4d1c-47d1-8536-cda7489042fc",
+            "prompt_version": "v1",
+            "compiled": {
+              "positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+              "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            },
+            "template_id": "anima_compiler",
+            "template_version": "v1",
+            "source_kind": "compiler_rule",
+            "source_ref": "anima_compiler_v1",
+            "rendered_base_positive": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, @fuzichoco, @rella, 1girl, casual clothes, shy, look_over_shoulder, medium, eye_level",
+            "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, sensitive, nsfw, explicit, 1girl, lize helesta, nijisanji, @fuzichoco, @rella, large breasts,\n\nalternate breast size (larger), bikini, hair ornament, micro bikini, red sweater, sweater, swimsuit, blush, closed mouth, sweat, looking at viewer",
+            "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+            "prompt_hash": "6cb87ad5269c094da48d36f9084e2c93ada4e9728fcdee6271101e6ac8428f56",
+            "modified": true,
+            "prompt_draft_id": "4ea3ffee170f4e0da2f40d21d7",
+            "draft_was_stale": false
+          }
+        }
+      ]
+    }
+  ]
+}

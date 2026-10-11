@@ -58,6 +58,7 @@ class Container:
         self.asset_store = FilesystemAssetStore(self.settings.runtime_path() / "assets")
         self.prompts = PromptRegistry()
         self._image: ImageBackend | None = None
+        self._image_config: tuple[str, str] | None = None
         self._settings_service: SettingsService | None = None
 
     def uow(self) -> SqlAlchemyUnitOfWork:
@@ -89,7 +90,10 @@ class Container:
         return StubLLMProvider()
 
     def image_backend(self) -> ImageBackend:
-        if self._image is None:
+        backend = self.settings_service().effective_image_backend()
+        comfy_url = self.settings_service().effective_comfy_url()
+        config = (backend, comfy_url)
+        if self._image is None or self._image_config != config:
             registry = (
                 Path(self.settings.repo_root()) / self.settings.config_dir / "model_registry.yaml"
             )
@@ -117,6 +121,7 @@ class Container:
                 )
             else:
                 self._image = FakeImageBackend(delay_ms=self.settings.fake_image_delay_ms)
+            self._image_config = config
         return self._image
 
     def create_project(self) -> CreateProject:
@@ -228,6 +233,8 @@ class Container:
             self.settings.runtime_path(),
             uow_factory=self.uow,
             asset_store=self.asset_store,
+            export_root=Path(str(self.settings_service().get()["csp_export_dir"]))
+            if self.settings_service().get().get("csp_export_dir") else None,
         )
 
     def release_preview(self) -> ReleasePreviewService:

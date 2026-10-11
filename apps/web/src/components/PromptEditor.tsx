@@ -12,6 +12,9 @@ export type PromptEditorProps = {
   modifiedPositive: boolean
   modifiedNegative: boolean
   stale: boolean
+  components?: { ref: string; kind: string; text: string }[]
+  warnings?: string[]
+  saveStatus?: string
   generateDisabled?: boolean
   onPositiveChange: (value: string) => void
   onNegativeChange: (value: string) => void
@@ -21,34 +24,24 @@ export type PromptEditorProps = {
   onDismissStale?: () => void
 }
 
-function lineDiff(base: string, edited: string): string[] {
-  const a = base.split('\n')
-  const b = edited.split('\n')
-  const max = Math.max(a.length, b.length)
-  const lines: string[] = []
-  for (let i = 0; i < max; i += 1) {
-    const left = a[i]
-    const right = b[i]
-    if (left === right) continue
-    if (left != null && right == null) lines.push(`- ${left}`)
-    else if (left == null && right != null) lines.push(`+ ${right}`)
-    else {
-      lines.push(`- ${left}`)
-      lines.push(`+ ${right}`)
-    }
-  }
-  return lines
+function tokenDiff(base: string, edited: string): string[] {
+  const a = base.split(/[,\n]/).map((x) => x.trim()).filter(Boolean)
+  const b = edited.split(/[,\n]/).map((x) => x.trim()).filter(Boolean)
+  const before = new Set(a)
+  const after = new Set(b)
+  return [...a.filter((x) => !after.has(x)).map((x) => `- ${x}`),
+    ...b.filter((x) => !before.has(x)).map((x) => `+ ${x}`)]
 }
 
 export function PromptEditor(props: PromptEditorProps) {
   const { t } = useTranslation('prompt')
-  const [tab, setTab] = useState<'rendered' | 'source'>('rendered')
+  const [tab, setTab] = useState<'rendered' | 'components' | 'source'>('rendered')
   const [showDiff, setShowDiff] = useState(false)
   const modified = props.modifiedPositive || props.modifiedNegative
 
   const diffLines = useMemo(() => {
-    const pos = lineDiff(props.renderedBasePositive, props.editedPositive)
-    const neg = lineDiff(props.renderedBaseNegative, props.editedNegative)
+    const pos = tokenDiff(props.renderedBasePositive, props.editedPositive)
+    const neg = tokenDiff(props.renderedBaseNegative, props.editedNegative)
     return { pos, neg }
   }, [
     props.renderedBasePositive,
@@ -67,6 +60,7 @@ export function PromptEditor(props: PromptEditorProps) {
         </span>
       </div>
 
+      <p role="status" aria-live="polite" data-testid="prompt-save-status">{props.saveStatus}</p>
       {props.stale && (
         <div className="banner" data-testid="prompt-stale-banner">
           <p>{t('staleBanner')}</p>
@@ -105,7 +99,10 @@ export function PromptEditor(props: PromptEditorProps) {
         </button>
       </div>
 
-      {tab === 'source' ? (
+      <button type="button" className="btn" data-testid="prompt-tab-components" onClick={() => setTab('components')}>{t('tabComponents')}</button>
+      {props.warnings?.map((warning) => <p className="hint" key={warning}>{warning}</p>)}
+
+      {tab === 'components' ? <ul className="list">{props.components?.map((component) => <li key={component.ref}><code>{component.ref}</code><span>{component.text}</span></li>)}</ul> : tab === 'source' ? (
         <pre className="lede" data-testid="prompt-source-body">
           {props.templateSource || props.sourceKind}
         </pre>

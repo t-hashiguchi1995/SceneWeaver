@@ -3,5 +3,9 @@
   "build": "Build edition preview",
   "editionX": "X Preview",
   "editionPixiv": "pixiv Preview",
-  "editionPatreon": "Patreon Preview"
+  "editionPatreon": "Patreon Preview",
+  "masterTitle": "Master title",
+  "masterSummary": "Master summary",
+  "aiDisclosure": "AI disclosure enabled",
+  "previewOnly": "Preview only. Publishing is not enabled."
 }

@@ -25,7 +25,9 @@
     "edit": "編集",
     "open": "開く",
     "retry": "再確認",
-    "skip": "あとで"
+    "skip": "あとで",
+    "close": "閉じる",
+    "details": "詳細"
   },
   "loading": "読み込み中…",
   "notFound": "見つかりません",
@@ -63,5 +65,21 @@
   },
   "datetime": {
     "unknown": "—"
-  }
+  },
+  "shell": {
+    "skip": "本文へ移動",
+    "navigation": "メインナビゲーション",
+    "create": "制作",
+    "finish": "仕上げ",
+    "system": "システム",
+    "menu": "メニュー",
+    "overview": "概要",
+    "projectWorkspace": "プロジェクト制作",
+    "workspace": "ワークスペース"
+  },
+  "assetUnavailable": "画像を読み込めません",
+  "saved": "保存済み",
+  "saving": "保存中…",
+  "unsaved": "未保存",
+  "saveFailed": "保存に失敗しました"
 }

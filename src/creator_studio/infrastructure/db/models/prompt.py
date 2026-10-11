@@ -33,6 +33,7 @@ class PromptDraftRow(Base):
     rendered_base_negative: Mapped[str] = mapped_column(Text, nullable=False)
     edited_positive: Mapped[str] = mapped_column(Text, nullable=False)
     edited_negative: Mapped[str] = mapped_column(Text, nullable=False)
+    assembly_metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

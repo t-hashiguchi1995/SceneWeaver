@@ -7,5 +7,23 @@
   "id": "ID",
   "createdAt": "Created",
   "updatedAt": "Updated",
-  "detailHint": "Continue from Story / Wardrobe / Shot screens."
+  "detailHint": "Continue from Story / Wardrobe / Shot screens.",
+  "nextActions": "Next actions",
+  "recentShots": "Shots",
+  "metadata": "Project information",
+  "counts": {
+    "scenes": "Scenes",
+    "beats": "Beats",
+    "characters": "Characters",
+    "shots": "Shots",
+    "generations": "Generations",
+    "adopted": "Adopted",
+    "pending": "To review"
+  },
+  "actions": {
+    "prompt_stale": "Prompt needs rebuilding",
+    "shot_stale": "Shot needs replanning",
+    "generation_pending": "Review generation",
+    "dialogue_unlocked": "Lock dialogue"
+  }
 }

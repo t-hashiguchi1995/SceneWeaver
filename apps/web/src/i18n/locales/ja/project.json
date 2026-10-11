@@ -7,5 +7,23 @@
   "id": "ID",
   "createdAt": "作成日時",
   "updatedAt": "更新日時",
-  "detailHint": "ストーリー / 衣装 / ショットは各画面から続けられます。"
+  "detailHint": "ストーリー / 衣装 / ショットは各画面から続けられます。",
+  "nextActions": "次にすること",
+  "recentShots": "ショット",
+  "metadata": "プロジェクト情報",
+  "counts": {
+    "scenes": "シーン",
+    "beats": "ビート",
+    "characters": "キャラクター",
+    "shots": "ショット",
+    "generations": "生成履歴",
+    "adopted": "採用画像",
+    "pending": "要確認"
+  },
+  "actions": {
+    "prompt_stale": "Promptの再作成が必要",
+    "shot_stale": "ショットの再計画が必要",
+    "generation_pending": "生成結果を確認",
+    "dialogue_unlocked": "セリフを確定"
+  }
 }

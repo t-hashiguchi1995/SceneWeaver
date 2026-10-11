@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { formatDateTime, formatStatus } from '../../i18n/format'
-import { api } from '../../lib/api'
+import { api, saveStudioContext } from '../../lib/api'
 
 export const Route = createFileRoute('/projects/$projectId')({
   component: ProjectDetailPage,
@@ -17,6 +18,9 @@ function ProjectDetailPage() {
     queryFn: () => api.getProject(projectId),
   })
 
+  const dashboard = useQuery({ queryKey: ['project-dashboard', projectId], queryFn: () => api.projectDashboard(projectId) })
+  useEffect(() => { saveStudioContext({ projectId }) }, [projectId])
+
   if (project.isLoading) return <p>{t('common:loading')}</p>
   if (project.error) return <p className="error">{(project.error as Error).message}</p>
   if (!project.data) return <p>{t('common:notFound')}</p>
@@ -26,7 +30,18 @@ function ProjectDetailPage() {
     <section className="page">
       <p className="eyebrow">{t('project:title')}</p>
       <h1>{p.title}</h1>
-      <dl className="kv">
+      {dashboard.error && <p role="alert">{dashboard.error.message}</p>}
+      {dashboard.data && <>
+        <div className="dashboard-metrics">{Object.entries(dashboard.data.counts).map(([key, count]) => <article className="panel-card" key={key}><h2>{t(`project:counts.${key}`)}</h2><strong>{count}</strong></article>)}</div>
+        <div className="creator-columns">
+          <article className="panel-card"><h2>{t('project:nextActions')}</h2><ul className="list">{dashboard.data.next_actions.map((action, index) => <li key={index}>
+            <span>{t(`project:actions.${action.kind}`)}</span>
+            {action.shot_id ? <Link className="btn" to={action.attempt_id ? '/projects/$projectId/shots/$shotId/generations/$attemptId' : '/projects/$projectId/shots/$shotId'} params={{ projectId, shotId: action.shot_id, attemptId: action.attempt_id ?? '' }}>{t('common:actions.open')}</Link> : <Link className="btn" to="/projects/$projectId/story" params={{ projectId }} search={{ sceneId: action.scene_id, beatId: action.beat_id }}>{t('common:actions.open')}</Link>}
+          </li>)}</ul></article>
+          <article className="panel-card"><h2>{t('project:recentShots')}</h2><ul className="list">{dashboard.data.recent_shots.map((shot, index) => <li key={shot.id}><Link to="/projects/$projectId/shots/$shotId" params={{ projectId, shotId: shot.id }}>Shot {index + 1}</Link><span>{shot.prompt_stale ? t('project:actions.prompt_stale') : `r${shot.revision}`}</span></li>)}</ul><h3>CLIP STUDIO</h3><p>{dashboard.data.latest_handoff?.revision ?? '—'}</p><Link className="btn" to="/projects/$projectId/csp" params={{ projectId }}>CLIP STUDIO</Link></article>
+        </div>
+      </>}
+      <details><summary>{t('project:metadata')}</summary><dl className="kv">
         <dt>{t('project:status')}</dt>
         <dd>{formatStatus(t, p.status)}</dd>
         <dt>{t('project:rating')}</dt>
@@ -39,8 +54,7 @@ function ProjectDetailPage() {
         <dd>
           <code>{p.id}</code>
         </dd>
-      </dl>
-      <p className="hint">{t('project:detailHint')}</p>
+      </dl></details>
     </section>
   )
 }

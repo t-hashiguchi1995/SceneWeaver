@@ -1,0 +1,162 @@
+{
+  "profile_source": "https://www.nijisanji.jp/talents/l/lize-helesta",
+  "persona": {
+    "first_person": "私",
+    "second_person": "あなた",
+    "max_chars": 48,
+    "max_fragments": 2,
+    "speech_rules": {
+      "style": "真面目で親切な皇女という設定を軸にした検証用の創作。相手の話に丁寧に応じ、必要なら短い軽いツッコミを入れる。敬語を基本に、親しい場面では柔らかくくだける。",
+      "canon": "ヘルエスタ王国の第二皇女。日々の鍛錬と人とのコミュニケーションを大事にする。",
+      "example_origin": "以下は検証用の創作例であり、本人の実発言や公式台詞ではない。"
+    },
+    "forbidden_patterns": [
+      "わらわ",
+      "妾",
+      "余",
+      "ですわ"
+    ],
+    "voice_examples": [
+      {
+        "text": "それ、難易度の設定を間違えてませんか？",
+        "polarity": "positive",
+        "tags": [
+          "light_retort"
+        ]
+      },
+      {
+        "text": "大丈夫です。ひとつずつ確かめましょう。",
+        "polarity": "positive",
+        "tags": [
+          "reassurance"
+        ]
+      },
+      {
+        "text": "来てくれてありがとうございます。またお話ししましょうね。",
+        "polarity": "positive",
+        "tags": [
+          "thanks"
+        ]
+      }
+    ]
+  },
+  "visual_identity": {
+    "hair": "long white hair, blue inner hair, straight bangs, hairclip",
+    "eyes": "purple eyes",
+    "identity_tags": [
+      "1girl",
+      "solo",
+      "nijisanji",
+      "lize helesta"
+    ]
+  },
+  "patterns": [
+    {
+      "id": "cafe_four_panel",
+      "title": "普通サイズの寄り道",
+      "objective": "大きすぎるコーヒーに驚く→飲み切るまで帰れないという冗談にツッコミ→急がず会話を楽しむ提案→半分になったカップを見てもう一つ話をねだる。",
+      "background_selection": [
+        "dynamic/sfw_cafe_date.yaml",
+        "location_cafe_date_sfw-0"
+      ],
+      "outfit_selection": [
+        "dynamic/sfw_cafe_date.yaml",
+        "costume_cafe_casual_sfw-0"
+      ],
+      "lighting_selection": [
+        "dynamic/lighting_default.yaml",
+        "soft_indoor"
+      ],
+      "initial_state": {
+        "coffee_size": "unexpectedly_large",
+        "drink_shared": false,
+        "relationship": {
+          "type": "friend",
+          "trust": "high"
+        }
+      },
+      "beats": [
+        {
+          "intent": "予想外に大きいコーヒーを見て店の普通サイズに驚く",
+          "subtext": "相手と笑いを共有したい",
+          "emotion": {
+            "name": "surprised",
+            "intensity": 0.6
+          },
+          "action": "大きなカップを指差す",
+          "state_delta": {
+            "coffee_remaining": "full",
+            "large_cup_noticed": true
+          },
+          "text": "え、これが普通サイズ？\nこのお店の「普通」、強いですね。",
+          "pose": "sitting at cafe table, pointing at an oversized coffee mug",
+          "expression": "surprised expression, raised eyebrow, slightly open mouth",
+          "camera": {
+            "shot": "medium shot",
+            "angle": "eye level"
+          }
+        },
+        {
+          "intent": "相手の飲み切るまで帰れないという冗談に軽くツッコミを入れる",
+          "subtext": "冗談と分かっているが少し困った顔で応じたい",
+          "emotion": {
+            "name": "amused",
+            "intensity": 0.45
+          },
+          "action": "カップ越しに相手を見る",
+          "state_delta": {
+            "must_finish_before_leaving": false,
+            "coffee_remaining": "full"
+          },
+          "text": "飲み切るまで帰れない？\nそんなルール、聞いてませんよ。",
+          "pose": "sitting at cafe table, oversized coffee mug on table, looking at viewer",
+          "expression": "playfully annoyed expression, slight frown, raised eyebrow",
+          "camera": {
+            "shot": "bust shot",
+            "angle": "eye level"
+          }
+        },
+        {
+          "intent": "急がずお話ししながら飲むことを提案して相手を気遣う",
+          "subtext": "一緒にいる時間を楽しみたい",
+          "emotion": {
+            "name": "warm",
+            "intensity": 0.5
+          },
+          "action": "カップの持ち手に手を添えて微笑む",
+          "state_delta": {
+            "plan": "relax_and_talk",
+            "coffee_remaining": "three_quarters"
+          },
+          "text": "じゃあ、お話ししながら。\n急がなくていいですから。",
+          "pose": "sitting at cafe table, hand on handle of oversized coffee mug",
+          "expression": "gentle smile, warm eyes, closed mouth",
+          "camera": {
+            "shot": "medium shot",
+            "angle": "three quarter view"
+          }
+        },
+        {
+          "intent": "半分になったコーヒーを見て、相手にもう一つ話を聞かせてほしいと伝える",
+          "subtext": "会話を続けたい気持ちを冗談の形にする",
+          "emotion": {
+            "name": "happy",
+            "intensity": 0.55
+          },
+          "action": "半分のカップを見て笑い、相手に視線を戻す",
+          "state_delta": {
+            "coffee_remaining": "half",
+            "mood": "relaxed"
+          },
+          "text": "……まだ半分。\nもう一つ、面白い話をお願いします。",
+          "pose": "sitting at cafe table, oversized coffee mug on table, looking at viewer",
+          "expression": "soft smile, amused expression, slight blush",
+          "camera": {
+            "shot": "bust shot",
+            "angle": "eye level"
+          }
+        }
+      ]
+    }
+  ]
+}

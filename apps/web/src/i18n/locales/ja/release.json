@@ -3,5 +3,9 @@
   "build": "版プレビューを作成",
   "editionX": "X プレビュー",
   "editionPixiv": "pixiv プレビュー",
-  "editionPatreon": "Patreon プレビュー"
+  "editionPatreon": "Patreon プレビュー",
+  "masterTitle": "作品タイトル",
+  "masterSummary": "作品説明",
+  "aiDisclosure": "AI生成の開示あり",
+  "previewOnly": "公開前のプレビューです。投稿は行いません。"
 }

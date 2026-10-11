@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import secrets
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -9,10 +11,12 @@ import yaml
 
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
 from creator_studio.application.prompt.renderer import PromptRenderer
+from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.domain.asset import Asset, AssetKind, ReviewDecision
 from creator_studio.domain.ids import BeatId
 from creator_studio.domain.prompt import PromptDraft, compute_context_hash, compute_prompt_hash
 from creator_studio.domain.shot import GenerationAttempt, RenderPlan, ShotSpec
+from creator_studio.domain.story import resolve_effective_state
 from creator_studio.domain.timeutil import utc_now
 from creator_studio.infrastructure.prompts import PromptRegistry
 from creator_studio.infrastructure.settings.config import REPO_ROOT
@@ -66,6 +70,10 @@ class ShotPipeline:
             beat = uow.beats.get(BeatId(beat_id))
             if beat is None:
                 raise ValueError("beat not found")
+            scene = uow.scenes.get(beat.scene_id)
+            previous = sorted([b for b in uow.beats.list_for_scene(beat.scene_id) if b.seq < beat.seq], key=lambda b: b.seq)
+            locked = [e for e in uow.script_events.list_for_beat(beat.id) if e.locked]
+            character = uow.characters.get(beat.speaker_id) if beat.speaker_id else None
             user = self._prompts.render(
                 "visual/shot_planner_v1.jinja2",
                 beat_json=json.dumps(
@@ -73,6 +81,12 @@ class ShotPipeline:
                         "intent": beat.intent,
                         "subtext": beat.subtext,
                         "emotion": {"name": beat.emotion.name, "intensity": beat.emotion.intensity},
+                        "action": beat.action,
+                        "state_delta": beat.state_delta,
+                        "scene": {"title": scene.title, "objective": scene.objective} if scene else {},
+                        "effective_state": resolve_effective_state(scene.initial_state if scene else {}, [b.state_delta for b in [*previous, beat]]),
+                        "locked_script_events": [{"text": e.text, "kind": e.kind.value, "speaker_id": str(e.speaker_id) if e.speaker_id else None} for e in locked],
+                        "character": {"name": character.display_name, "identity_tags": character.visual_identity.identity_tags} if character else None,
                     },
                     ensure_ascii=False,
                 ),
@@ -82,6 +96,9 @@ class ShotPipeline:
                 user=user + "\nshot specification",
             )
             assert isinstance(spec, dict)
+            if uow.prompt_presets.list_enabled():
+                spec.setdefault('prompt_profile_id', 'anima_story_panel')
+                spec.setdefault('prompt_quality_profile_id', 'anima_legacy_v1')
             shot = ShotSpec.create(BeatId(beat_id), spec, revision=1)
             uow.shots.add(shot)
             uow.commit()
@@ -94,7 +111,12 @@ class ShotPipeline:
                 raise ValueError("shot not found")
             if shot.is_stale:
                 raise ValueError("shot is stale; create a new revision")
+            if 'sampling_steps' in patch and (not isinstance(patch['sampling_steps'], int) or isinstance(patch['sampling_steps'], bool) or not 1 <= patch['sampling_steps'] <= 100):
+                raise ValueError('sampling_steps must be an integer between 1 and 100')
+            if 'sampling_cfg' in patch and (not isinstance(patch['sampling_cfg'], (float, int)) or isinstance(patch['sampling_cfg'], bool) or not 0 <= patch['sampling_cfg'] <= 20):
+                raise ValueError('sampling_cfg must be a number between 0 and 20')
             shot.render_spec = {**shot.render_spec, **patch}
+            shot.revision += 1
             shot.updated_at = utc_now()
             uow.shots.save(shot)
             uow.commit()
@@ -113,31 +135,48 @@ class ShotPipeline:
                         uow.render_plans.save(plan)
             uow.commit()
 
-    def render(self, shot_id: str, *, use_pose: bool = False, pose_asset_uri: str | None = None) -> dict[str, Any]:
+    def render(self, shot_id: str, *, use_pose: bool = False, pose_asset_uri: str | None = None, seed: int | None = None, _replay: dict[str, Any] | None = None) -> dict[str, Any]:
         with self._uow as uow:
             shot = uow.shots.get(shot_id)
             if shot is None:
                 raise ValueError("shot not found")
-            if shot.is_stale:
+            if shot.is_stale and _replay is None:
                 raise ValueError("cannot render stale shot")
+            seed = secrets.randbelow(2**31) if seed is None else seed
+            if not 0 <= seed <= 2147483647:
+                raise ValueError("seed is out of range")
             capability = "PoseControlledRender" if use_pose else "BaseRender"
             workflow_template_id = "anima_pose_v1" if use_pose else "anima_base_v1"
-            model_id, _ = resolve_template_id_for_capability(capability)
+            if _replay is not None:
+                capability = _replay["capability"]
+                workflow_template_id = _replay["workflow_template_id"]
+                use_pose = capability == "PoseControlledRender"
+            model_id, workflow_path = resolve_template_id_for_capability(capability)
+            workflow_config = yaml.safe_load((REPO_ROOT / workflow_path).read_text())
+            config_hash = hashlib.sha256(
+                (REPO_ROOT / "config" / "model_registry.yaml").read_bytes()
+                + (REPO_ROOT / workflow_path).read_bytes()
+                + (REPO_ROOT / workflow_config["workflow_file"]).read_bytes()
+            ).hexdigest()
+            backend_kind = type(self._image).__name__ + str(getattr(self._image, "_url", "")) + (":dry" if getattr(self._image, "_dry_run", False) else "")
+            if _replay and (_replay.get("config_hash") != config_hash or _replay.get("backend_kind") != backend_kind):
+                raise ValueError("generation backend/model/workflow configuration changed; replay is unavailable")
+            based_revision = _replay["based_on_shot_revision"] if _replay else shot.revision
 
             draft = self._ensure_draft_in_uow(uow, shot)
             # ADR 0010: same final strings → prompt_hash and ImageBackend (byte-for-byte).
-            final_positive = draft.edited_positive
-            final_negative = draft.edited_negative
+            final_positive = _replay["final_positive_prompt"] if _replay else draft.edited_positive
+            final_negative = _replay["final_negative_prompt"] if _replay else draft.edited_negative
             prompt_hash = compute_prompt_hash(final_positive, final_negative)
             compiled = {"positive": final_positive, "negative": final_negative}
 
             plan = RenderPlan.create(
                 shot.id,
-                shot.revision,
+                based_revision,
                 capability=capability,
                 provider="pending",
                 template_id=workflow_template_id,
-                refs={"pose": pose_asset_uri} if pose_asset_uri else {},
+                refs=deepcopy(_replay["refs"]) if _replay else ({"pose": pose_asset_uri} if pose_asset_uri else {}),
             )
             uow.render_plans.add(plan)
             slots: dict[str, Any] = {
@@ -145,15 +184,22 @@ class ShotPipeline:
                 "negative_prompt": final_negative,
                 "candidate_count": candidate_count_for_backend(self._image),
             }
+            for field in ('sampling_steps', 'sampling_cfg'):
+                if field in shot.render_spec:
+                    slots[field] = shot.render_spec[field]
             if pose_asset_uri:
                 slots["pose_image"] = pose_asset_uri
                 slots["control_strength"] = float(
                     shot.render_spec.get("control_strength", 1.0)
                 )
+            if _replay:
+                slots = deepcopy(_replay["slots"])
+            if draft.assembly_metadata.get("model_modifiers") and not _replay:
+                raise ValueError("selected model modifiers require an approved modifier workflow")
             dto = RenderPlanDTO(
                 capability=capability,
                 template_id=workflow_template_id,
-                seed=1234,
+                seed=seed,
                 slots=slots,
                 refs=plan.refs,
             )
@@ -165,7 +211,7 @@ class ShotPipeline:
             uow.render_plans.save(plan)
 
             control_model = None
-            if use_pose:
+            if use_pose and not _replay:
                 registry = yaml.safe_load(
                     (REPO_ROOT / "config" / "model_registry.yaml").read_text(encoding="utf-8")
                 ) or {}
@@ -185,8 +231,24 @@ class ShotPipeline:
                 "prompt_hash": prompt_hash,
                 "modified": draft.modified,
                 "prompt_draft_id": draft.id,
+                **draft.assembly_metadata,
+                "draft_was_stale": draft.context_hash != compute_context_hash(
+                    shot_revision=shot.revision, render_spec=resolve_prompt_context(uow, shot),
+                    template_id=draft.template_id, template_version=draft.template_version),
             }
 
+            if _replay:
+                prompt_snapshot = deepcopy(_replay["prompt_snapshot"])
+                model_id = _replay["model_id"]
+                control_model = _replay.get("control_model")
+            render_snapshot = {
+                "config_hash": config_hash, "backend_kind": backend_kind,
+                "capability": capability, "workflow_template_id": workflow_template_id,
+                "model_id": model_id, "refs": deepcopy(plan.refs), "slots": deepcopy(slots),
+                "based_on_shot_revision": based_revision, "final_positive_prompt": final_positive,
+                "final_negative_prompt": final_negative, "prompt_snapshot": deepcopy(prompt_snapshot),
+                "control_model": control_model,
+            }
             outputs: list[str] = []
             workflow_hash = ""
             for artifact in artifacts:
@@ -205,12 +267,12 @@ class ShotPipeline:
                     workflow_hash = self._fallback_workflow_hash(workflow_template_id, slots)
                 provenance: dict[str, Any] = {
                     "shot_id": str(shot.id),
-                    "based_on_shot_revision": shot.revision,
+                    "based_on_shot_revision": based_revision,
                     "provider": meta.get("provider") or ref.provider,
                     "workflow_template_id": meta.get("workflow_template_id") or workflow_template_id,
                     "workflow_hash": workflow_hash,
                     "model_id": meta.get("model_id") or model_id,
-                    "seed": meta.get("seed", 1234),
+                    "seed": meta.get("seed", seed),
                     "external_job_ref": meta.get("external_job_ref") or ref.ref,
                     "prompt_version": draft.template_version,
                     "compiled": compiled,
@@ -235,9 +297,11 @@ class ShotPipeline:
 
             attempt = GenerationAttempt.create(
                 plan.id,
-                shot.revision,
-                seed=1234,
+                based_revision,
+                seed=seed,
                 payload={
+                    "render_snapshot": render_snapshot,
+                    "replay_of": _replay.get("attempt_id") if _replay else None,
                     "compiled": compiled,
                     "capability": capability,
                     "external_job_ref": ref.ref,
@@ -265,11 +329,76 @@ class ShotPipeline:
                 "final_negative_prompt": final_negative,
             }
 
+    def render_from_attempt_draft(self, shot_id: str, attempt_id: str, *, seed: int | None = None) -> dict[str, Any]:
+        """Keep the historical render controls while submitting the current edited draft."""
+        with self._uow as uow:
+            attempt = uow.generation_attempts.get(attempt_id)
+            plan = uow.render_plans.get(attempt.render_plan_id) if attempt else None
+            if plan is None or str(plan.shot_id) != shot_id:
+                raise ValueError("attempt does not belong to shot")
+            snapshot = deepcopy(attempt.payload.get("render_snapshot"))
+            if not snapshot:
+                raise ValueError("this legacy attempt has no replay snapshot")
+            shot = uow.shots.get(shot_id)
+            if shot is None or shot.is_stale:
+                raise ValueError("shot missing or stale")
+            draft = self._ensure_draft_in_uow(uow, shot)
+            snapshot["final_positive_prompt"] = draft.edited_positive
+            snapshot["final_negative_prompt"] = draft.edited_negative
+            snapshot["slots"]["positive_prompt"] = draft.edited_positive
+            snapshot["slots"]["negative_prompt"] = draft.edited_negative
+            snapshot["based_on_shot_revision"] = shot.revision
+            snapshot["prompt_snapshot"] = {
+                "template_id": draft.template_id, "template_version": draft.template_version,
+                "source_kind": draft.source_kind, "source_ref": draft.source_ref,
+                "rendered_base_positive": draft.rendered_base_positive,
+                "rendered_base_negative": draft.rendered_base_negative,
+                "final_positive_prompt": draft.edited_positive,
+                "final_negative_prompt": draft.edited_negative,
+                "prompt_hash": compute_prompt_hash(draft.edited_positive, draft.edited_negative),
+                "modified": draft.modified, "prompt_draft_id": draft.id,
+                "draft_was_stale": draft.is_stale(compute_context_hash(
+                    shot_revision=shot.revision, render_spec=resolve_prompt_context(uow, shot),
+                    template_id=draft.template_id, template_version=draft.template_version)),
+                **draft.assembly_metadata,
+            }
+            snapshot["attempt_id"] = attempt_id
+            uow.commit()
+        return self.render(shot_id, seed=seed, _replay=snapshot)
+
+    def replay(self, attempt_id: str, *, seed_mode: str = "new", copy_prompt_to_draft: bool = False) -> dict[str, Any]:
+        if seed_mode not in {"new", "same"}:
+            raise ValueError("invalid seed mode")
+        with self._uow as uow:
+            attempt = uow.generation_attempts.get(attempt_id)
+            if attempt is None:
+                raise ValueError("attempt not found")
+            plan = uow.render_plans.get(attempt.render_plan_id)
+            if plan is None:
+                raise ValueError("render plan not found")
+            snapshot = deepcopy(attempt.payload.get("render_snapshot"))
+            if not snapshot:
+                raise ValueError("this legacy attempt has no replay snapshot")
+            snapshot["attempt_id"] = attempt_id
+            shot_id = plan.shot_id
+            old_seed = attempt.seed
+        if copy_prompt_to_draft:
+            from creator_studio.application.prompt.drafts import PromptDraftService
+            service = PromptDraftService(self._uow, self._renderer)
+            service.ensure_for_shot(shot_id)
+            service.update_edits(shot_id, snapshot["final_positive_prompt"], snapshot["final_negative_prompt"])
+            return {"shot_id": shot_id, "copied": True}
+        new_seed = old_seed
+        if seed_mode == "new":
+            while new_seed == old_seed:
+                new_seed = secrets.randbelow(2**31)
+        return self.render(shot_id, seed=new_seed, _replay=snapshot)
+
     def _ensure_draft_in_uow(self, uow: UnitOfWork, shot: ShotSpec) -> PromptDraft:
-        rendered = self._renderer.render_anima(shot.render_spec)
+        rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
         if shot.current_prompt_draft_id:
             draft = uow.prompt_drafts.get(shot.current_prompt_draft_id)
-            if draft is not None:
+            if draft is not None and draft.template_id == rendered.template_id and draft.template_version == rendered.template_version:
                 return draft
         existing = uow.prompt_drafts.get_for_shot_template(
             shot.id, rendered.template_id, rendered.template_version
@@ -287,13 +416,14 @@ class ShotPipeline:
             source_shot_revision=shot.revision,
             context_hash=compute_context_hash(
                 shot_revision=shot.revision,
-                render_spec=shot.render_spec,
+                render_spec=resolve_prompt_context(uow, shot),
                 template_id=rendered.template_id,
                 template_version=rendered.template_version,
             ),
             rendered_base_positive=rendered.positive,
             rendered_base_negative=rendered.negative,
         )
+        draft.assembly_metadata = rendered.assembly_metadata
         uow.prompt_drafts.add(draft)
         shot.current_prompt_draft_id = draft.id
         uow.shots.save(shot)

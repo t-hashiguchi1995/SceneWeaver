@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -12,7 +12,18 @@ from creator_studio.infrastructure.container import Container
 router = APIRouter(prefix="/api/v1", tags=["shots"])
 
 
+@router.get('/prompt-library')
+def prompt_library(c: Container = Depends(container)) -> list[dict[str, Any]]:
+    with c.uow() as uow:
+        return [{'id': p.id, 'label': p.label, 'category': p.category,
+                 'prompt_fragment': p.prompt_fragment, 'content_rating': p.content_rating,
+                 'source_file': p.source_file, 'version': p.content_hash}
+                for p in uow.prompt_presets.list_enabled()]
+
+
 class RenderBody(BaseModel):
+    source_attempt_id: str | None = None
+    seed: int | None = Field(default=None, ge=0, le=2147483647)
     use_pose: bool = False
     pose_asset_uri: str | None = None
 
@@ -53,8 +64,10 @@ def update_shot(shot_id: str, body: dict[str, Any], c: Container = Depends(conta
 @router.post("/shots/{shot_id}/render")
 def render_shot(shot_id: str, body: RenderBody, c: Container = Depends(container)) -> dict[str, Any]:
     try:
+        if body.source_attempt_id:
+            return c.shot_pipeline().render_from_attempt_draft(shot_id, body.source_attempt_id, seed=body.seed)
         return c.shot_pipeline().render(
-            shot_id, use_pose=body.use_pose, pose_asset_uri=body.pose_asset_uri
+            shot_id, use_pose=body.use_pose, pose_asset_uri=body.pose_asset_uri, seed=body.seed
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
@@ -164,3 +177,19 @@ def get_generation_attempt(attempt_id: str, c: Container = Depends(container)) -
         return _attempt_detail(attempt)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+class ReplayBody(BaseModel):
+    seed_mode: Literal["new", "same"] = "new"
+    copy_prompt_to_draft: bool = False
+
+
+@router.post("/generations/{attempt_id}/replay")
+def replay_generation(attempt_id: str, body: ReplayBody, c: Container = Depends(container)) -> dict[str, Any]:
+    try:
+        return c.shot_pipeline().replay(attempt_id, seed_mode=body.seed_mode,
+                                        copy_prompt_to_draft=body.copy_prompt_to_draft)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ComfyError as exc:
+        raise HTTPException(status_code=502, detail={"code": exc.code.value, "message": str(exc)}) from exc

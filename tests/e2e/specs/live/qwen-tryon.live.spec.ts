@@ -11,7 +11,7 @@ import {
 test.describe('live Qwen Try-On', () => {
   test.setTimeout(LIVE_TIMEOUT_MS)
 
-  test('UseCase → Comfy → Asset + provenance', async () => {
+  test('UseCase → Comfy → Asset + provenance', async ({}, testInfo) => {
     let caps
     try {
       caps = await requireComfyCapability('OutfitTryOn')
@@ -32,7 +32,7 @@ test.describe('live Qwen Try-On', () => {
     const result = await api.runTryOn(seeded.character_id!, seeded.marketplace_item_id!, seeded.scene_id)
 
     expect(result.status).toBe('succeeded')
-    expect(result.candidate_asset_ids?.length).toBeGreaterThanOrEqual(1)
+    expect(result.candidate_asset_ids?.length).toBe(4)
 
     const asset = await getAsset(result.candidate_asset_ids[0])
     expect(asset.byte_size).toBeGreaterThan(0)
@@ -44,6 +44,7 @@ test.describe('live Qwen Try-On', () => {
       requireWorkflowHash: true,
       requireExternalJobRef: true,
     })
+    await testInfo.attach('real-comfy-result', { body: JSON.stringify({ result: result, asset }, null, 2), contentType: 'application/json' })
     expect(asset.provenance.model_id).toBe(caps.OutfitTryOn.model_id)
   })
 })

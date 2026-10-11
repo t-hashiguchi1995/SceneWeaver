@@ -15,5 +15,6 @@
   "sceneCreated": "Scene created: {{title}}",
   "beatCreated": "Beat created: {{intent}}",
   "candidatesReady": "Dialogue candidates ready",
-  "scriptLocked": "Script locked"
+  "scriptLocked": "Script locked",
+  "editDialogue": "Edit dialogue"
 }

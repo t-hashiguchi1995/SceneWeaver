@@ -3,5 +3,8 @@
   "lede": "PagePlan / PanelSlot → immutable handoff revision with real panel bytes.",
   "build": "Build CSP Handoff",
   "revision": "Revision",
-  "needContext": "project, shot, and adopted render asset required"
+  "needContext": "project, shot, and adopted render asset required",
+  "defaultOutput": "Output: workspace runtime folder",
+  "panel": "Panel {{n}}",
+  "details": "Manifest details"
 }

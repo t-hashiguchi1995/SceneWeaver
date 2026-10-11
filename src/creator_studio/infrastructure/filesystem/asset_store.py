@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from pathlib import Path
 
 from creator_studio.ports.asset_store import StoredBlob
@@ -27,10 +28,15 @@ class FilesystemAssetStore:
             raise ValueError(f"unsupported uri: {uri}")
         rest = uri.removeprefix("asset://")
         sha256, _, filename = rest.partition("/")
+        if not re.fullmatch(r"[0-9a-f]{64}", sha256) or not filename or any(
+            char in filename for char in "/\\*?[]"
+        ) or filename in {".", ".."}:
+            raise ValueError("invalid asset uri")
         path = self._root / sha256[:2] / f"{sha256}_{filename}"
         # also search under relative dirs
-        if path.exists():
+        if path.exists() and path.resolve().is_relative_to(self._root.resolve()):
             return path
         for candidate in self._root.rglob(f"{sha256}_{filename}"):
-            return candidate
+            if candidate.resolve().is_relative_to(self._root.resolve()):
+                return candidate
         raise FileNotFoundError(uri)

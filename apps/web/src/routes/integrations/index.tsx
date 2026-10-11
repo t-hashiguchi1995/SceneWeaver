@@ -38,7 +38,7 @@ function IntegrationsPage() {
         <article className="panel-card" data-testid="integration-comfy">
           <h2>{t('integrations:comfy')}</h2>
           <p className="meta">{s?.comfy_url}</p>
-          <p className="meta">{t('integrations:backend', { backend: s?.image_backend ?? '—' })}</p>
+          <p className="meta">{t('integrations:backend', { backend: s?.image_backend ? t(`integrations:backends.${s.image_backend}`) : '—' })}</p>
           <p className="meta">
             {!report && t('integrations:runDiagnose')}
             {report?.reachable && t('integrations:connected')}
@@ -74,7 +74,7 @@ function IntegrationsPage() {
         <article className="panel-card">
           <h2>{t('integrations:eagle')}</h2>
           <p className="meta">
-            {s?.eagle_enabled ? t('integrations:eagleEnabled') : t('integrations:eagleDisconnected')}
+            {t('integrations:eagleUnavailable')}
           </p>
         </article>
 

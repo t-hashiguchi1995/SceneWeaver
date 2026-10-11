@@ -14,6 +14,7 @@ function SetupWizardPage() {
   const nav = useNavigate()
   const qc = useQueryClient()
   const status = useQuery({ queryKey: ['setup-status'], queryFn: api.setupStatus })
+  const [imageBackend, setImageBackend] = useState("fake")
   const [comfyUrl, setComfyUrl] = useState('')
   const [llmProvider, setLlmProvider] = useState('stub')
   const [apiKey, setApiKey] = useState('')
@@ -26,7 +27,7 @@ function SetupWizardPage() {
         llm_provider: llmProvider,
         llm_api_key: apiKey || undefined,
         csp_export_dir: cspDir,
-        image_backend: comfyUrl || status.data?.comfy.url ? 'comfy' : 'fake',
+        image_backend: imageBackend,
       })
       return api.setupStatus()
     },
@@ -56,6 +57,7 @@ function SetupWizardPage() {
     <section className="page" data-testid="setup-page">
       <p className="eyebrow">{t('setup.eyebrow')}</p>
       <h1>{t('setup.title')}</h1>
+      <label>{t('imageBackend')}<select value={imageBackend} onChange={(e) => setImageBackend(e.target.value)}><option value="fake">{t('backendFake')}</option><option value="comfy">{t('backendComfy')}</option></select></label>
       <p className="lede">{t('setup.lede')}</p>
 
       <ol className="setup-steps">

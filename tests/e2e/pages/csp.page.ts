@@ -9,6 +9,8 @@ export class CspPage {
 
   async buildHandoff() {
     await this.page.getByTestId('csp-build-handoff').click()
+    await this.page.getByTestId('csp-result').waitFor()
+    await this.page.locator('summary').filter({ hasText: 'マニフェストの詳細' }).click()
   }
 
   revision() {

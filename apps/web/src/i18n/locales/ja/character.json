@@ -5,5 +5,23 @@
   "nameAria": "新しいキャラクター名",
   "useInStudio": "スタジオで使う",
   "openStory": "ストーリーを開く",
-  "activeBanner": "スタジオで使用中: {{name}}"
+  "activeBanner": "スタジオで使用中: {{name}}",
+  "editor": "キャラクター編集",
+  "persona": "話し方",
+  "visual_identity": "外見・参照画像",
+  "fields": {
+    "first_person": "一人称",
+    "second_person": "二人称",
+    "max_chars": "最大文字数",
+    "max_fragments": "最大フラグメント数",
+    "forbidden_patterns": "禁止表現（カンマ区切り）",
+    "hair": "髪",
+    "eyes": "目",
+    "body": "体型",
+    "identity_tags": "外見タグ（カンマ区切り）",
+    "identity_ref_asset_ids": "参照画像ID（カンマ区切り）",
+    "tryon_base_asset_id": "試着ベース画像ID"
+  },
+  "speechRules": "話し方のルール",
+  "voiceExamples": "セリフ例（1行に1例）"
 }

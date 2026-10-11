@@ -23,5 +23,11 @@
   "capRuntime": "Runtime",
   "capDetail": "Detail",
   "capTitle": "Capabilities",
-  "capLede": "Approved model registry only — arbitrary checkpoints are never selectable."
+  "capLede": "Approved model registry only — arbitrary checkpoints are never selectable.",
+  "eagleUnavailable": "Not supported / planned for v0.3",
+  "backends": {
+    "fake": "No image generation (test)",
+    "comfy": "ComfyUI",
+    "comfy_dry": "ComfyUI dry run"
+  }
 }

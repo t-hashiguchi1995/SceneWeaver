@@ -39,11 +39,20 @@
     "reject": "不採用",
     "expression": "表情を変更",
     "pose": "ポーズを変更",
-    "outfit": "衣装を変更"
+    "outfit": "衣装を変更",
+    "reproduce": "完全再現"
   },
   "statusLabel": "状態",
   "shotId": "ショット {{id}}",
   "candidate": "候補 {{n}}",
   "candidatesReady": "{{count}}件の候補を生成しました",
-  "adoptedBanner": "レンダーを採用しました {{asset}}"
+  "adoptedBanner": "レンダーを採用しました {{asset}}",
+  "pose": "ポーズ",
+  "camera": "構図",
+  "lighting": "照明",
+  "background": "背景",
+  "poseReference": "ポーズ参照画像URI",
+  "angle": "カメラ角度",
+  "controlStrength": "ポーズの反映強度",
+  "usingAttemptControls": "選択した生成履歴のModel・Workflow・Control条件を使用します。"
 }

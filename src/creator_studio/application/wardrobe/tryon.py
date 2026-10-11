@@ -110,6 +110,13 @@ class RunTryOn:
                 source_asset_id=AssetId(source_id),
                 plate_asset_id=item.canonical_plate_asset_id,
             )
+            if scene_id:
+                scene = uow.scenes.get(SceneId(scene_id))
+                if scene is None:
+                    raise ValueError("scene not found")
+                scene.initial_state = {**scene.initial_state, "tryon_session_ids": [
+                    *scene.initial_state.get("tryon_session_ids", []), session.id]}
+                uow.scenes.save(scene)
             uow.tryon_sessions.add(session)
 
             prompt = self._prompts.render(

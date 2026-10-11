@@ -25,7 +25,9 @@
     "edit": "Edit",
     "open": "Open",
     "retry": "Retry",
-    "skip": "Skip for now"
+    "skip": "Skip for now",
+    "close": "Close",
+    "details": "Details"
   },
   "loading": "Loading…",
   "notFound": "Not found",
@@ -63,5 +65,21 @@
   },
   "datetime": {
     "unknown": "—"
-  }
+  },
+  "shell": {
+    "skip": "Skip to content",
+    "navigation": "Main navigation",
+    "create": "Create",
+    "finish": "Finish",
+    "system": "System",
+    "menu": "Menu",
+    "overview": "Overview",
+    "projectWorkspace": "Project workspace",
+    "workspace": "Workspace"
+  },
+  "assetUnavailable": "Image unavailable",
+  "saved": "Saved",
+  "saving": "Saving…",
+  "unsaved": "Unsaved",
+  "saveFailed": "Save failed"
 }

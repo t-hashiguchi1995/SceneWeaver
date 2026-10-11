@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
 from apps.api.deps import container
@@ -34,3 +35,22 @@ def set_decision(
         return c.set_asset_decision().execute(asset_id, body.decision)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/{asset_id}/content")
+def asset_content(asset_id: str, request: Request, c: Container = Depends(container)) -> Response:
+    with c.uow() as uow:
+        asset = uow.assets.get(AssetId(asset_id))
+        if asset is None:
+            raise HTTPException(status_code=404, detail="asset not found")
+        try:
+            path = c.asset_store.path_for_uri(asset.uri)
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail="asset content not found")
+        headers = {"ETag": f'"{asset.sha256}"', "Cache-Control": "private, max-age=3600",
+                   "X-Content-Type-Options": "nosniff"}
+        if request.headers.get("if-none-match") == headers["ETag"]:
+            return Response(status_code=304, headers=headers)
+        inline = asset.mime in {"image/png", "image/jpeg", "image/webp", "image/gif"}
+        return FileResponse(path, media_type=asset.mime, headers=headers,
+                            filename=path.name, content_disposition_type="inline" if inline else "attachment")

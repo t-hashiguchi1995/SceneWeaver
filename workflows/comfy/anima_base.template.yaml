@@ -3,8 +3,11 @@ backend: comfyui
 capability: BaseRender
 workflow_file: workflows/comfy/anima_base.api.json
 slots:
+  candidate_count: { node: "28", input: "batch_size" }
   positive_prompt: { node: "6", input: "text" }
   negative_prompt: { node: "7", input: "text" }
   seed: { node: "12", input: "seed" }
+  sampling_steps: { node: "12", input: "steps" }
+  sampling_cfg: { node: "12", input: "cfg" }
 outputs:
   images: ["90"]

@@ -39,11 +39,20 @@
     "reject": "Reject",
     "expression": "Change expression",
     "pose": "Change pose",
-    "outfit": "Change outfit"
+    "outfit": "Change outfit",
+    "reproduce": "Reproduce exactly"
   },
   "statusLabel": "Status",
   "shotId": "Shot {{id}}",
   "candidate": "Candidate {{n}}",
   "candidatesReady": "Generated {{count}} candidates",
-  "adoptedBanner": "Adopted render {{asset}}"
+  "adoptedBanner": "Adopted render {{asset}}",
+  "pose": "Pose",
+  "camera": "Camera",
+  "lighting": "Lighting",
+  "background": "Background",
+  "poseReference": "Pose reference URI",
+  "angle": "Camera angle",
+  "controlStrength": "Control strength",
+  "usingAttemptControls": "Using model, workflow and control settings from the selected attempt."
 }

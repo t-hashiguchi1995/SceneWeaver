@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from creator_studio.application.prompt.renderer import PromptRenderer
+from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.domain.prompt import PromptDraft, compute_context_hash
 from creator_studio.ports.unit_of_work import UnitOfWork
 
@@ -27,6 +28,7 @@ class PromptDraftView:
     modified_positive: bool
     modified_negative: bool
     stale: bool
+    assembly_metadata: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return self.__dict__.copy()
@@ -40,7 +42,7 @@ class PromptDraftService:
     def ensure_for_shot(self, shot_id: str) -> PromptDraftView:
         with self._uow as uow:
             shot = self._require_shot(uow, shot_id)
-            rendered = self._renderer.render_anima(shot.render_spec)
+            rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
             existing = uow.prompt_drafts.get_for_shot_template(
                 shot.id, rendered.template_id, rendered.template_version
             )
@@ -62,6 +64,7 @@ class PromptDraftService:
                 rendered_base_positive=rendered.positive,
                 rendered_base_negative=rendered.negative,
             )
+            draft.assembly_metadata = rendered.assembly_metadata
             uow.prompt_drafts.add(draft)
             shot.current_prompt_draft_id = draft.id
             uow.shots.save(shot)
@@ -104,7 +107,7 @@ class PromptDraftService:
                 raise ValueError(
                     "prompt draft has user edits; pass confirm=true to discard and rebuild"
                 )
-            rendered = self._renderer.render_anima(shot.render_spec)
+            rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
             if (
                 draft.template_id != rendered.template_id
                 or draft.template_version != rendered.template_version
@@ -119,6 +122,7 @@ class PromptDraftService:
                 rendered_base_negative=rendered.negative,
                 sync_edits=True,
             )
+            draft.assembly_metadata = rendered.assembly_metadata
             uow.prompt_drafts.save(draft)
             uow.commit()
             return self._view(draft, shot)
@@ -128,7 +132,7 @@ class PromptDraftService:
             shot = self._require_shot(uow, shot_id)
             draft = self._current_draft(uow, shot)
             if draft is None:
-                rendered = self._renderer.render_anima(shot.render_spec)
+                rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
                 return {
                     "source_kind": rendered.source_kind,
                     "source_ref": rendered.source_ref,
@@ -159,7 +163,7 @@ class PromptDraftService:
     def _context_hash(self, shot: Any, template_id: str, template_version: str) -> str:
         return compute_context_hash(
             shot_revision=shot.revision,
-            render_spec=shot.render_spec,
+            render_spec=resolve_prompt_context(self._uow, shot),
             template_id=template_id,
             template_version=template_version,
         )
@@ -169,7 +173,7 @@ class PromptDraftService:
             draft = uow.prompt_drafts.get(shot.current_prompt_draft_id)
             if draft is not None:
                 return draft
-        rendered = self._renderer.render_anima(shot.render_spec)
+        rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
         return uow.prompt_drafts.get_for_shot_template(
             shot.id, rendered.template_id, rendered.template_version
         )
@@ -194,9 +198,12 @@ class PromptDraftService:
             modified_positive=draft.modified_positive,
             modified_negative=draft.modified_negative,
             stale=draft.is_stale(current_hash),
+            assembly_metadata=draft.assembly_metadata,
         )
 
     def _label(self, draft: PromptDraft) -> str:
+        if draft.source_ref == "default_prompt_builder_v1":
+            return "Default Prompt Builder · Anima Story Panel v1"
         rendered = self._renderer.render_anima({})
         if draft.source_ref == rendered.source_ref:
             return rendered.label

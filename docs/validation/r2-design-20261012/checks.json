@@ -1,0 +1,19 @@
+{
+  "document": "/root/workspace/SceneWeaver/docs/architecture/sceneweaver_ui_integration_design_r2.html",
+  "sections": 10,
+  "statusRows": 16,
+  "linksChecked": 22,
+  "desktopWidth": 1440,
+  "mobileWidth": 390,
+  "pageErrors": [],
+  "checks": [
+    "local links and anchors",
+    "status filters",
+    "keyboard tabs",
+    "approval reset on edit",
+    "multiline preview",
+    "recovery demo",
+    "mobile overflow"
+  ],
+  "scope": "Design HTML only; no GPU generation or external publishing"
+}

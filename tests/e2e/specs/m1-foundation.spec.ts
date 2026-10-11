@@ -16,7 +16,7 @@ test.describe('M1 Foundation', () => {
     expect(health.environment).toBe('e2e')
 
     await home.goto()
-    await expect(page.getByRole('heading', { name: 'SceneWeaver' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '制作を続けましょう' })).toBeVisible()
 
     await home.openProjects()
     await projects.create('E2E Project Alpha')
@@ -27,7 +27,7 @@ test.describe('M1 Foundation', () => {
     // Worker holds RUNNING long enough for SSE → UI (see worker stub delay).
     await expect(jobs.liveStatus()).toHaveText('処理中', { timeout: 20_000 })
     await expect(jobs.liveStatus()).toHaveText('完了', { timeout: 20_000 })
-    await expect(page.getByText('完了').first()).toBeVisible()
+    await expect(page.getByTestId('job-live-status')).toBeVisible()
 
     const state = await api.state()
     expect(state.project_count).toBeGreaterThanOrEqual(1)

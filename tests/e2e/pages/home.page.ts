@@ -12,26 +12,26 @@ export class HomePage {
   }
 
   async openStory() {
-    await this.page.getByTestId('nav-story').click()
+    await this.page.goto('/story')
   }
 
   async openWardrobe() {
-    await this.page.getByTestId('nav-wardrobe').click()
+    await this.page.goto('/wardrobe')
   }
 
   async openShots() {
-    await this.page.getByTestId('nav-shots').click()
+    await this.page.goto('/shots')
   }
 
   async openCsp() {
-    await this.page.getByTestId('nav-csp').click()
+    await this.page.goto('/csp')
   }
 
   async openJobs() {
-    await this.page.getByTestId('nav-jobs').click()
+    await this.page.goto('/jobs')
   }
 
   async openRelease() {
-    await this.page.getByTestId('nav-release').click()
+    await this.page.goto('/release')
   }
 }

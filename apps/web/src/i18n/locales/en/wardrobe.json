@@ -6,5 +6,11 @@
   "adoptedBanner": "Adopted {{asset}} · Outfit {{outfit}}",
   "needCharacterOutfit": "character and outfit required",
   "needCharacterFirst": "Choose a character with “Use in studio” first",
-  "activeCharacter": "Try-On character: {{name}}"
+  "activeCharacter": "Try-On character: {{name}}",
+  "candidate": "Try-on candidate {{n}}",
+  "character": "Character",
+  "scene": "Scene",
+  "search": "Search outfits",
+  "preview": "Selected candidate preview",
+  "reject": "Reject"
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -18,7 +18,7 @@ function CharactersPage() {
   const [activeName, setActiveName] = useState(() => loadStudioContext().characterName ?? '')
   const characters = useQuery({ queryKey: ['characters'], queryFn: api.listCharacters })
 
-  const useInStudio = (characterId: string, characterName: string) => {
+  const selectForStudio = (characterId: string, characterName: string) => {
     saveStudioContext({ characterId, characterName })
     setActiveId(characterId)
     setActiveName(characterName)
@@ -30,7 +30,7 @@ function CharactersPage() {
     onSuccess: async (created) => {
       setName('')
       await qc.invalidateQueries({ queryKey: ['characters'] })
-      useInStudio(created.id, created.display_name)
+      selectForStudio(created.id, created.display_name)
     },
   })
 
@@ -69,15 +69,15 @@ function CharactersPage() {
       <ul className="list" data-testid="character-list">
         {(characters.data ?? []).map((c) => (
           <li key={c.id} data-testid="character-item">
-            <strong>{c.display_name}</strong>
+            <Link to="/characters/$characterId" params={{ characterId: c.id }}><strong>{c.display_name}</strong></Link>
             <span className="meta">{c.id.slice(0, 8)}…</span>
             <button
               type="button"
               className={activeId === c.id ? 'btn primary' : 'btn'}
               data-testid={`character-use-${c.id}`}
-              onClick={() => useInStudio(c.id, c.display_name)}
+              onClick={() => selectForStudio(c.id, c.display_name)}
             >
-              {activeId === c.id ? t('character:openStory') : t('character:useInStudio')}
+              {activeId === c.id ? t('character:openStory') : t('character:selectForStudio')}
             </button>
           </li>
         ))}

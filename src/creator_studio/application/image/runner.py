@@ -29,10 +29,8 @@ def submit_wait_collect(
 
 
 def candidate_count_for_backend(image: ImageBackend) -> int:
-    """Live Comfy smoke uses 1 candidate; Fake keeps 4 for E2E UI coverage."""
-    if type(image).__name__ != "ComfyImageBackend":
-        return 4
-    return 4 if getattr(image, "_dry_run", False) else 1
+    """Creator review presents four candidates on all image backends."""
+    return 4
 
 
 __all__ = ["candidate_count_for_backend", "submit_wait_collect"]

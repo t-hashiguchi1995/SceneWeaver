@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SceneWeaver UI / Application Architecture Design R1</title>
+<style>
+:root{
+  --bg:#0b1020;--panel:#11192b;--panel2:#162138;--line:#2a3b5a;--text:#ecf3ff;--muted:#9eb0ca;
+  --accent:#6fd3c7;--accent2:#d4ad78;--warn:#f2c26b;--danger:#f59d9d;--good:#7fd89a;--code:#09111d;
+  --shadow:0 12px 36px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box} body{margin:0;font-family:"Noto Sans JP","Yu Gothic UI","Segoe UI",sans-serif;background:linear-gradient(180deg,#0b1020,#0d1424 35%,#0b1020);color:var(--text);line-height:1.68}
+a{color:var(--accent)} code,pre{font-family:"SFMono-Regular",Consolas,monospace}
+header.hero{padding:56px 28px 34px;border-bottom:1px solid var(--line);background:radial-gradient(circle at 15% 0%,#1b3150 0,transparent 34%),radial-gradient(circle at 100% 10%,#233729 0,transparent 24%),var(--bg)}
+.hero-inner{max-width:1240px;margin:auto}.kicker{color:var(--accent);font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}.hero h1{font-size:clamp(34px,5vw,58px);line-height:1.14;margin:.18em 0 .35em}.hero .sub{font-size:19px;color:var(--muted);max-width:980px}.meta-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:26px}.meta-card{background:rgba(17,25,43,.78);border:1px solid var(--line);border-radius:14px;padding:14px 16px}.meta-card b{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+main{max-width:1240px;margin:auto;padding:28px}.toc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 24px;box-shadow:var(--shadow);margin-bottom:28px}.toc h2{margin-top:0}.toc ol{columns:2;column-gap:48px}.toc li{margin:7px 0}
+section{margin:34px 0 48px}.section-title{font-size:30px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}h3{font-size:22px;margin-top:30px}h4{font-size:17px;margin-top:24px}.lead{font-size:18px;color:#c8d5e8}.note,.warning,.good{border-radius:12px;padding:14px 16px;margin:14px 0;border:1px solid var(--line);background:var(--panel)}.warning{border-color:#6a552d;background:#241d11}.good{border-color:#2d6540;background:#11231a}.note strong,.warning strong,.good strong{color:var(--text)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin:16px 0}table{width:100%;border-collapse:collapse;background:var(--panel)}th,td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}th{background:#17233a;color:#dfeafa;font-size:13px;position:sticky;top:0}tr:last-child td{border-bottom:0}.pri{font-weight:700}.p0{color:#ffabab}.p1{color:#ffd98a}.p2{color:#9fcaff}.ok{color:var(--good)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.14)}.card h3,.card h4{margin-top:0}.small{font-size:13px;color:var(--muted)}
+pre{background:var(--code);color:#d9e6f7;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto;white-space:pre-wrap}.flow{background:#0b1322;border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}.flow-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.node{padding:9px 12px;border:1px solid #3a557e;border-radius:10px;background:#14213a}.arrow{color:var(--accent);font-weight:700}
+.wire{border:1px solid var(--line);border-radius:16px;background:#0b1322;overflow:hidden;box-shadow:var(--shadow);margin:18px 0}.wire .bar{display:flex;gap:8px;align-items:center;padding:10px 14px;background:#152039;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.dot{width:10px;height:10px;border-radius:50%;background:#54647b}.wire-body{display:grid;grid-template-columns:210px 1fr;min-height:440px}.side{border-right:1px solid var(--line);background:#0f1829;padding:16px}.side .brand{font-weight:800;font-size:18px;margin-bottom:18px}.navgroup{margin:18px 0}.navgroup b{display:block;font-size:11px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}.navitem{padding:8px 9px;border-radius:8px;color:#c8d5e8}.navitem.active{background:#1b2f46;color:white;border:1px solid #385874}.content{padding:22px}.page-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.crumb{color:var(--muted);font-size:12px}.h1fake{font-size:28px;font-weight:800;margin-top:6px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#16233a;color:#eef6ff;font-size:12px}.btn.primary{border-color:#4e8f8a;background:#173937}.btn.warn{border-color:#7c6134;background:#302414}.cols{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:16px}.panel{border:1px solid var(--line);border-radius:12px;background:#111a2d;padding:14px}.panel .title{font-weight:700;margin-bottom:10px}.thumb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.thumb{aspect-ratio:4/3;border:1px dashed #4a6282;border-radius:10px;display:grid;place-items:center;color:#7f93af;background:#0c1525}.status-pill{display:inline-block;border:1px solid #405978;border-radius:999px;padding:3px 8px;font-size:11px;color:#bdcbe0}.input{border:1px solid #334969;border-radius:8px;background:#0b1322;padding:9px;color:#aebbd0;margin:6px 0}.textarea{min-height:100px}.mini-list{display:grid;gap:8px}.mini-row{border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#0f1829}.badge{display:inline-block;padding:2px 7px;border-radius:999px;background:#193a35;color:#9ce3d9;font-size:11px}
+.arch{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;margin:20px 0}.arch .box{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:18px;text-align:center}.arch .arr{font-size:28px;color:var(--accent)}
+.checks{display:grid;gap:8px}.check{display:flex;gap:9px;align-items:flex-start}.check:before{content:"□";color:var(--accent);font-weight:700}.source-list li{margin:5px 0}.footer{color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding:24px 0 40px}
+@media(max-width:900px){.meta-grid,.grid2,.grid3,.cols{grid-template-columns:1fr}.toc ol{columns:1}.wire-body{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid var(--line)}.arch{grid-template-columns:1fr}.arch .arr{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div class="note" style="max-width:1240px;margin:18px auto"><strong>このR1は2026-10-11時点の歴史的設計書です。</strong> ローカル実装・検証との差分とPublish統合の最新設計は <a href="sceneweaver_ui_integration_design_r2.html">UI・統合設計書 R2</a> を参照してください。R1の「未実装」は現在の状態を示すものではありません。</div>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">SceneWeaver / UI & Application Architecture</div>
+    <h1>SceneWeaver UI・画面構成・改修設計書 R1</h1>
+    <p class="sub">現行 GitHub <code>main</code> の実装を基準に、v0.2 以降で「動くMVP」から「実際に制作に使えるクリエイター向けアプリ」へ進めるための、画面構成・情報設計・状態設計・API接続・実装優先度を詳細化する。</p>
+    <div class="meta-grid">
+      <div class="meta-card"><b>対象リポジトリ</b>t-hashiguchi1995/SceneWeaver</div>
+      <div class="meta-card"><b>基準ブランチ</b>main</div>
+      <div class="meta-card"><b>確認時点</b>2026-10-11</div>
+      <div class="meta-card"><b>基準Tree SHA</b><code>633ce6e2899f…</code></div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="toc">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#purpose">目的と設計原則</a></li>
+      <li><a href="#current">現状実装の評価</a></li>
+      <li><a href="#ia">推奨情報設計・ナビゲーション</a></li>
+      <li><a href="#shell">共通アプリシェル</a></li>
+      <li><a href="#home">ホーム / Project Dashboard</a></li>
+      <li><a href="#character">キャラクター</a></li>
+      <li><a href="#story">ストーリー / セリフ</a></li>
+      <li><a href="#wardrobe">衣装 / Try-On</a></li>
+      <li><a href="#shot">Shot Studio / Prompt Editor</a></li>
+      <li><a href="#review">Generation Review</a></li>
+      <li><a href="#csp">CLIP STUDIO Handoff</a></li>
+      <li><a href="#release">公開準備</a></li>
+      <li><a href="#integration">外部連携 / Settings</a></li>
+      <li><a href="#jobs">Jobs / 通知</a></li>
+      <li><a href="#state">状態・URL・sessionStorage方針</a></li>
+      <li><a href="#api">Backend / API 改修</a></li>
+      <li><a href="#prompt">Prompt / Default Assembly 設計</a></li>
+      <li><a href="#security">セキュリティ / Importer</a></li>
+      <li><a href="#responsive">レスポンシブ / アクセシビリティ</a></li>
+      <li><a href="#roadmap">Sprint実装計画</a></li>
+      <li><a href="#acceptance">受入条件</a></li>
+    </ol>
+  </div>
+
+  <section id="purpose">
+    <h2 class="section-title">1. 目的と設計原則</h2>
+    <p class="lead">SceneWeaverのDomain・Persistence・Generation provenanceは既に強い。次の重点は、制作物を「見て、比較して、編集して、採用して、次工程へ渡す」ためのUIを完成させることに置く。</p>
+    <div class="grid3">
+      <div class="card"><h3>Semantic First</h3><p>Character / Outfit / Scene / Shot を正本とし、Promptは生成時の可視・編集可能なDraft。Prompt文字列だけをアプリの正本にしない。</p></div>
+      <div class="card"><h3>Human-in-the-loop</h3><p>AI候補を直接確定せず、比較・手修正・採用・ロックを明示操作にする。過去GenerationAttemptは不変。</p></div>
+      <div class="card"><h3>Reproducibility</h3><p>最終Prompt、Seed、Model、Workflow、Control、Profile、Component参照をGenerationAttemptに保存し、再現と比較を可能にする。</p></div>
+    </div>
+    <div class="good"><strong>設計上の中心:</strong> 「何を生成したいか」→「どのPromptを送るか」→「何が生成されたか」→「どれを採用したか」を、画面とデータモデルの双方で追跡可能にする。</div>
+  </section>
+
+  <section id="current">
+    <h2 class="section-title">2. 現状実装の評価</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>領域</th><th>現状</th><th>評価</th><th>次対応</th></tr></thead>
+      <tbody>
+        <tr><td>Setup Wizard</td><td><code>/setup</code> 実装済み。Comfy/LLM/CSPを設定可能。</td><td class="ok">実装済み</td><td>Comfy接続成功とbackend選択を分離。</td></tr>
+        <tr><td>PromptDraft</td><td>DB/API/UI、stale/reset/rebuild、Prompt hashあり。</td><td class="ok">良好</td><td>Autosaveと保存状態表示を追加。</td></tr>
+        <tr><td>Generation Review</td><td>履歴、Prompt snapshot、Adopt/Reject、provenanceあり。</td><td class="ok">基盤良好</td><td>実画像4候補比較、再生成条件の厳密化。</td></tr>
+        <tr><td>Project</td><td>一覧とメタデータ詳細が中心。</td><td class="p1">UI不足</td><td>制作Dashboard化。</td></tr>
+        <tr><td>Character</td><td>作成・選択のみ。BackendにはPersona/VisualIdentity更新APIあり。</td><td class="p0">UI不足</td><td>詳細Editorを追加。</td></tr>
+        <tr><td>Story</td><td>Scene/Beat/Dialogue候補/Lockは動作。</td><td class="p1">MVP UI</td><td>3ペイン化、手修正してLock。</td></tr>
+        <tr><td>Wardrobe</td><td>Try-On/Adopt動作。候補はID中心。</td><td class="p0">視覚不足</td><td>Asset画像配信API + thumbnail化。</td></tr>
+        <tr><td>Shot Studio</td><td>Prompt編集は強い。Shot設定は要約中心。</td><td class="p1">半完成</td><td>Semantic controls追加。</td></tr>
+        <tr><td>CSP</td><td>immutable handoff生成済み。</td><td class="p1">機能済み</td><td>設定した出力先へ接続、PagePlan UI化。</td></tr>
+        <tr><td>Eagle</td><td>設定項目のみ。</td><td class="p2">未連携</td><td>v0.3でAdapter実装、現状は「未対応」表記。</td></tr>
+        <tr><td>Blender</td><td>未実装。</td><td class="p2">後段</td><td>Restricted providerとして将来対応。</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>最優先の技術課題</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>優先度</th><th>課題</th><th>理由</th><th>対応</th></tr></thead>
+      <tbody>
+        <tr><td class="pri p0">P0</td><td>AssetをWeb UIで実画像表示できない</td><td><code>asset://...</code> はブラウザのimgで表示不可。</td><td><code>GET /api/v1/assets/{id}/content</code> を追加。</td></tr>
+        <tr><td class="pri p0">P0</td><td>Prompt編集がGenerate時まで保存されない</td><td>画面遷移で編集内容を失う。</td><td>debounce autosave + 保存状態。</td></tr>
+        <tr><td class="pri p0">P0</td><td>「同条件で再生成」が厳密でない</td><td>現状はPose=true固定、seed=1234固定。</td><td>Attempt条件snapshot/replay + seed方針。</td></tr>
+        <tr><td class="pri p0">P0</td><td>sessionStorage依存が大きい</td><td>別タブ・再起動・複数Projectで不安定。</td><td>Project scoped route + DB解決へ。</td></tr>
+        <tr><td class="pri p0">P0</td><td>CSP export設定と実処理が未接続</td><td>設定UIと保存先が一致しない。</td><td>HandoffServiceに出力先Portを注入。</td></tr>
+        <tr><td class="pri p0">P0</td><td>Importer ZIP展開の安全性</td><td><code>extractall()</code> のzip-slip等。</td><td>member検証、件数/サイズ上限、symlink拒否。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="ia">
+    <h2 class="section-title">3. 推奨情報設計・ナビゲーション</h2>
+    <p>現状のTopbarにはHome / Projects / Characters / Story / Wardrobe / Shots / Review / CSP / Release / Integrations / Settings / Jobsが横並びで、制作アプリとしては過密。Global navigationとProject workflow navigationを分離する。</p>
+    <div class="grid2">
+      <div class="card"><h3>Global</h3><pre>ホーム
+プロジェクト
+キャラクターライブラリ
+
+システム
+├ 外部連携
+└ 設定</pre></div>
+      <div class="card"><h3>Project Workflow</h3><pre>Project Dashboard
+├ ストーリー
+├ 衣装
+├ ショット
+├ 生成結果
+├ CLIP STUDIO
+└ 公開準備</pre></div>
+    </div>
+    <div class="note"><strong>ReviewはGlobal navから外す。</strong> ReviewはShotに従属するため、<code>/projects/:projectId/shots/:shotId/generations</code> へ集約する。JobsもGlobal常設ではなく右上Indicator/Drawerへ変更する。</div>
+  </section>
+
+  <section id="shell">
+    <h2 class="section-title">4. 共通アプリシェル</h2>
+    <div class="wire">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span> SceneWeaver — Creator Workspace</div>
+      <div class="wire-body">
+        <aside class="side">
+          <div class="brand">SceneWeaver</div>
+          <div class="navgroup"><b>WORKSPACE</b><div class="navitem active">プロジェクト</div><div class="navitem">キャラクター</div></div>
+          <div class="navgroup"><b>PROJECT</b><div class="navitem">概要</div><div class="navitem">ストーリー</div><div class="navitem">衣装</div><div class="navitem">ショット</div><div class="navitem">CLIP STUDIO</div><div class="navitem">公開準備</div></div>
+          <div class="navgroup"><b>SYSTEM</b><div class="navitem">外部連携</div><div class="navitem">設定</div></div>
+        </aside>
+        <div class="content">
+          <div class="page-head"><div><div class="crumb">Project A / Dashboard</div><div class="h1fake">Project A</div></div><div class="toolbar"><span class="status-pill">処理中 2</span><span class="btn">通知</span><span class="btn">設定</span></div></div>
+          <div class="cols"><div class="panel"><div class="title">現在の制作状況</div><div class="mini-list"><div class="mini-row">Scene 04 — セリフ未確定</div><div class="mini-row">Shot 12 — Prompt stale</div><div class="mini-row">Generation #18 — 要確認</div></div></div><div class="panel"><div class="title">次にすること</div><div class="mini-row"><span class="badge">P0</span> Shot 12 を開く</div></div></div>
+        </div>
+      </div>
+    </div>
+    <h3>Layout variant</h3>
+    <div class="table-wrap"><table><thead><tr><th>Variant</th><th>用途</th><th>最大幅</th></tr></thead><tbody>
+      <tr><td><code>standard</code></td><td>Settings / Project metadata</td><td>980px</td></tr>
+      <tr><td><code>creator-wide</code></td><td>Story / Character / Shot Studio</td><td>1440px</td></tr>
+      <tr><td><code>review-full</code></td><td>Generation Review / Try-On</td><td>1600px</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="home">
+    <h2 class="section-title">5. ホーム / Project Dashboard</h2>
+    <h3>5.1 ホーム</h3>
+    <p>ホームは「入口」。Recent Projects、未完了Job、Setup警告のみ。制作状況そのものはProject Dashboardへ移す。</p>
+    <div class="wire"><div class="bar">/</div><div class="wire-body"><aside class="side"><div class="brand">SceneWeaver</div><div class="navitem active">ホーム</div><div class="navitem">プロジェクト</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">ホーム</div><div class="small">最近の制作を続ける</div></div><div class="toolbar"><span class="btn primary">新規プロジェクト</span></div></div><div class="grid3" style="margin-top:18px"><div class="panel"><div class="title">Project A</div><div class="small">Shot 12 / 24</div><br><span class="btn">続きから</span></div><div class="panel"><div class="title">Project B</div><div class="small">CSP r004</div><br><span class="btn">開く</span></div><div class="panel"><div class="title">セットアップ</div><div class="small">Comfy接続を確認</div><br><span class="btn">診断</span></div></div></div></div></div>
+
+    <h3>5.2 Project Dashboard</h3>
+    <p>現在の <code>/projects/:projectId</code> はメタデータ表示のみなので、制作の中心画面へ置き換える。</p>
+    <div class="grid2">
+      <div class="card"><h4>進捗カード</h4><pre>ストーリー       3 Scene / 18 Beat
+キャラクター     3
+ショット         12 / 24
+生成結果         採用 8 / 要確認 3
+CSP              r004</pre></div>
+      <div class="card"><h4>Action Queue</h4><pre>1. Shot 12: Prompt stale
+2. Scene 04: Dialogue未Lock
+3. Generation #18: 未採用
+4. CSP: 新規採用Assetあり</pre></div>
+    </div>
+    <h4>必須API</h4><pre>GET /api/v1/projects/{projectId}/dashboard
+→ counts, next_actions, recent_shots, recent_generations, latest_handoff</pre>
+  </section>
+
+  <section id="character">
+    <h2 class="section-title">6. キャラクター画面</h2>
+    <p>BackendにはPersona / VisualIdentity更新APIがあるため、UIを詳細Editor化する。CharacterはPrompt Builderの主要入力なので、Sprint 4より前に画面を整える価値が高い。</p>
+    <div class="wire"><div class="bar">/characters/:characterId</div><div class="wire-body"><aside class="side"><div class="brand">Characters</div><div class="navitem active">藤田ことね</div><div class="navitem">Character B</div><div class="navitem">+ 新規</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">藤田ことね</div><div class="small">Character Profile</div></div><div class="toolbar"><span class="btn primary">保存済み</span></div></div><div class="cols"><div><div class="panel"><div class="title">Persona</div><div class="input">一人称</div><div class="input">呼称ルール</div><div class="input textarea">話し方 / 禁止表現</div><div class="input textarea">Voice Examples</div></div><div class="panel" style="margin-top:12px"><div class="title">Visual Identity</div><div class="input">髪 / 目 / 体型 / 特徴</div><div class="input textarea">Identity tags</div></div></div><div><div class="panel"><div class="title">Reference</div><div class="thumb">canonical fullbody</div><div class="thumb" style="margin-top:10px">face ref</div></div><div class="panel" style="margin-top:12px"><div class="title">Prompt components</div><div class="mini-row">identity: kotone@v1</div><div class="mini-row">style: default@v1</div></div></div></div></div></div></div>
+    <h3>保存方針</h3><p>項目変更はdebounce autosave。画像参照はAsset IDで保持し、Promptへ直接URL文字列を埋め込まない。</p>
+  </section>
+
+  <section id="story">
+    <h2 class="section-title">7. ストーリー / セリフ画面</h2>
+    <p>現状の一列フォームから、長期制作に耐える「Scene一覧 / Beat・ScriptEvent / Candidate」の3ペインへ移行する。</p>
+    <div class="wire"><div class="bar">/projects/:projectId/story</div><div class="wire-body"><aside class="side"><div class="brand">Scenes</div><div class="navitem active">Scene 04 Cafe</div><div class="navitem">Scene 05 Station</div><div class="navitem">+ Scene</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">Scene 04 — Cafe</div><div class="small">目的: もう少し一緒にいたい</div></div><div class="toolbar"><span class="btn">Scene設定</span><span class="btn primary">Dialogue生成</span></div></div><div class="cols"><div class="panel"><div class="title">Beat / Script</div><div class="mini-row">Beat 1 <span class="badge">Locked</span><br>「まだ帰りたくないな」</div><div class="mini-row">Beat 2 <span class="status-pill">Draft</span><br>Intent: もう少し一緒にいたい</div><div class="mini-row">+ Beat</div></div><div class="panel"><div class="title">Dialogue Candidates</div><div class="mini-row">候補1<br><div class="input textarea">もう少しだけ、一緒にいてもいい？</div><span class="btn primary">採用してLock</span></div><div class="mini-row">候補2 ...</div></div></div></div></div></div>
+    <div class="note"><strong>重要:</strong> Candidate → 即Lockではなく、Candidate → User Edit → Lock にする。Locked textは以後、自動変更しない。</div>
+  </section>
+
+  <section id="wardrobe">
+    <h2 class="section-title">8. 衣装 / Try-On</h2>
+    <h3>8.1 Wardrobe Market</h3>
+    <div class="wire"><div class="bar">/projects/:projectId/wardrobe</div><div class="wire-body"><aside class="side"><div class="brand">Wardrobe</div><div class="navitem active">マーケット</div><div class="navitem">マイワードローブ</div><div class="navitem">Try-On履歴</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">衣装マーケット</div></div><div class="toolbar"><span class="btn">検索</span><span class="btn">フィルター</span></div></div><div class="grid3" style="margin-top:18px"><div class="panel"><div class="thumb">garment</div><b>Cardigan</b><div class="small">outer / casual</div><br><span class="btn primary">試着</span></div><div class="panel"><div class="thumb">garment</div><b>Uniform</b><div class="small">school</div></div><div class="panel"><div class="thumb">garment</div><b>Dress</b><div class="small">formal</div></div></div></div></div></div>
+    <h3>8.2 Try-On Review</h3>
+    <p>4候補を必ず画像で一覧表示し、大きなプレビューと採用操作を同一画面に配置。</p>
+    <div class="wire"><div class="bar">Try-On Session</div><div class="wire-body"><aside class="side"><div class="brand">Try-On</div><div class="navitem active">Session #18</div></aside><div class="content"><div class="cols"><div class="panel"><div class="title">候補</div><div class="thumb-grid"><div class="thumb">1</div><div class="thumb">2</div><div class="thumb">3</div><div class="thumb">4</div></div></div><div class="panel"><div class="title">選択候補</div><div class="thumb">large preview</div><br><span class="btn primary">採用</span> <span class="btn">不採用</span></div></div></div></div></div>
+  </section>
+
+  <section id="shot">
+    <h2 class="section-title">9. Shot Studio / Prompt Editor</h2>
+    <p>Shot Studioは「Semantic controls」と「Prompt Draft」を同じ画面に置く。Promptだけを編集して調整するUIにしない。</p>
+    <div class="wire"><div class="bar">/projects/:projectId/shots/:shotId</div><div class="wire-body"><aside class="side"><div class="brand">Shots</div><div class="navitem">Shot 10</div><div class="navitem active">Shot 12</div><div class="navitem">Shot 13</div></aside><div class="content"><div class="page-head"><div><div class="crumb">Scene 04 / Beat 2</div><div class="h1fake">Shot 12</div></div><div class="toolbar"><span class="btn">履歴</span><span class="btn primary">生成</span></div></div><div class="cols"><div><div class="panel"><div class="title">Shot設定</div><div class="grid2"><div class="input">表情: embarrassed</div><div class="input">Pose: standing</div><div class="input">Camera: medium</div><div class="input">Angle: eye level</div><div class="input">Lighting: soft indoor</div><div class="input">Control strength: 1.0</div></div></div><div class="panel" style="margin-top:12px"><div class="title">Prompt Draft <span class="badge">保存済み</span></div><div class="toolbar"><span class="btn primary">展開後</span><span class="btn">生成元</span><span class="btn">差分</span></div><div class="input textarea">Positive prompt...</div><div class="input textarea">Negative prompt...</div><div class="toolbar"><span class="btn">編集を戻す</span><span class="btn warn">再作成</span></div></div></div><div><div class="panel"><div class="title">Resolved Context</div><div class="mini-row">Character: kotone</div><div class="mini-row">Outfit: cardigan</div><div class="mini-row">Profile: anima_story_panel@v1</div><div class="mini-row">Source: DefaultPromptBuilder</div></div><div class="panel" style="margin-top:12px"><div class="title">Generation</div><div class="input">Seed: Random / Fixed</div><div class="input">Mode: Base / Pose Controlled</div></div></div></div></div></div></div>
+
+    <h3>Prompt Autosave</h3>
+    <div class="flow"><div class="flow-row"><span class="node">textarea edit</span><span class="arrow">→</span><span class="node">local dirty</span><span class="arrow">→ 700ms</span><span class="node">PUT prompt-draft</span><span class="arrow">→</span><span class="node">保存済み</span></div></div>
+    <h3>staleの扱い</h3><p>ADR 0010どおり自動上書き禁止。Bannerに「再作成」「このまま使用」。ただし「このまま使用」を押した状態も、GenerationAttemptへ <code>draft_was_stale=true</code> などを記録すると後から説明しやすい。</p>
+    <h3>Diff</h3><p>行diffではなく、カンマ区切りtoken diffまたはword diffを採用。画像Promptは1行が多いため、行単位差分は実用性が低い。</p>
+  </section>
+
+  <section id="review">
+    <h2 class="section-title">10. Generation Review</h2>
+    <p>現在のGenerationReviewViewを中心に、実画像4候補比較を完成させる。</p>
+    <div class="wire"><div class="bar">/projects/:projectId/shots/:shotId/generations/:attemptId</div><div class="wire-body"><aside class="side"><div class="brand">History</div><div class="navitem active">#18 10:42</div><div class="navitem">#17 10:35</div><div class="navitem">#16 10:21</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">生成結果 #18</div><div class="small">Anima / PoseControlledRender</div></div><div class="toolbar"><span class="btn">Promptを編集</span><span class="btn">同条件で再生成</span></div></div><div class="cols"><div><div class="panel"><div class="title">4候補</div><div class="thumb-grid"><div class="thumb">candidate 1</div><div class="thumb">candidate 2</div><div class="thumb">candidate 3</div><div class="thumb">candidate 4</div></div></div><div class="panel" style="margin-top:12px"><div class="title">Runtime Prompt</div><div class="input textarea">final positive...</div><div class="input textarea">final negative...</div></div></div><div><div class="panel"><div class="title">大きなプレビュー</div><div class="thumb">selected image</div><br><span class="btn primary">採用</span> <span class="btn">不採用</span></div><div class="panel" style="margin-top:12px"><div class="title">Provenance</div><div class="mini-row">Model</div><div class="mini-row">Workflow hash</div><div class="mini-row">Prompt hash</div><div class="mini-row">Seed</div><div class="mini-row">Control</div></div></div></div></div></div></div>
+
+    <h3>再生成アクションの定義</h3>
+    <div class="table-wrap"><table><thead><tr><th>アクション</th><th>Prompt</th><th>Seed</th><th>Capability/Control</th><th>用途</th></tr></thead><tbody>
+      <tr><td>同条件で再生成</td><td>同一</td><td>新規</td><td>同一</td><td>ばらつきを増やす</td></tr>
+      <tr><td>完全再現</td><td>同一</td><td>同一</td><td>同一</td><td>再現性確認</td></tr>
+      <tr><td>Promptを編集して再生成</td><td>Attempt finalsをDraftへcopy</td><td>新規</td><td>原則同一</td><td>改善</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="csp">
+    <h2 class="section-title">11. CLIP STUDIO Handoff</h2>
+    <p>現行のimmutable revision設計は維持。UIはraw manifest表示から、Page/Panel確認画面へ移行する。</p>
+    <div class="wire"><div class="bar">/projects/:projectId/csp</div><div class="wire-body"><aside class="side"><div class="brand">CSP</div><div class="navitem active">Page Plan</div><div class="navitem">Handoff履歴</div></aside><div class="content"><div class="page-head"><div><div class="h1fake">CLIP STUDIO連携</div><div class="small">出力先: D:/SceneWeaver/CSP/...</div></div><div class="toolbar"><span class="btn primary">新しいHandoffを作成</span></div></div><div class="grid2" style="margin-top:18px"><div class="panel"><div class="title">Page 1</div><div class="thumb-grid"><div class="thumb">Panel 1</div><div class="thumb">Panel 2</div></div></div><div class="panel"><div class="title">検証</div><div class="mini-row">✓ 採用Assetのみ</div><div class="mini-row">✓ SHA256一致</div><div class="mini-row">✓ ScriptEventあり</div><div class="mini-row">次 revision: r005</div></div></div></div></div></div>
+    <div class="warning"><strong>修正必須:</strong> 現在の <code>csp_export_dir</code> は設定に保存されるが、HandoffServiceはruntime配下へ固定出力している。Settingsの値をHandoff出力先へ接続する。</div>
+  </section>
+
+  <section id="release">
+    <h2 class="section-title">12. 公開準備</h2>
+    <p>MVPではPreviewのみを維持する。ただしhard-code文言とraw JSONを廃止し、MASTER→各Platform previewを視覚化する。</p>
+    <div class="grid3"><div class="card"><h3>X</h3><p>本文・hashtags・alt text</p><div class="input textarea">投稿プレビュー</div></div><div class="card"><h3>pixiv</h3><p>title / description / tags / AI disclosure</p><div class="input textarea">作品説明</div></div><div class="card"><h3>Patreon</h3><p>title / body / attachment order</p><div class="input textarea">本文</div></div></div>
+    <p class="small">実投稿はv0.4以降。approval / idempotency / ambiguous result を明示的に扱う。</p>
+  </section>
+
+  <section id="integration">
+    <h2 class="section-title">13. 外部連携 / Settings</h2>
+    <h3>13.1 Integration Hub</h3>
+    <div class="grid2">
+      <div class="card"><h4>ComfyUI</h4><p>URL、Backend、接続状態、必要Model/Nodeを表示。</p><pre>✓ Anima Base
+✓ Anima LLLite
+✗ Qwen Image Edit
+  → required model を表示</pre></div>
+      <div class="card"><h4>Eagle</h4><p>現状は設定項目のみで、実Adapterなし。</p><div class="warning">UI上は「未対応 / v0.3予定」と表示し、有効化toggleを無効化する。</div></div>
+      <div class="card"><h4>CLIP STUDIO</h4><p>出力先フォルダ、書き込み可否、直近handoffを表示。</p></div>
+      <div class="card"><h4>Blender</h4><p>v0.5+。Restricted providerのみ。任意Python実行は禁止。</p></div>
+    </div>
+    <h3>13.2 Settings</h3>
+    <p>一般ユーザー向け項目とAdvancedを分離。<code>fake/comfy/comfy_dry</code> など内部enumをそのまま見せない。</p>
+    <div class="table-wrap"><table><thead><tr><th>表示</th><th>内部値</th></tr></thead><tbody>
+      <tr><td>画像生成を使用しない（テスト）</td><td><code>fake</code></td></tr>
+      <tr><td>ComfyUIを使用</td><td><code>comfy</code></td></tr>
+      <tr><td>ComfyUI Dry Run</td><td><code>comfy_dry</code>（Advancedのみ）</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="jobs">
+    <h2 class="section-title">14. Jobs / 通知</h2>
+    <p>現状のJobs専用ページは開発には有用だが、一般ユーザーには右上Indicator + Drawerの方が適する。</p>
+    <div class="wire"><div class="bar">Header</div><div class="wire-body"><aside class="side"><div class="brand">Jobs Drawer</div><div class="navitem active">処理中 2</div><div class="navitem">失敗 1</div></aside><div class="content"><div class="mini-row">Image Generation<br><span class="status-pill">処理中 62%</span></div><div class="mini-row">Try-On<br><span class="status-pill">待機中</span></div><div class="mini-row">CSP Handoff<br><span class="status-pill">失敗</span><br><span class="btn">詳細</span></div></div></div></div>
+    <p><code>enqueueStubJob</code> ボタンはproduction UIから除外し、E2E/Development限定にする。</p>
+  </section>
+
+  <section id="state">
+    <h2 class="section-title">15. 状態・URL・sessionStorage方針</h2>
+    <h3>現状</h3><p><code>StudioContext</code> がprojectId / characterId / sceneId / beatId / shotId / attemptId / adopted asset等をsessionStorageへ保持している。</p>
+    <h3>推奨</h3>
+    <div class="arch"><div class="box">URL<br><code>/projects/:projectId/shots/:shotId</code></div><div class="arr">→</div><div class="box">DB Domain State</div><div class="arr">→</div><div class="box">UI Query Cache</div></div>
+    <p>sessionStorageは「最後に開いたProject」「一時UI状態」に限定する。Domain上意味のある採用Assetや現在ShotはDBから解決する。</p>
+    <div class="table-wrap"><table><thead><tr><th>状態</th><th>保存場所</th></tr></thead><tbody>
+      <tr><td>Project / Scene / Beat / Shot / Attempt</td><td>DB + URL</td></tr>
+      <tr><td>Adopt / Reject</td><td>DB</td></tr>
+      <tr><td>Prompt Draft</td><td>DB</td></tr>
+      <tr><td>selected tab / zoom / local filter</td><td>React state / sessionStorage可</td></tr>
+      <tr><td>last opened project</td><td>UserSettings / sessionStorage補助</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="api">
+    <h2 class="section-title">16. Backend / API 改修</h2>
+    <h3>16.1 Asset content API</h3>
+    <pre>GET /api/v1/assets/{asset_id}/content
+
+200 image/png | image/jpeg | ...
+Cache-Control: private, max-age=...
+ETag: sha256
+Content-Disposition: inline</pre>
+    <p>FilesystemAssetStoreの <code>path_for_uri()</code> を利用し、<code>asset://</code> をブラウザへ直接出さない。Asset ID経由で認可・存在確認を行う。</p>
+    <h3>16.2 Attempt replay API</h3>
+    <pre>POST /api/v1/generations/{attempt_id}/replay
+{
+  "seed_mode": "new" | "same",
+  "copy_prompt_to_draft": false
+}</pre>
+    <p>Frontendが<code>use_pose</code>等を推測しない。Application層でAttempt snapshotからRenderPlanを再構築する。</p>
+    <h3>16.3 Prompt autosave</h3><p>既存PUTを利用可能。更新競合を避けるなら <code>updated_at</code> / revision をrequestに持たせ、optimistic concurrencyを追加。</p>
+    <h3>16.4 Settings適用</h3><p>ContainerのImageBackendキャッシュを <code>(backend, comfy_url, config_revision)</code> に対して再生成する。Settings更新後も古いBackendを保持しない。</p>
+  </section>
+
+  <section id="prompt">
+    <h2 class="section-title">17. Prompt / Default Assembly 設計</h2>
+    <p>ADR 0011を画面構成へ落とし込む。Default Prompt Builderは「隠れた魔法」ではなく、Resolved Context・Profile・Component contributionをUIで説明可能にする。</p>
+    <div class="flow"><div class="flow-row"><span class="node">Character</span><span class="node">Scene</span><span class="node">Outfit</span><span class="node">Shot</span><span class="arrow">→</span><span class="node">ResolvedPromptContext</span><span class="arrow">→</span><span class="node">Profile</span><span class="arrow">→</span><span class="node">Components</span><span class="arrow">→</span><span class="node">Conflict Resolver</span><span class="arrow">→</span><span class="node">BuiltPrompt</span><span class="arrow">→</span><span class="node">PromptDraft</span></div></div>
+    <h3>PromptEditorの詳細タブ</h3>
+    <div class="grid3"><div class="card"><h4>展開後</h4><p>ユーザーが編集するPositive/Negative。</p></div><div class="card"><h4>構成要素</h4><pre>character_identity:kotone@v1
+outfit:cardigan@v1
+lighting:soft_indoor@v1
+quality:anima_default@v1</pre></div><div class="card"><h4>生成元</h4><p>compiler_ruleなら実ルール説明。Jinjaならread-only source。</p></div></div>
+    <h3>GenerationAttempt追加snapshot</h3><pre>prompt_profile_id
+prompt_profile_version
+component_refs[]
+model_modifiers[]
+warnings[]
+rendered_base_positive / negative
+final_positive / negative
+prompt_hash</pre>
+  </section>
+
+  <section id="security">
+    <h2 class="section-title">18. セキュリティ / Legacy Importer</h2>
+    <h3>ZIP安全展開</h3>
+    <div class="checks">
+      <div class="check">member pathを正規化し、<code>..</code>・絶対パス・drive letterを拒否。</div>
+      <div class="check">symlink / special fileを拒否。</div>
+      <div class="check">展開ファイル数上限を設定（例 5000）。</div>
+      <div class="check">1ファイル上限、総展開サイズ上限を設定。</div>
+      <div class="check">対象拡張子をyaml/yml等へ限定。</div>
+      <div class="check">temporary directoryをrun単位で作成し、finally cleanup。</div>
+    </div>
+    <h3>Import境界</h3><p>Legacy YAMLは一方向Importのみ。runtimeで直接参照しない。成人向けは明示マーカーのみで判定し、曖昧なものはunsupported。</p>
+  </section>
+
+  <section id="responsive">
+    <h2 class="section-title">19. レスポンシブ / アクセシビリティ</h2>
+    <div class="table-wrap"><table><thead><tr><th>項目</th><th>方針</th></tr></thead><tbody>
+      <tr><td>Sidebar</td><td>1280px未満で折り畳み、800px未満でDrawer。</td></tr>
+      <tr><td>Generation候補</td><td>Desktop 2×2、Tablet 2列、Mobile 1列。</td></tr>
+      <tr><td>PromptEditor</td><td>textareaは最小幅を強制せず100%。</td></tr>
+      <tr><td>Keyboard</td><td>候補選択、Adopt/Reject、Tab切替をキーボード操作可能に。</td></tr>
+      <tr><td>Focus</td><td>Modal/Drawerはfocus trap。確認DialogはOS confirmから将来専用Dialogへ。</td></tr>
+      <tr><td>Status</td><td>色だけで表現しない。アイコン/文言併用。</td></tr>
+      <tr><td>i18n</td><td>ja既定、en fallback。内部enumはUIへ露出しない。</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="roadmap">
+    <h2 class="section-title">20. 推奨Sprint実装計画</h2>
+    <div class="table-wrap"><table><thead><tr><th>Sprint</th><th>テーマ</th><th>内容</th><th>完了条件</th></tr></thead><tbody>
+      <tr><td>Sprint 4A</td><td>Visual Review Foundation</td><td>Asset content API、Generation/Try-On実画像、Prompt autosave、seed/replay修正</td><td>4候補を実画像で比較し、編集Promptが遷移後も残る。</td></tr>
+      <tr><td>Sprint 4B</td><td>Creator Shell</td><td>Sidebar、Project Dashboard、Project scoped routing、Jobs Drawer</td><td>sessionStorageなしでもURLから制作状態へ復帰。</td></tr>
+      <tr><td>Sprint 4C</td><td>Semantic Editors</td><td>Character Editor、Shot controls、Story 3-pane</td><td>Prompt以外のsemantic sourceをUIから編集可能。</td></tr>
+      <tr><td>Sprint 4D</td><td>Default Prompt Builder</td><td>ADR 0011実装、component/profile UI</td><td>同Context→byte identical、provenanceにcomponent refs。</td></tr>
+      <tr><td>v0.3</td><td>Creator Integration</td><td>Eagle、CSP PagePlan/round-trip、My Wardrobe</td><td>外部制作ツールと実運用で接続。</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="acceptance">
+    <h2 class="section-title">21. 受入条件</h2>
+    <div class="checks">
+      <div class="check">Projectを開くだけで現在のScene/Shot/Generation/CSP状況が把握できる。</div>
+      <div class="check">Character Persona / VisualIdentityをUIから編集・再読込できる。</div>
+      <div class="check">Prompt編集はAutosaveされ、画面遷移して戻っても保持される。</div>
+      <div class="check">Generation Reviewで4候補すべての実画像を表示できる。</div>
+      <div class="check">Adopt/RejectはDBへ保存され、CSPはAdopt済みAssetだけを受け取る。</div>
+      <div class="check">「同条件で再生成」と「完全再現」でseed挙動が仕様通り。</div>
+      <div class="check">CSP HandoffがSettingsで指定した出力先へ作られる。</div>
+      <div class="check">Comfy設定変更後、再起動なしで新Backend設定が反映される。</div>
+      <div class="check">Legacy zip importはpath traversal / symlink / oversized archiveを拒否する。</div>
+      <div class="check">Mobile/Tabletでも主要画面が操作可能で、Top navigationが溢れない。</div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">22. 実装参照元</h2>
+    <p>本設計は現行 <code>main</code> の以下実装・ADRを基準に作成した。</p>
+    <ul class="source-list">
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/README.md">README.md</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/apps/web/src/routes/__root.tsx">apps/web/src/routes/__root.tsx</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/apps/web/src/routes/shots/%24shotId/index.tsx">Shot Studio route</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/apps/web/src/components/PromptEditor.tsx">PromptEditor.tsx</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/apps/web/src/components/GenerationReviewView.tsx">GenerationReviewView.tsx</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/src/creator_studio/application/shots/pipeline.py">ShotPipeline</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/src/creator_studio/application/prompt/drafts.py">PromptDraftService</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/src/creator_studio/application/prompt/renderer.py">PromptRenderer</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/src/creator_studio/infrastructure/filesystem/asset_store.py">FilesystemAssetStore</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/src/creator_studio/application/csp/handoff.py">CSP Handoff</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/scripts/import_legacy_prompts.py">Legacy Prompt Importer</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/docs/adr/0010-prompt-draft-and-legacy-import.md">ADR 0010</a></li>
+      <li><a href="https://github.com/t-hashiguchi1995/SceneWeaver/blob/main/docs/adr/0011-default-prompt-assembly.md">ADR 0011</a></li>
+    </ul>
+  </section>
+
+  <div class="footer">SceneWeaver UI / Application Architecture Design R1 — generated for the current main branch review. This document is a design proposal; where it says “現状”, it refers to the inspected repository state, and where it says “推奨”, it is the proposed change.</div>
+</main>
+</body>
+</html>

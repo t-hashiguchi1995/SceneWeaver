@@ -11,7 +11,7 @@ import {
 test.describe('live Anima Base', () => {
   test.setTimeout(LIVE_TIMEOUT_MS)
 
-  test('UseCase → Comfy BaseRender → Asset + provenance', async () => {
+  test('UseCase → Comfy BaseRender → Asset + provenance', async ({}, testInfo) => {
     let caps
     try {
       caps = await requireComfyCapability('BaseRender')
@@ -33,7 +33,7 @@ test.describe('live Anima Base', () => {
     const shot = await api.planShot(seeded.beat_id!)
     const rendered = await api.renderShot(shot.id, false)
 
-    expect(rendered.output_asset_ids?.length).toBeGreaterThanOrEqual(1)
+    expect(rendered.output_asset_ids?.length).toBe(4)
     expect(rendered.workflow_hash).toBeTruthy()
     expect(rendered.external_job_ref).toBeTruthy()
 
@@ -47,7 +47,8 @@ test.describe('live Anima Base', () => {
       requireWorkflowHash: true,
       requireExternalJobRef: true,
     })
-    expect(asset.provenance.prompt_version).toBe('anima_compiler_v1')
+    expect(asset.provenance.prompt_version).toBe('v1')
+    await testInfo.attach('real-comfy-result', { body: JSON.stringify({ result: rendered, asset }, null, 2), contentType: 'application/json' })
     expect(asset.provenance.model_id).toBe(caps.BaseRender.model_id)
   })
 })

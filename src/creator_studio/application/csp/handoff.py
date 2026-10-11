@@ -63,8 +63,10 @@ class CspHandoffService:
         *,
         uow_factory: Callable[[], UnitOfWork],
         asset_store: AssetStore,
+        export_root: Path | None = None,
     ) -> None:
         self._runtime_root = runtime_root
+        self._export_root = export_root
         self._uow_factory = uow_factory
         self._store = asset_store
 
@@ -215,10 +217,29 @@ class CspHandoffService:
                     )
         return resolved
 
+    def latest(self, project_id: str) -> dict[str, Any] | None:
+        base = self._handoff_base(project_id)
+        if not base.is_dir():
+            return None
+        revisions = [path for path in base.iterdir()
+                     if path.is_dir() and _REVISION_RE.fullmatch(path.name)
+                     and (path / "project_manifest.json").is_file()]
+        if not revisions:
+            return None
+        path = max(revisions, key=lambda item: int(item.name[1:]))
+        return {"revision": path.name, "path": str(path),
+                "manifest": json.loads((path / "project_manifest.json").read_text(encoding="utf-8"))}
+
     def _handoff_base(self, project_id: str) -> Path:
+        if not re.fullmatch(r"[a-zA-Z0-9_-]+", project_id):
+            raise HandoffError("invalid project id")
+        if self._export_root is not None:
+            return self._export_root / project_id / "csp_handoff"
         return self._runtime_root / "projects" / project_id / "csp_handoff"
 
     def _revision_root(self, project_id: str, revision: str) -> Path:
+        if not _REVISION_RE.fullmatch(revision):
+            raise HandoffError("invalid revision")
         return self._handoff_base(project_id) / revision
 
     def _next_revision(self, project_id: str) -> str:

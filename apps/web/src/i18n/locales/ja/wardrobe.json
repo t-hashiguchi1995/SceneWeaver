@@ -6,5 +6,11 @@
   "adoptedBanner": "採用 {{asset}} · コーディネート {{outfit}}",
   "needCharacterOutfit": "キャラクターと衣装を選んでください",
   "needCharacterFirst": "先にキャラクターライブラリで「スタジオで使う」を押してください",
-  "activeCharacter": "試着キャラクター: {{name}}"
+  "activeCharacter": "試着キャラクター: {{name}}",
+  "candidate": "試着候補 {{n}}",
+  "character": "キャラクター",
+  "scene": "シーン",
+  "search": "衣装を検索",
+  "preview": "選択候補のプレビュー",
+  "reject": "不採用"
 }

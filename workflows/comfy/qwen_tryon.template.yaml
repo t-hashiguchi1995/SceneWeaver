@@ -4,6 +4,7 @@ capability: OutfitTryOn
 workflow_file: workflows/comfy/qwen_tryon.api.json
 # SceneWeaver-native slot contract. Old project JSON is reference-only.
 slots:
+  candidate_count: { node: "28", input: "batch_size" }
   edit_prompt: { node: "prompt", input: "prompt" }
   seed: { node: "sampler", input: "seed" }
   character_image: { node: "load_character", input: "image" }

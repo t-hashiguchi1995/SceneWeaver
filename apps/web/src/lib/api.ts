@@ -22,6 +22,20 @@ export type Project = {
   updated_at: string
 }
 
+export type ProjectDashboard = {
+  counts: Record<string, number>
+  next_actions: { kind: string; shot_id?: string; attempt_id?: string; scene_id?: string; beat_id?: string }[]
+  recent_shots: { id: string; beat_id: string; revision: number; stale_reason: string | null; prompt_stale: boolean }[]
+  recent_generations: { id: string; shot_id: string; output_asset_ids: string[]; created_at: string }[]
+  latest_handoff: { revision: string; path: string; manifest: Record<string, unknown> } | null
+  scenes: Scene[]
+  beats: Beat[]
+  script_events: (DialogueCandidate & { beat_id: string; locked: boolean; speaker_id: string | null })[]
+  adopted_assets: { asset_id: string; shot_id: string; beat_id: string }[]
+  tryon_sessions: (TryOnResult & { scene_id: string; character_id: string; outfit_profile_id: string; adopted_asset_id: string | null })[]
+  character_ids: string[]
+}
+
 export type Job = {
   id: string
   kind: string
@@ -134,6 +148,7 @@ export type GenerationAttemptSummary = {
 }
 
 export type PromptDraft = {
+  assembly_metadata?: { components?: { ref: string; kind: string; text: string }[]; warnings?: string[]; model_modifiers?: Record<string, unknown>[] }
   id: string
   shot_id: string
   template_id: string
@@ -221,6 +236,13 @@ export const api = {
   diagnoseComfy: () =>
     request<ComfyDiagnose>('/api/v1/integrations/comfy/diagnose', { method: 'POST' }),
 
+  getCharacter: (id: string) => request<Character>(`/api/v1/characters/${id}`),
+  updatePersona: (id: string, body: Record<string, unknown>) => request<Character>(`/api/v1/characters/${id}/persona`, { method: "PUT", body: JSON.stringify(body) }),
+  updateVisualIdentity: (id: string, body: Record<string, unknown>) => request<Character>(`/api/v1/characters/${id}/visual-identity`, { method: "PUT", body: JSON.stringify(body) }),
+  assetContentUrl: (id: string) => `/api/v1/assets/${encodeURIComponent(id)}/content`,
+  replayGeneration: (id: string, seedMode: "new" | "same") => request<RenderResult>(`/api/v1/generations/${id}/replay`, { method: "POST", body: JSON.stringify({ seed_mode: seedMode }) }),
+  updateShot: (id: string, patch: Record<string, unknown>) => request<Shot>(`/api/v1/shots/${id}`, { method: "PUT", body: JSON.stringify(patch) }),
+  projectDashboard: (id: string) => request<ProjectDashboard>(`/api/v1/projects/${id}/dashboard`),
   listCharacters: () => request<Character[]>('/api/v1/characters'),
   createCharacter: (displayName: string) =>
     request<Character>('/api/v1/characters', {
@@ -277,6 +299,7 @@ export const api = {
 
   planShot: (beatId: string) =>
     request<Shot>(`/api/v1/beats/${beatId}/shots/plan`, { method: 'POST' }),
+  promptLibrary: () => request<{ id: string; label: string; category: string; prompt_fragment: string; content_rating: string; source_file: string; version: string }[]>('/api/v1/prompt-library'),
   ensurePromptDraft: (shotId: string) =>
     request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft`, { method: 'POST' }),
   getPromptDraft: (shotId: string) => request<PromptDraft>(`/api/v1/shots/${shotId}/prompt-draft`),
@@ -315,12 +338,14 @@ export const api = {
       kind: string
       provenance: Record<string, unknown>
     }>(`/api/v1/assets/${assetId}`),
-  renderShot: (shotId: string, usePose = true) =>
+  renderShot: (shotId: string, usePose = true, seed?: number, poseAssetUri?: string, sourceAttemptId?: string) =>
     request<RenderResult>(`/api/v1/shots/${shotId}/render`, {
       method: 'POST',
       body: JSON.stringify({
         use_pose: usePose,
-        pose_asset_uri: 'asset://pose/fixture.png',
+        seed,
+        source_attempt_id: sourceAttemptId,
+        pose_asset_uri: poseAssetUri,
       }),
     }),
   setAssetDecision: (assetId: string, decision: 'adopted' | 'rejected') =>

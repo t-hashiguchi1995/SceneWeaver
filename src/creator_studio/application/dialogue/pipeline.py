@@ -13,6 +13,7 @@ from creator_studio.domain.story import (
     ScriptEvent,
     ScriptEventKind,
     ScriptEventStatus,
+    resolve_effective_state,
 )
 from creator_studio.infrastructure.prompts import PromptRegistry
 from creator_studio.ports.llm import LLMGateway
@@ -43,7 +44,10 @@ class ContextAssembler:
         beat: Beat,
         previous_beats: list[Beat],
         relationship: dict[str, Any] | None = None,
+        previous_script_events: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
+        previous_beats = sorted(previous_beats, key=lambda b: b.seq)
+        state = resolve_effective_state(scene.initial_state, [b.state_delta for b in previous_beats])
         return {
             "character": {
                 "id": str(character.id),
@@ -55,21 +59,26 @@ class ContextAssembler:
                     "forbidden_patterns": character.persona.forbidden_patterns,
                 },
             },
-            "relationship": relationship or {},
+            "relationship": relationship if relationship is not None else state.get("relationship", {}),
             "scene": {
                 "id": str(scene.id),
                 "title": scene.title,
                 "objective": scene.objective,
+                "initial_state": scene.initial_state,
+                "effective_state_before_beat": state,
             },
             "previous_beats": [
-                {"seq": b.seq, "intent": b.intent, "subtext": b.subtext} for b in previous_beats
+                {"seq": b.seq, "intent": b.intent, "subtext": b.subtext,
+                 "action": b.action, "state_delta": b.state_delta} for b in previous_beats
             ],
+            "previous_locked_script_events": previous_script_events or [],
             "beat": {
                 "id": str(beat.id),
                 "intent": beat.intent,
                 "subtext": beat.subtext,
                 "emotion": {"name": beat.emotion.name, "intensity": beat.emotion.intensity},
                 "action": beat.action,
+                "state_delta": beat.state_delta,
             },
         }
 
@@ -130,10 +139,25 @@ class DialoguePipeline:
                 scene=scene,
                 beat=beat,
                 previous_beats=previous,
+                previous_script_events=[
+                    {"beat_seq": b.seq, "speaker_id": str(e.speaker_id) if e.speaker_id else None,
+                     "kind": e.kind.value, "text": e.text, "revision": e.revision}
+                    for b in sorted(previous, key=lambda b: b.seq)
+                    for e in uow.script_events.list_for_beat(b.id) if e.locked
+                ],
             )
+            context_json = json.dumps(context, ensure_ascii=False, indent=2)
+            persona_json = json.dumps({
+                "first_person": character.persona.first_person,
+                "second_person": character.persona.second_person,
+                "speech_rules": character.persona.speech_rules,
+                "forbidden_patterns": character.persona.forbidden_patterns,
+                "max_chars": character.persona.max_chars,
+                "max_fragments": character.persona.max_fragments,
+            }, ensure_ascii=False)
             director_user = self._prompts.render(
                 "dialogue/director_v1.jinja2",
-                context_json=json.dumps(context, ensure_ascii=False, indent=2),
+                context_json=context_json,
             )
             director_plan = self._llm.complete_json(
                 system="Return JSON only.",
@@ -153,13 +177,8 @@ class DialoguePipeline:
                 forbidden_patterns=character.persona.forbidden_patterns,
                 director_json=json.dumps(director_plan, ensure_ascii=False),
                 voice_examples_json=json.dumps(voice_examples, ensure_ascii=False),
-                persona_json=json.dumps(
-                    {
-                        "first_person": character.persona.first_person,
-                        "speech_rules": character.persona.speech_rules,
-                    },
-                    ensure_ascii=False,
-                ),
+                persona_json=persona_json,
+                context_json=context_json,
             )
             lines = self._llm.complete_json(
                 system="Return JSON array only.",
@@ -174,10 +193,8 @@ class DialoguePipeline:
                 "dialogue/critic_v1.jinja2",
                 candidates_json=json.dumps(lines, ensure_ascii=False),
                 director_json=json.dumps(director_plan, ensure_ascii=False),
-                persona_json=json.dumps(
-                    {"first_person": character.persona.first_person},
-                    ensure_ascii=False,
-                ),
+                persona_json=persona_json,
+                context_json=context_json,
             )
             critic = self._llm.complete_json(system="Return JSON only.", user=critic_user)
             assert isinstance(critic, dict)

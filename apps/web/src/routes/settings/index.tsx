@@ -40,6 +40,7 @@ function SettingsPage() {
   const { t, i18n } = useTranslation(['settings', 'common'])
   const qc = useQueryClient()
   const settings = useQuery({ queryKey: ['settings'], queryFn: api.getSettings })
+  const [advanced, setAdvanced] = useState(false)
   const [form, setForm] = useState<SettingsForm>(EMPTY_FORM)
   const locale: AppLocale = i18n.language.startsWith('en') ? 'en' : 'ja'
 
@@ -68,6 +69,7 @@ function SettingsPage() {
     mutationFn: () =>
       api.updateSettings({
         ...form,
+        eagle_enabled: false,
         llm_api_key: form.llm_api_key || undefined,
       }),
     onSuccess: async () => {
@@ -135,15 +137,16 @@ function SettingsPage() {
             onChange={(e) => setField('comfy_url', e.target.value)}
           />
         </label>
+        <label className="checkbox"><input type="checkbox" checked={advanced} onChange={(e) => setAdvanced(e.target.checked)} />{t("settings:advanced")}</label>
         <label>
           {t('settings:imageBackend')}
           <select
             value={form.image_backend}
             onChange={(e) => setField('image_backend', e.target.value)}
           >
-            <option value="fake">fake</option>
-            <option value="comfy">comfy</option>
-            <option value="comfy_dry">comfy_dry</option>
+            <option value="fake">{t("settings:backendFake")}</option>
+            <option value="comfy">{t("settings:backendComfy")}</option>
+            {(advanced || form.image_backend === "comfy_dry") && <option value="comfy_dry">{t("settings:backendDry")}</option>}
           </select>
         </label>
         <label>
@@ -152,8 +155,8 @@ function SettingsPage() {
             value={form.llm_provider}
             onChange={(e) => setField('llm_provider', e.target.value)}
           >
-            <option value="stub">stub</option>
-            <option value="openai_compatible">openai_compatible</option>
+            <option value="stub">{t('settings:llmStub')}</option>
+            <option value="openai_compatible">{t('settings:llmCompatible')}</option>
           </select>
         </label>
         <label>
@@ -181,10 +184,11 @@ function SettingsPage() {
         <label className="checkbox">
           <input
             type="checkbox"
-            checked={form.eagle_enabled}
+            checked={false}
+            disabled
             onChange={(e) => setField('eagle_enabled', e.target.checked)}
           />
-          {t('settings:eagleEnabled')}
+          {t('settings:eagleUnavailable')}
         </label>
         <label>
           {t('settings:eagleBaseUrl')}

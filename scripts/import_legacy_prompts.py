@@ -16,9 +16,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import shutil
 import sys
 import zipfile
+import stat
+import tempfile
+from pathlib import PurePosixPath
 from collections import Counter
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -98,21 +100,54 @@ def classify_path(rel: str, data: dict[str, Any] | None = None) -> str:
     return "unsupported"
 
 
+MAX_ZIP_FILES = 5000
+MAX_ZIP_MEMBER_BYTES = 8 * 1024 * 1024
+MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024
+
+
 def iter_source_files(source: Path) -> Iterator[tuple[str, Path]]:
-    if source.is_file() and source.suffix == ".zip":
-        extract = REPO_ROOT / "legacy" / "_extracted"
-        if extract.exists():
-            shutil.rmtree(extract)
-        extract.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(source) as zf:
-            zf.extractall(extract)
-        root = extract / "prompts" if (extract / "prompts").exists() else extract
-        source = root
+    if source.is_file() and source.suffix.lower() == ".zip":
+        with tempfile.TemporaryDirectory(prefix="sceneweaver-import-") as tmp:
+            extract = Path(tmp)
+            with zipfile.ZipFile(source) as zf:
+                members = zf.infolist()
+                if len(members) > MAX_ZIP_FILES:
+                    raise ValueError("archive has too many members")
+                total = 0
+                for member in members:
+                    name = member.filename.replace("\\", "/")
+                    path = PurePosixPath(name)
+                    mode = member.external_attr >> 16
+                    if (path.is_absolute() or ".." in path.parts or ":" in name
+                            or stat.S_ISLNK(mode) or stat.S_IFMT(mode) not in {0, stat.S_IFREG, stat.S_IFDIR}):
+                        raise ValueError(f"unsafe archive member: {member.filename}")
+                    total += member.file_size
+                    if member.file_size > MAX_ZIP_MEMBER_BYTES or total > MAX_ZIP_TOTAL_BYTES:
+                        raise ValueError("archive exceeds extraction size limit")
+                    if member.is_dir():
+                        continue
+                    if path.suffix.lower() not in {".yaml", ".yml"}:
+                        continue
+                    dest = extract.joinpath(*path.parts)
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    with zf.open(member) as src, dest.open("wb") as dst:
+                        copied = 0
+                        while chunk := src.read(65536):
+                            copied += len(chunk)
+                            if copied > MAX_ZIP_MEMBER_BYTES:
+                                raise ValueError("archive member exceeds extraction size limit")
+                            dst.write(chunk)
+            root = extract / "prompts" if (extract / "prompts").is_dir() else extract
+            yield from iter_source_files(root)
+        return
     if not source.is_dir():
         raise SystemExit(f"source not found: {source}")
-    for path in sorted(source.rglob("*.yaml")):
-        rel = canonical_source_file(str(path.relative_to(source)))
-        yield rel, path
+    for path in sorted(source.rglob("*")):
+        if path.is_file() and path.suffix.lower() in {".yaml", ".yml"}:
+            if path.is_symlink():
+                raise ValueError(f"symlink source rejected: {path}")
+            rel = canonical_source_file(str(path.relative_to(source)))
+            yield rel, path
 
 
 def plan_character(rel: str, data: dict[str, Any]) -> list[PlannedRow]:
@@ -428,6 +463,9 @@ def build_plan(source: Path) -> list[PlannedRow]:
             continue
         if rel.startswith("characters/") or "/characters/" in rel:
             planned.extend(plan_character(rel, data))
+            if classify_path(rel, data) == 'sfw':
+                category_rows = plan_dynamic_sfw(rel, {'categories': (data.get('prompt') or {}).get('categories') or {}})
+                planned.extend(category_rows)
         elif "category_labels_ja" in rel:
             planned.extend(plan_labels(rel, data))
         elif "stand_seiso_uniform" in rel:

@@ -1,0 +1,516 @@
+{
+  "title": "普通サイズの寄り道",
+  "picks": [
+    1,
+    1,
+    2,
+    2
+  ],
+  "panels": [
+    {
+      "text": "え、これが普通サイズ？\nこのお店の「普通」、強いですね。",
+      "asset": {
+        "file": "images/cafe_four_panel-1-1.png",
+        "width": 768,
+        "height": 1024,
+        "id": "08524530fdfd495da5adcab7ff",
+        "sha256": "e379f9cb24f7338aa9b6114f70b339869343c6d438a896a103834623d8ea2895",
+        "uri": "asset://e379f9cb24f7338aa9b6114f70b339869343c6d438a896a103834623d8ea2895/shot.png",
+        "kind": "generated",
+        "mime": "image/png",
+        "byte_size": 1017941,
+        "metadata": {},
+        "provenance": {
+          "shot_id": "c8bd01912a21461cb0bfface0b",
+          "based_on_shot_revision": 2,
+          "provider": "comfyui",
+          "workflow_template_id": "anima_base_v1",
+          "workflow_hash": "fcb48864727db0abb88ce1fe336f16453e5dfc027788cdb9ae114be6f6db3398",
+          "model_id": "anima_base",
+          "seed": 20261011,
+          "external_job_ref": "33a1e849-2547-41cd-9486-5669f163892b",
+          "prompt_version": "v1",
+          "compiled": {
+            "positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, surprised expression, raised eyebrow, slightly open mouth, sitting at cafe table, pointing at an oversized coffee mug, medium shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+            "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+          },
+          "template_id": "anima_story_panel",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "default_prompt_builder_v1",
+          "rendered_base_positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, surprised expression, raised eyebrow, slightly open mouth, sitting at cafe table, pointing at an oversized coffee mug, medium shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, surprised expression, raised eyebrow, slightly open mouth, sitting at cafe table, pointing at an oversized coffee mug, medium shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "543425611a5685eb582c2d2992fbd4b06ec16719a6ff7d35349df3dc7f7c2dfc",
+          "modified": false,
+          "prompt_draft_id": "5be52da083434ea3af5b200660",
+          "prompt_profile_id": "anima_story_panel",
+          "prompt_profile_version": "v1",
+          "prompt_quality_profile_id": "anima_legacy_v1",
+          "component_refs": [
+            "subject_count:6362d0d231b95b21@v1",
+            "character_identity:1c63e356a50734bb@v1",
+            "character_traits:d86151a73606ccc6@v1",
+            "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+            "expression:87a054bae03ab50c@v1",
+            "pose:7c562e9de7166b3b@v1",
+            "camera:c850cbd8e53c24a2@v1",
+            "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+            "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+            "style:eb42571c3576a751@v1",
+            "quality:b69d8f1778ec4822@v1",
+            "quality:negative:anima_legacy_v1@v1"
+          ],
+          "components": [
+            {
+              "ref": "subject_count:6362d0d231b95b21@v1",
+              "kind": "subject_count",
+              "text": "1girl"
+            },
+            {
+              "ref": "character_identity:1c63e356a50734bb@v1",
+              "kind": "character_identity",
+              "text": "1girl, solo, nijisanji, lize helesta"
+            },
+            {
+              "ref": "character_traits:d86151a73606ccc6@v1",
+              "kind": "character_traits",
+              "text": "long white hair, blue inner hair, straight bangs, hairclip, purple eyes"
+            },
+            {
+              "ref": "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+              "kind": "outfit",
+              "text": "casual outfit, cardigan, skirt, cute, wholesome"
+            },
+            {
+              "ref": "expression:87a054bae03ab50c@v1",
+              "kind": "expression",
+              "text": "surprised expression, raised eyebrow, slightly open mouth"
+            },
+            {
+              "ref": "pose:7c562e9de7166b3b@v1",
+              "kind": "pose",
+              "text": "sitting at cafe table, pointing at an oversized coffee mug"
+            },
+            {
+              "ref": "camera:c850cbd8e53c24a2@v1",
+              "kind": "camera",
+              "text": "medium shot, eye level"
+            },
+            {
+              "ref": "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+              "kind": "background",
+              "text": "cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe"
+            },
+            {
+              "ref": "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+              "kind": "lighting",
+              "text": "soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow"
+            },
+            {
+              "ref": "style:eb42571c3576a751@v1",
+              "kind": "style",
+              "text": "@fuzichoco, @rella"
+            },
+            {
+              "ref": "quality:b69d8f1778ec4822@v1",
+              "kind": "quality",
+              "text": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe"
+            },
+            {
+              "ref": "quality:negative:anima_legacy_v1@v1",
+              "kind": "quality",
+              "text": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            }
+          ],
+          "model_modifiers": [],
+          "warnings": [],
+          "draft_was_stale": false
+        },
+        "created_at": "2026-10-11T09:41:56.760531"
+      },
+      "shot_id": "c8bd01912a21461cb0bfface0b"
+    },
+    {
+      "text": "飲み切るまで帰れない？\nそんなルール、聞いてませんよ。",
+      "asset": {
+        "file": "images/cafe_four_panel-2-1.png",
+        "width": 768,
+        "height": 1024,
+        "id": "5d83d3add81c4601af576be5ae",
+        "sha256": "96297f99b337e5eb9a8e4e21650c84bfc5138274b50ef9636c0207daac23aea5",
+        "uri": "asset://96297f99b337e5eb9a8e4e21650c84bfc5138274b50ef9636c0207daac23aea5/shot.png",
+        "kind": "generated",
+        "mime": "image/png",
+        "byte_size": 968670,
+        "metadata": {},
+        "provenance": {
+          "shot_id": "6df1290b14c44188a428b54700",
+          "based_on_shot_revision": 2,
+          "provider": "comfyui",
+          "workflow_template_id": "anima_base_v1",
+          "workflow_hash": "889ec134b7c490a09e90896f31e75b08ec5576cee96aff773cc4f23d2626da5e",
+          "model_id": "anima_base",
+          "seed": 20261012,
+          "external_job_ref": "4d41b374-27ad-4635-8b82-214d3b970894",
+          "prompt_version": "v1",
+          "compiled": {
+            "positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, playfully annoyed expression, slight frown, raised eyebrow, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+            "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+          },
+          "template_id": "anima_story_panel",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "default_prompt_builder_v1",
+          "rendered_base_positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, playfully annoyed expression, slight frown, raised eyebrow, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, playfully annoyed expression, slight frown, raised eyebrow, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "c6afbb122048009d4773933466baaf4fb7124b53d8ff50c7d5eced41df1e3ef4",
+          "modified": false,
+          "prompt_draft_id": "8fd93fd34f764e39812589a65d",
+          "prompt_profile_id": "anima_story_panel",
+          "prompt_profile_version": "v1",
+          "prompt_quality_profile_id": "anima_legacy_v1",
+          "component_refs": [
+            "subject_count:6362d0d231b95b21@v1",
+            "character_identity:1c63e356a50734bb@v1",
+            "character_traits:d86151a73606ccc6@v1",
+            "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+            "expression:b0615d76bc104914@v1",
+            "pose:a6e5d75718357502@v1",
+            "camera:1a456454de285028@v1",
+            "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+            "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+            "style:eb42571c3576a751@v1",
+            "quality:b69d8f1778ec4822@v1",
+            "quality:negative:anima_legacy_v1@v1"
+          ],
+          "components": [
+            {
+              "ref": "subject_count:6362d0d231b95b21@v1",
+              "kind": "subject_count",
+              "text": "1girl"
+            },
+            {
+              "ref": "character_identity:1c63e356a50734bb@v1",
+              "kind": "character_identity",
+              "text": "1girl, solo, nijisanji, lize helesta"
+            },
+            {
+              "ref": "character_traits:d86151a73606ccc6@v1",
+              "kind": "character_traits",
+              "text": "long white hair, blue inner hair, straight bangs, hairclip, purple eyes"
+            },
+            {
+              "ref": "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+              "kind": "outfit",
+              "text": "casual outfit, cardigan, skirt, cute, wholesome"
+            },
+            {
+              "ref": "expression:b0615d76bc104914@v1",
+              "kind": "expression",
+              "text": "playfully annoyed expression, slight frown, raised eyebrow"
+            },
+            {
+              "ref": "pose:a6e5d75718357502@v1",
+              "kind": "pose",
+              "text": "sitting at cafe table, oversized coffee mug on table, looking at viewer"
+            },
+            {
+              "ref": "camera:1a456454de285028@v1",
+              "kind": "camera",
+              "text": "bust shot, eye level"
+            },
+            {
+              "ref": "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+              "kind": "background",
+              "text": "cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe"
+            },
+            {
+              "ref": "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+              "kind": "lighting",
+              "text": "soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow"
+            },
+            {
+              "ref": "style:eb42571c3576a751@v1",
+              "kind": "style",
+              "text": "@fuzichoco, @rella"
+            },
+            {
+              "ref": "quality:b69d8f1778ec4822@v1",
+              "kind": "quality",
+              "text": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe"
+            },
+            {
+              "ref": "quality:negative:anima_legacy_v1@v1",
+              "kind": "quality",
+              "text": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            }
+          ],
+          "model_modifiers": [],
+          "warnings": [],
+          "draft_was_stale": false
+        },
+        "created_at": "2026-10-11T09:42:40.078137"
+      },
+      "shot_id": "6df1290b14c44188a428b54700"
+    },
+    {
+      "text": "じゃあ、お話ししながら。\n急がなくていいですから。",
+      "asset": {
+        "file": "images/cafe_four_panel-3-2.png",
+        "width": 768,
+        "height": 1024,
+        "id": "051e8de4ace24d45a8dc4b4937",
+        "sha256": "2b94984c4c57b104665e30c34eba653c98f6a8ec8845fffe1271e8bfe40c83b7",
+        "uri": "asset://2b94984c4c57b104665e30c34eba653c98f6a8ec8845fffe1271e8bfe40c83b7/shot.png",
+        "kind": "generated",
+        "mime": "image/png",
+        "byte_size": 1100277,
+        "metadata": {},
+        "provenance": {
+          "shot_id": "5dd5df6916fa482a96c58e02e6",
+          "based_on_shot_revision": 2,
+          "provider": "comfyui",
+          "workflow_template_id": "anima_base_v1",
+          "workflow_hash": "dd7eb606bec4f9620c606b7f6e267b942b34d280d76c091dc401ca0767d3dd92",
+          "model_id": "anima_base",
+          "seed": 20261013,
+          "external_job_ref": "f72ebc23-66d1-4adb-93ac-751249748143",
+          "prompt_version": "v1",
+          "compiled": {
+            "positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, gentle smile, warm eyes, closed mouth, sitting at cafe table, hand on handle of oversized coffee mug, medium shot, three quarter view, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+            "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+          },
+          "template_id": "anima_story_panel",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "default_prompt_builder_v1",
+          "rendered_base_positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, gentle smile, warm eyes, closed mouth, sitting at cafe table, hand on handle of oversized coffee mug, medium shot, three quarter view, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, gentle smile, warm eyes, closed mouth, sitting at cafe table, hand on handle of oversized coffee mug, medium shot, three quarter view, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "eb2809c4581790dbccc8a42d109d418cf24e4ba342c34aeb90bd39b20167d9ab",
+          "modified": false,
+          "prompt_draft_id": "c592ec00fe0e433b9b1140b733",
+          "prompt_profile_id": "anima_story_panel",
+          "prompt_profile_version": "v1",
+          "prompt_quality_profile_id": "anima_legacy_v1",
+          "component_refs": [
+            "subject_count:6362d0d231b95b21@v1",
+            "character_identity:1c63e356a50734bb@v1",
+            "character_traits:d86151a73606ccc6@v1",
+            "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+            "expression:34edcf0dcfbec9ca@v1",
+            "pose:039abd656e4484f6@v1",
+            "camera:4b637e7bf5cc4da5@v1",
+            "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+            "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+            "style:eb42571c3576a751@v1",
+            "quality:b69d8f1778ec4822@v1",
+            "quality:negative:anima_legacy_v1@v1"
+          ],
+          "components": [
+            {
+              "ref": "subject_count:6362d0d231b95b21@v1",
+              "kind": "subject_count",
+              "text": "1girl"
+            },
+            {
+              "ref": "character_identity:1c63e356a50734bb@v1",
+              "kind": "character_identity",
+              "text": "1girl, solo, nijisanji, lize helesta"
+            },
+            {
+              "ref": "character_traits:d86151a73606ccc6@v1",
+              "kind": "character_traits",
+              "text": "long white hair, blue inner hair, straight bangs, hairclip, purple eyes"
+            },
+            {
+              "ref": "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+              "kind": "outfit",
+              "text": "casual outfit, cardigan, skirt, cute, wholesome"
+            },
+            {
+              "ref": "expression:34edcf0dcfbec9ca@v1",
+              "kind": "expression",
+              "text": "gentle smile, warm eyes, closed mouth"
+            },
+            {
+              "ref": "pose:039abd656e4484f6@v1",
+              "kind": "pose",
+              "text": "sitting at cafe table, hand on handle of oversized coffee mug"
+            },
+            {
+              "ref": "camera:4b637e7bf5cc4da5@v1",
+              "kind": "camera",
+              "text": "medium shot, three quarter view"
+            },
+            {
+              "ref": "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+              "kind": "background",
+              "text": "cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe"
+            },
+            {
+              "ref": "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+              "kind": "lighting",
+              "text": "soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow"
+            },
+            {
+              "ref": "style:eb42571c3576a751@v1",
+              "kind": "style",
+              "text": "@fuzichoco, @rella"
+            },
+            {
+              "ref": "quality:b69d8f1778ec4822@v1",
+              "kind": "quality",
+              "text": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe"
+            },
+            {
+              "ref": "quality:negative:anima_legacy_v1@v1",
+              "kind": "quality",
+              "text": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            }
+          ],
+          "model_modifiers": [],
+          "warnings": [],
+          "draft_was_stale": false
+        },
+        "created_at": "2026-10-11T09:43:25.300977"
+      },
+      "shot_id": "5dd5df6916fa482a96c58e02e6"
+    },
+    {
+      "text": "……まだ半分。\nもう一つ、面白い話をお願いします。",
+      "asset": {
+        "file": "images/cafe_four_panel-4-2.png",
+        "width": 768,
+        "height": 1024,
+        "id": "3e66e08a773f4c86bbe0044b94",
+        "sha256": "d17522241e146feba351244f6c294a0d534c8279d1c73326da7eff8e8421ccfb",
+        "uri": "asset://d17522241e146feba351244f6c294a0d534c8279d1c73326da7eff8e8421ccfb/shot.png",
+        "kind": "generated",
+        "mime": "image/png",
+        "byte_size": 1054825,
+        "metadata": {},
+        "provenance": {
+          "shot_id": "bb1901ce28ce4e37af8b7e7944",
+          "based_on_shot_revision": 2,
+          "provider": "comfyui",
+          "workflow_template_id": "anima_base_v1",
+          "workflow_hash": "fe6d5a6c96e594886756881c0086e65cf431e8778de98b243662f229678a25d5",
+          "model_id": "anima_base",
+          "seed": 20261014,
+          "external_job_ref": "86799faf-4263-46eb-a173-1b17b8dbec27",
+          "prompt_version": "v1",
+          "compiled": {
+            "positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, soft smile, amused expression, slight blush, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+            "negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+          },
+          "template_id": "anima_story_panel",
+          "template_version": "v1",
+          "source_kind": "compiler_rule",
+          "source_ref": "default_prompt_builder_v1",
+          "rendered_base_positive": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, soft smile, amused expression, slight blush, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "rendered_base_negative": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "final_positive_prompt": "1girl, solo, nijisanji, lize helesta, long white hair, blue inner hair, straight bangs, hairclip, purple eyes, casual outfit, cardigan, skirt, cute, wholesome, soft smile, amused expression, slight blush, sitting at cafe table, oversized coffee mug on table, looking at viewer, bust shot, eye level, cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe, soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow, @fuzichoco, @rella, year 2025, newest, masterpiece, best quality, score_9, score_8, highres",
+          "final_negative_prompt": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name",
+          "prompt_hash": "08f2c79ab0ab3c25814b21af9894a538525d06b4651915bcab9c2a514175cf2f",
+          "modified": false,
+          "prompt_draft_id": "c3d08525d1b746f290cb3ee1d4",
+          "prompt_profile_id": "anima_story_panel",
+          "prompt_profile_version": "v1",
+          "prompt_quality_profile_id": "anima_legacy_v1",
+          "component_refs": [
+            "subject_count:6362d0d231b95b21@v1",
+            "character_identity:1c63e356a50734bb@v1",
+            "character_traits:d86151a73606ccc6@v1",
+            "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+            "expression:bea9f47627fe0ecd@v1",
+            "pose:a6e5d75718357502@v1",
+            "camera:1a456454de285028@v1",
+            "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+            "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+            "style:eb42571c3576a751@v1",
+            "quality:b69d8f1778ec4822@v1",
+            "quality:negative:anima_legacy_v1@v1"
+          ],
+          "components": [
+            {
+              "ref": "subject_count:6362d0d231b95b21@v1",
+              "kind": "subject_count",
+              "text": "1girl"
+            },
+            {
+              "ref": "character_identity:1c63e356a50734bb@v1",
+              "kind": "character_identity",
+              "text": "1girl, solo, nijisanji, lize helesta"
+            },
+            {
+              "ref": "character_traits:d86151a73606ccc6@v1",
+              "kind": "character_traits",
+              "text": "long white hair, blue inner hair, straight bangs, hairclip, purple eyes"
+            },
+            {
+              "ref": "f0f1ab096942424396c66e5b95@9fde3b5a2418e9f05afd487604577fbacc239a06ea29b8b2f094c20db148bb36",
+              "kind": "outfit",
+              "text": "casual outfit, cardigan, skirt, cute, wholesome"
+            },
+            {
+              "ref": "expression:bea9f47627fe0ecd@v1",
+              "kind": "expression",
+              "text": "soft smile, amused expression, slight blush"
+            },
+            {
+              "ref": "pose:a6e5d75718357502@v1",
+              "kind": "pose",
+              "text": "sitting at cafe table, oversized coffee mug on table, looking at viewer"
+            },
+            {
+              "ref": "camera:1a456454de285028@v1",
+              "kind": "camera",
+              "text": "bust shot, eye level"
+            },
+            {
+              "ref": "389fb8d6fec9406ebaf324de5f@1c33d40c06e6cc0ab63339ee4d124905349aa8224689be7fd00c503606e55ed8",
+              "kind": "background",
+              "text": "cozy cafe, wooden table, warm lighting, latte art, quiet atmosphere, no crowd, safe"
+            },
+            {
+              "ref": "43d243006ec74865a1c1499920@a8e29b0ef023917469ee687b6957fe4d240d855d2dc9838960f6446efd88f54b",
+              "kind": "lighting",
+              "text": "soft indoor lighting, warm light, diffuse light, gentle shadows, cozy atmosphere, slight glow"
+            },
+            {
+              "ref": "style:eb42571c3576a751@v1",
+              "kind": "style",
+              "text": "@fuzichoco, @rella"
+            },
+            {
+              "ref": "quality:b69d8f1778ec4822@v1",
+              "kind": "quality",
+              "text": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe"
+            },
+            {
+              "ref": "quality:negative:anima_legacy_v1@v1",
+              "kind": "quality",
+              "text": "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name"
+            }
+          ],
+          "model_modifiers": [],
+          "warnings": [],
+          "draft_was_stale": false
+        },
+        "created_at": "2026-10-11T09:44:10.624645"
+      },
+      "shot_id": "bb1901ce28ce4e37af8b7e7944"
+    }
+  ],
+  "checks": {
+    "dialogueBubbles": 4,
+    "imagesDecoded": true,
+    "mobileOverflow": false
+  }
+}

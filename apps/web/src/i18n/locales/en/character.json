@@ -5,5 +5,23 @@
   "nameAria": "New character name",
   "useInStudio": "Use in studio",
   "openStory": "Open Story",
-  "activeBanner": "Using in studio: {{name}}"
+  "activeBanner": "Using in studio: {{name}}",
+  "editor": "Character editor",
+  "persona": "Persona",
+  "visual_identity": "Visual identity",
+  "fields": {
+    "first_person": "First person",
+    "second_person": "Second person",
+    "max_chars": "Maximum characters",
+    "max_fragments": "Maximum fragments",
+    "forbidden_patterns": "Forbidden patterns (comma separated)",
+    "hair": "Hair",
+    "eyes": "Eyes",
+    "body": "Body",
+    "identity_tags": "Identity tags (comma separated)",
+    "identity_ref_asset_ids": "Reference asset IDs (comma separated)",
+    "tryon_base_asset_id": "Try-on base asset ID"
+  },
+  "speechRules": "Speech rules",
+  "voiceExamples": "Voice examples (one per line)"
 }

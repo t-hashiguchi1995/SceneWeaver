@@ -23,7 +23,7 @@ test('SceneWeaver MVP vertical slice (browser)', async ({
   await applySeedContext(seeded)
 
   await home.goto()
-  await expect(page.getByRole('heading', { name: 'SceneWeaver' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '制作を続けましょう' })).toBeVisible()
 
   await home.openProjects()
   await projects.create('Vertical Slice Project')

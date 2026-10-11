@@ -39,5 +39,12 @@
     "cspPlaceholder": "Optional path for CSP exports",
     "finish": "Finish setup",
     "skip": "Skip for now"
-  }
+  },
+  "backendFake": "No image generation (test)",
+  "backendComfy": "Use ComfyUI",
+  "backendDry": "ComfyUI dry run",
+  "advanced": "Advanced",
+  "eagleUnavailable": "Eagle: not supported / planned for v0.3",
+  "llmStub": "Test dialogue provider",
+  "llmCompatible": "OpenAI compatible provider"
 }

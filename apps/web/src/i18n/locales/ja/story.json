@@ -15,5 +15,6 @@
   "sceneCreated": "シーンを作成しました: {{title}}",
   "beatCreated": "展開を作成しました: {{intent}}",
   "candidatesReady": "セリフ候補の準備ができました",
-  "scriptLocked": "セリフを確定しました"
+  "scriptLocked": "セリフを確定しました",
+  "editDialogue": "セリフを編集"
 }

@@ -35,14 +35,14 @@ function JobsPage() {
     <section className="page" data-testid="jobs-page">
       <div className="row-between">
         <h1>{t('jobs:title')}</h1>
-        <button
+        {import.meta.env.DEV && <button
           type="button"
           className="btn primary"
           data-testid="job-enqueue-stub"
           onClick={() => enqueue.mutate()}
         >
           {t('jobs:enqueueStub')}
-        </button>
+        </button>}
       </div>
       {watchId && (
         <p className="hint" data-testid="job-watching">

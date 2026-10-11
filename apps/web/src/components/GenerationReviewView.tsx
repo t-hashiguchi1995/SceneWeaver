@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AssetImage } from './AssetImage'
 import { ErrorBanner } from './ErrorBanner'
 import {
   api,
@@ -20,9 +21,10 @@ function attemptBadge(attempt: GenerationAttemptSummary): string | null {
 export type GenerationReviewViewProps = {
   shotId: string
   attemptId?: string
+  projectId?: string
 }
 
-export function GenerationReviewView({ shotId, attemptId }: GenerationReviewViewProps) {
+export function GenerationReviewView({ shotId, attemptId, projectId }: GenerationReviewViewProps) {
   const { t } = useTranslation(['generation', 'common', 'prompt'])
   const navigate = useNavigate()
   const qc = useQueryClient()
@@ -57,11 +59,6 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
   const candidates = selected?.output_asset_ids ?? []
   const activeAssetId = candidates[selectedCandidate] ?? ''
 
-  const activeAsset = useQuery({
-    queryKey: ['asset', activeAssetId],
-    queryFn: () => api.getAsset(activeAssetId),
-    enabled: Boolean(activeAssetId),
-  })
 
   const provenance = useMemo(() => {
     if (!selected) return null
@@ -84,8 +81,8 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
     setSelectedAttemptId(id)
     saveStudioContext({ shotId, generationAttemptId: id })
     void navigate({
-      to: '/shots/$shotId/generations/$attemptId',
-      params: { shotId, attemptId: id },
+      to: projectId ? '/projects/$projectId/shots/$shotId/generations/$attemptId' : '/shots/$shotId/generations/$attemptId',
+      params: { projectId: projectId ?? "", shotId, attemptId: id },
     })
   }
 
@@ -113,7 +110,7 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
   })
 
   const regenerateSame = useMutation({
-    mutationFn: async () => api.renderShot(shotId, true),
+    mutationFn: (mode: "new" | "same") => api.replayGeneration(selected!.id, mode),
     onSuccess: (result) => {
       saveStudioContext({
         shotId: result.shot_id,
@@ -122,8 +119,8 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
       })
       void qc.invalidateQueries({ queryKey: ['generation-attempts', shotId] })
       void navigate({
-        to: '/shots/$shotId/generations/$attemptId',
-        params: { shotId: result.shot_id, attemptId: result.generation_attempt_id },
+        to: projectId ? '/projects/$projectId/shots/$shotId/generations/$attemptId' : '/shots/$shotId/generations/$attemptId',
+        params: { projectId: projectId ?? "", shotId: result.shot_id, attemptId: result.generation_attempt_id },
       })
     },
     onError: (err) => setError((err as Error).message),
@@ -136,7 +133,7 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
     await api.ensurePromptDraft(shotId)
     await api.updatePromptDraft(shotId, positive, negative)
     saveStudioContext({ shotId, generationAttemptId: selected.id })
-    void navigate({ to: '/shots/$shotId', params: { shotId } })
+    void navigate({ to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId', search: { sourceAttemptId: selected.payload.render_snapshot ? selected.id : undefined }, params: { projectId: projectId ?? '', shotId } })
   }
 
   if (!shotId) {
@@ -165,7 +162,7 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
           type="button"
           className="btn"
           data-testid="review-open-shot-studio"
-          onClick={() => navigate({ to: '/shots/$shotId', params: { shotId } })}
+          onClick={() => navigate({ to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId', params: { projectId: projectId ?? '', shotId } })}
         >
           {t('generation:openShotStudio')}
         </button>
@@ -216,10 +213,12 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
                   <li key={id} data-testid={`generation-candidate-${index}`}>
                     <button
                       type="button"
-                      className={index === selectedCandidate ? 'btn primary' : 'btn'}
+                      className={index === selectedCandidate ? 'btn primary candidate-select' : 'btn candidate-select'}
+                      aria-pressed={index === selectedCandidate}
                       data-testid={`generation-select-${index}`}
                       onClick={() => setSelectedCandidate(index)}
                     >
+                      <AssetImage assetId={id} alt={t('generation:candidate', { n: index + 1 })} />
                       {t('generation:candidate', { n: index + 1 })}
                     </button>
                     <code>{id.slice(0, 8)}…</code>
@@ -234,15 +233,8 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
                     {t('generation:largePreview')}
                   </h2>
                   <div className="candidate-preview" data-testid="generation-large-preview">
-                    {activeAsset.data?.uri?.startsWith('http') ||
-                    activeAsset.data?.uri?.startsWith('data:') ? (
-                      <img src={activeAsset.data.uri} alt="" />
-                    ) : (
-                      <div className="candidate-preview-placeholder">
-                        <span>{t('generation:largePreview')}</span>
-                        <code data-testid="generation-active-asset">{activeAssetId}</code>
-                      </div>
-                    )}
+                    <AssetImage assetId={activeAssetId} alt={t('generation:candidate', { n: selectedCandidate + 1 })} />
+                    <code data-testid="generation-active-asset">{activeAssetId}</code>
                   </div>
                   <div className="cta-row">
                     <button
@@ -265,16 +257,21 @@ export function GenerationReviewView({ shotId, attemptId }: GenerationReviewView
                       type="button"
                       className="btn"
                       data-testid="generation-regenerate-same"
-                      disabled={regenerateSame.isPending}
-                      onClick={() => regenerateSame.mutate()}
+                      disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
+                      onClick={() => regenerateSame.mutate("new")}
                     >
                       {t('generation:actions.regenerateSame')}
+                    </button>
+                    <button type="button" className="btn" data-testid="generation-reproduce"
+                      disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
+                      onClick={() => regenerateSame.mutate("same")}>
+                      {t('generation:actions.reproduce')}
                     </button>
                     <button
                       type="button"
                       className="btn"
                       data-testid="generation-edit-prompt"
-                      onClick={() => void editPromptAndRegenerate()}
+                      onClick={() => void editPromptAndRegenerate().catch((err: Error) => setError(err.message))}
                     >
                       {t('generation:actions.editPrompt')}
                     </button>

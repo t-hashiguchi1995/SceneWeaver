@@ -31,3 +31,12 @@ def get_project(project_id: str, c: Container = Depends(container)) -> ProjectOu
         raise HTTPException(status_code=404, detail="project not found")
     c.settings_service().touch_recent_project(project_id)
     return ProjectOut(**dto.__dict__)
+
+
+@router.get("/{project_id}/dashboard")
+def get_dashboard(project_id: str, c: Container = Depends(container)) -> dict:
+    from creator_studio.application.projects.dashboard import ProjectDashboard
+    try:
+        return ProjectDashboard(c.uow(), c.csp_handoff()).get(project_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

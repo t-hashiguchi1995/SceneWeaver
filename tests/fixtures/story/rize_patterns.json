@@ -1,0 +1,69 @@
+{
+  "profile_source": "https://www.nijisanji.jp/talents/l/lize-helesta",
+  "persona": {
+    "first_person": "私",
+    "second_person": "あなた",
+    "max_chars": 48,
+    "max_fragments": 2,
+    "speech_rules": {
+      "style": "真面目で親切な皇女という設定を軸にした検証用の創作。相手の話に丁寧に応じ、必要なら短い軽いツッコミを入れる。敬語を基本に、親しい場面では柔らかくくだける。",
+      "canon": "ヘルエスタ王国の第二皇女。日々の鍛錬と人とのコミュニケーションを大事にする。",
+      "example_origin": "以下は検証用の創作例であり、本人の実発言や公式台詞ではない。"
+    },
+    "forbidden_patterns": ["わらわ", "妾", "余", "ですわ"],
+    "voice_examples": [
+      {"text": "それ、難易度の設定を間違えてませんか？", "polarity": "positive", "tags": ["light_retort"]},
+      {"text": "大丈夫です。ひとつずつ確かめましょう。", "polarity": "positive", "tags": ["reassurance"]},
+      {"text": "来てくれてありがとうございます。またお話ししましょうね。", "polarity": "positive", "tags": ["thanks"]}
+    ]
+  },
+  "visual_identity": {
+    "hair": "long white hair, blue inner hair, straight bangs, hairclip",
+    "eyes": "purple eyes",
+    "identity_tags": ["1girl", "solo", "nijisanji", "lize helesta"]
+  },
+  "patterns": [
+    {
+      "id": "library_mystery",
+      "title": "図書館の小さな謎",
+      "objective": "古い本に挟まれたメモを見つけ、暗号だと思ったものが返却日の覚え書きだと分かる。知的な導入から軽いツッコミ、安心する結末へ進む。",
+      "background": "library, bookshelves in background, wooden reading desk, open book",
+      "outfit_selection": ["characters/rizehel.yaml", "lize_1st_costume"],
+      "lighting_selection": ["dynamic/lighting_default.yaml", "library_soft"],
+      "initial_state": {"memo_meaning": "unknown", "memo_found": false, "relationship": {"type": "friend", "trust": "high"}},
+      "beats": [
+        {"intent": "本に挟まれた数字のメモに注意を向け、相手と一緒に意味を考える", "subtext": "調べ物への興味を共有したい", "emotion": {"name": "curious", "intensity": 0.45}, "action": "本を開いてメモを指差す", "state_delta": {"memo_found": true}, "text": "この数字、何かの暗号でしょうか。一緒に見てみません？", "pose": "sitting at reading desk, pointing at a small note in an open book", "expression": "curious expression, focused eyes", "camera": {"shot": "medium shot", "angle": "eye level"}},
+        {"intent": "メモは暗号ではなく本の返却日の覚え書きだと気づき、軽くツッコミを入れる", "subtext": "考え過ぎた照れを冗談で和らげる", "emotion": {"name": "surprised", "intensity": 0.6}, "action": "返却日表示とメモを見比べる", "state_delta": {"memo_meaning": "return_date"}, "text": "……返却日ですね。謎解きの前に、貸出期限でした。", "pose": "holding an open book, looking at a small note", "expression": "surprised expression, raised eyebrow, slightly open mouth", "camera": {"shot": "close-up", "angle": "eye level"}},
+        {"intent": "謎が解けたことに安心し、本を戻して次の一冊を選ぶよう相手を誘う", "subtext": "失敗も一緒なら楽しいと伝えたい", "emotion": {"name": "relieved", "intensity": 0.5}, "action": "本を閉じて微笑む", "state_delta": {"book_returned": true}, "text": "間に合ってよかったです。今度は、読む本を選びましょう。", "pose": "standing beside bookshelves, holding a closed book", "expression": "relieved smile, gentle eyes", "camera": {"shot": "medium shot", "angle": "three quarter view"}}
+      ]
+    },
+    {
+      "id": "cafe_retort",
+      "title": "カフェで注文のすれ違い",
+      "objective": "相手が注文したコーヒーのサイズを見て驚き、軽いツッコミから飲み切る作戦を考え、落ち着いた会話に戻る。",
+      "background_selection": ["dynamic/sfw_cafe_date.yaml", "location_cafe_date_sfw-0"],
+      "outfit_selection": ["dynamic/sfw_cafe_date.yaml", "costume_cafe_casual_sfw-0"],
+      "lighting_selection": ["dynamic/lighting_default.yaml", "soft_indoor"],
+      "initial_state": {"coffee_size": "unexpectedly_large", "drink_shared": false, "relationship": {"type": "friend", "trust": "high"}},
+      "beats": [
+        {"intent": "予想より大きいコーヒーカップを見て、相手が本当に飲み切るつもりか確認する", "subtext": "驚きを軽い冗談に変える", "emotion": {"name": "surprised", "intensity": 0.6}, "action": "大きなカップを指差す", "state_delta": {"large_cup_noticed": true}, "text": "それ、コーヒーですよね？　花瓶じゃないですよね？", "pose": "sitting at cafe table, pointing at an oversized coffee mug", "expression": "surprised expression, raised eyebrow", "camera": {"shot": "medium shot", "angle": "eye level"}},
+        {"intent": "急いで飲まずにゆっくり休むことを提案して相手を気遣う", "subtext": "責めずに一緒の時間を楽しみたい", "emotion": {"name": "amused", "intensity": 0.4}, "action": "自分の小さなカップを持つ", "state_delta": {"plan": "take_time", "drink_shared": false}, "text": "無理はしないでくださいね。今日は、ゆっくり休みましょう。", "pose": "holding a small coffee cup with both hands, sitting at cafe table", "expression": "gentle smile, warm eyes", "camera": {"shot": "bust shot", "angle": "eye level"}},
+        {"intent": "まだカップが大きく見えることを話題にし、会話を柔らかく締める", "subtext": "小さなすれ違いが楽しい思い出になった", "emotion": {"name": "happy", "intensity": 0.5}, "action": "大きなカップを見て笑う", "state_delta": {"mood": "relaxed", "coffee_finished": false}, "text": "やっぱり大きいですね。でも、お話しする時間は増えました。", "pose": "sitting at cafe table, smiling at an oversized coffee mug", "expression": "soft smile, amused expression", "camera": {"shot": "medium shot", "angle": "three quarter view"}}
+      ]
+    },
+    {
+      "id": "fan_greeting",
+      "title": "握手会で緊張をほどく",
+      "objective": "初参加で緊張するファンに挨拶し、言葉が出ないことを受け止めて安心させ、次にまた会える楽しみを残して見送る。",
+      "background": "meet-and-greet event booth, white table, blue stage curtain, soft clean background",
+      "outfit_tags": "idol clothes, blue beret, white jacket, blue ribbon, blue skirt, black gloves",
+      "lighting_selection": ["dynamic/lighting_default.yaml", "studio_clean"],
+      "initial_state": {"fan_first_visit": true, "fan_nervous": true, "relationship": {"type": "performer_and_fan", "first_meeting": true}},
+      "beats": [
+        {"intent": "初めて来たファンに、会いに来てくれたお礼を伝える", "subtext": "緊張していても歓迎されていると感じてほしい", "emotion": {"name": "friendly", "intensity": 0.5}, "action": "テーブル越しに軽く手を振る", "state_delta": {"greeted": true}, "text": "来てくれてありがとうございます。お会いできてうれしいです。", "pose_selection": ["characters/rizehel_handshake_idol.yaml", "pose-2"], "expression_selection": ["characters/rizehel_handshake_idol.yaml", "expression-0"], "camera": {"shot": "medium shot", "angle": "eye level"}},
+        {"intent": "緊張で言葉が出ないファンに、焦らなくてよいと伝える", "subtext": "上手に話すことより会いに来てくれた気持ちを受け止めたい", "emotion": {"name": "reassuring", "intensity": 0.4}, "action": "やわらかく微笑んで相手を待つ", "state_delta": {"fan_nervous": false}, "text": "大丈夫ですよ。ゆっくりで。来てくれたこと、伝わっています。", "pose_selection": ["characters/rizehel_handshake_idol.yaml", "pose-1"], "expression_selection": ["characters/rizehel_handshake_idol.yaml", "expression-1"], "camera": {"shot": "bust shot", "angle": "eye level"}},
+        {"intent": "安心したファンに感謝を伝え、次に会う機会へつながる挨拶をする", "subtext": "短い会話が次の楽しみになるよう見送る", "emotion": {"name": "warm", "intensity": 0.55}, "action": "笑顔で手を振って見送る", "state_delta": {"farewell": true}, "text": "今日はありがとうございました。また、お話ししましょうね。", "pose": "waving goodbye, open hand, standing behind a white table", "expression_selection": ["characters/rizehel_handshake_idol.yaml", "expression-0"], "camera": {"shot": "medium shot", "angle": "eye level"}}
+      ]
+    }
+  ]
+}

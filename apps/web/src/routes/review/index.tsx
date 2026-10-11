@@ -6,7 +6,7 @@ import { loadStudioContext } from '../../lib/api'
 
 export const Route = createFileRoute('/review/')({
   component: ReviewRedirectPage,
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { shotId?: string; attemptId?: string } => ({
     shotId: typeof search.shotId === 'string' ? search.shotId : undefined,
     attemptId: typeof search.attemptId === 'string' ? search.attemptId : undefined,
   }),

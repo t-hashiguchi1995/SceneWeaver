@@ -23,5 +23,11 @@
   "capRuntime": "実行環境",
   "capDetail": "詳細",
   "capTitle": "機能一覧",
-  "capLede": "承認済みモデルレジストリのみ — 任意のチェックポイントは選べません。"
+  "capLede": "承認済みモデルレジストリのみ — 任意のチェックポイントは選べません。",
+  "eagleUnavailable": "未対応 / v0.3予定",
+  "backends": {
+    "fake": "画像生成を使用しない（テスト）",
+    "comfy": "ComfyUI",
+    "comfy_dry": "ComfyUI Dry Run"
+  }
 }

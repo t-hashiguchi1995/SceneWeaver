@@ -39,5 +39,12 @@
     "cspPlaceholder": "任意の書き出しパス",
     "finish": "セットアップを完了",
     "skip": "あとで"
-  }
+  },
+  "backendFake": "画像生成を使用しない（テスト）",
+  "backendComfy": "ComfyUIを使用",
+  "backendDry": "ComfyUI Dry Run",
+  "advanced": "詳細設定",
+  "eagleUnavailable": "Eagle: 未対応 / v0.3予定",
+  "llmStub": "テスト用のセリフ生成",
+  "llmCompatible": "OpenAI互換の接続先"
 }

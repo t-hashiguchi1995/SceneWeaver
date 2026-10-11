@@ -47,6 +47,7 @@ class SqlAlchemyPromptDraftRepository:
         row.rendered_base_negative = fresh.rendered_base_negative
         row.edited_positive = fresh.edited_positive
         row.edited_negative = fresh.edited_negative
+        row.assembly_metadata_json = fresh.assembly_metadata_json
         row.updated_at = fresh.updated_at
         return draft
 
@@ -64,6 +65,7 @@ class SqlAlchemyPromptDraftRepository:
             rendered_base_negative=draft.rendered_base_negative,
             edited_positive=draft.edited_positive,
             edited_negative=draft.edited_negative,
+            assembly_metadata_json=draft.assembly_metadata,
             created_at=draft.created_at,
             updated_at=draft.updated_at,
         )
@@ -82,6 +84,7 @@ class SqlAlchemyPromptDraftRepository:
             rendered_base_negative=row.rendered_base_negative,
             edited_positive=row.edited_positive,
             edited_negative=row.edited_negative,
+            assembly_metadata=dict(row.assembly_metadata_json or {}),
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -105,6 +108,11 @@ class SqlAlchemyPromptPresetRepository:
     def add_row(self, row: PromptPresetRow) -> PromptPresetRow:
         self._session.add(row)
         return row
+
+    def list_enabled(self) -> list[PromptPresetRow]:
+        return list(self._session.scalars(select(PromptPresetRow).where(
+            PromptPresetRow.enabled.is_(True), PromptPresetRow.kind != 'category_label'
+        ).order_by(PromptPresetRow.source_file, PromptPresetRow.legacy_key)).all())
 
     def list_by_kind(self, kind: str) -> list[PromptPresetRow]:
         return list(

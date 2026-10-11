@@ -1,0 +1,69 @@
+from __future__ import annotations
+
+from copy import deepcopy
+import re
+from typing import Any
+
+from creator_studio.ports.unit_of_work import UnitOfWork
+from creator_studio.domain.story import resolve_effective_state
+
+
+def resolve_legacy_choices(fragment: str) -> str:
+    """Choose the first legacy wildcard branch deterministically; never execute macros."""
+    pattern = re.compile(r'\{([^{}]*)\}')
+    while pattern.search(fragment):
+        fragment = pattern.sub(lambda match: match[1].split('|', 1)[0].strip(), fragment)
+    return fragment
+
+
+def resolve_prompt_context(uow: UnitOfWork, shot: Any) -> dict[str, Any]:
+    spec = deepcopy(shot.render_spec)
+    if not spec.get('prompt_profile_id'):
+        return spec
+    presets = uow.prompt_presets.list_enabled()
+    selected = set(spec.get('prompt_preset_ids') or [])
+    known = {p.id for p in presets}
+    if selected - known:
+        raise ValueError('selected prompt preset is missing or disabled')
+    components = list(spec.get('prompt_components') or [])
+    aliases = {'costume': 'outfit', 'location': 'background', 'expressions': 'expression',
+               'poses': 'pose', 'accessory': 'outfit', 'shoes': 'outfit'}
+    for preset in presets:
+        is_default = preset.source_file == 'dynamic/lighting_default.yaml' and preset.label == 'soft_indoor'
+        if preset.id not in selected and not is_default:
+            continue
+        category = preset.category or preset.kind
+        kind = aliases.get(category.split('_')[0], category.split('_')[0])
+        if kind not in {'outfit', 'background', 'expression', 'pose', 'camera', 'lighting', 'style', 'quality'}:
+            kind = 'user_additions'
+        components.append({'component_id': preset.id, 'kind': kind,
+                           'text': resolve_legacy_choices(preset.prompt_fragment), 'component_version': preset.content_hash,
+                           'content_rating': preset.content_rating, 'precedence': 3 if preset.id in selected else 1,
+                           'subkind': 'emotion' if kind == 'expression' else '', 'model_scope': 'any'})
+    spec['prompt_components'] = components
+    beat = uow.beats.get(shot.beat_id)
+    scene = uow.scenes.get(beat.scene_id) if beat else None
+    state = resolve_effective_state(scene.initial_state, [b.state_delta for b in sorted(
+        uow.beats.list_for_scene(scene.id), key=lambda b: b.seq
+    ) if beat and b.seq <= beat.seq]) if scene else {}
+    character_id = spec.get('character_id') or (beat.speaker_id if beat else None)
+    character = uow.characters.get(character_id) if character_id else None
+    if character:
+        visual = character.visual_identity
+        spec.setdefault('identity_tags', visual.identity_tags)
+        spec.setdefault('character_traits', ', '.join(filter(None, [visual.hair, visual.eyes, visual.body])))
+        spec['_character_revision'] = character.updated_at.isoformat()
+    if scene:
+        spec.setdefault('background', state.get('background', scene.title))
+        if state.get('lighting'):
+            spec.setdefault('lighting', state['lighting'])
+        if state.get('outfit_tags'):
+            spec.setdefault('outfit_tags', state['outfit_tags'])
+        spec['_effective_scene_state'] = state
+        spec['_scene_revision'] = scene.updated_at.isoformat()
+    outfit_id = spec.get('outfit_profile_id') or state.get('outfit_profile_id')
+    outfit = uow.outfit_profiles.get(outfit_id) if outfit_id else None
+    if outfit:
+        spec.setdefault('outfit_tags', outfit.semantic.get('garment_description', outfit.title))
+        spec['_outfit_revision'] = outfit.updated_at.isoformat()
+    return spec

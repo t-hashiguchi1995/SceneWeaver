@@ -1,0 +1,31 @@
+{
+  "status": "ready",
+  "editions": {
+    "x": {
+      "platform": "x",
+      "text": "投稿テスト「夜の図書館」🌙 — 創作イラストのテストです。\n二行目：日本語と改行の確認。",
+      "hashtags": [
+        "#SceneWeaver"
+      ],
+      "alt_text": [
+        "投稿テスト「夜の図書館」🌙"
+      ]
+    },
+    "pixiv": {
+      "platform": "pixiv",
+      "title": "投稿テスト「夜の図書館」🌙",
+      "description": "創作イラストのテストです。\n二行目：日本語と改行の確認。",
+      "tags": [
+        "SceneWeaver"
+      ],
+      "ai_disclosure": true
+    },
+    "patreon": {
+      "platform": "patreon",
+      "title": "投稿テスト「夜の図書館」🌙",
+      "body_markdown": "## 投稿テスト「夜の図書館」🌙\n\n創作イラストのテストです。\n二行目：日本語と改行の確認。\n\nThank you for supporting.",
+      "attachment_order": []
+    }
+  },
+  "note": "Preview only. approve/publish interfaces reserved for post-MVP."
+}

@@ -11,7 +11,7 @@ import {
 test.describe('live Anima LLLite', () => {
   test.setTimeout(LIVE_TIMEOUT_MS)
 
-  test('UseCase → PoseControlledRender → control provenance', async () => {
+  test('UseCase → PoseControlledRender → control provenance', async ({}, testInfo) => {
     let caps
     try {
       caps = await requireComfyCapability('PoseControlledRender')
@@ -43,7 +43,7 @@ test.describe('live Anima LLLite', () => {
       throw new Error(`LLLite render failed: ${err?.message ?? err}`)
     }
 
-    expect(rendered.output_asset_ids?.length).toBeGreaterThanOrEqual(1)
+    expect(rendered.output_asset_ids?.length).toBe(4)
     expect(rendered.external_job_ref).toBeTruthy()
 
     const asset = await getAsset(rendered.output_asset_ids[0])
@@ -57,5 +57,6 @@ test.describe('live Anima LLLite', () => {
       control: true,
     })
     expect(asset.provenance.pose_asset_uri).toBe(poseUri)
+    await testInfo.attach('real-comfy-result', { body: JSON.stringify({ result: rendered, asset }, null, 2), contentType: 'application/json' })
   })
 })
