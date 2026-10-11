@@ -68,9 +68,13 @@ Approved models only: `config/model_registry.yaml`.
 
 | Command | What | Needs GPU? | Baseline |
 |---|---|---|---|
-| `uv run pytest` | Domain / Application / contracts (+ API integration) | No | 34 passed |
-| `pnpm test:e2e` | Real app + Fake LLM/Image (`runtime-e2e/`) | No | 7 passed |
-| `pnpm test:e2e:live` | Real app + Real Comfy (`runtime-live-test/`) | Yes | 3 passed |
+| `uv run pytest` | Domain / Application / contracts (+ API integration) | No | 52 passed (2026-10-12) |
+| `pnpm test:e2e` | Real app + Fake LLM/Image (`runtime-e2e/`) | No | 10 passed (2026-10-12) |
+| `pnpm test:e2e:live` | Real app + Real Comfy (`runtime-live-test/`) | Yes | 4 passed (2026-10-11) |
+
+Current local implementation and remaining integration work: [UI / Integration Design R2](docs/architecture/sceneweaver_ui_integration_design_r2.html).
+Validation scope and the pinned code commit: [2026-10-12 code checkpoint](docs/validation/code_checkpoint_20261012.md).
+External posting succeeded through dedicated-browser smoke scripts; application publishing remains a preview.
 
 ```bash
 uv run pytest                 # unit + integration
