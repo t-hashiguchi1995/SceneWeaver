@@ -31,6 +31,8 @@
   "library": "プロンプト集から構築",
   "libraryHelp": "素材を選び「条件を保存」後、Promptを再構築してください。手修正は確認してから置き換えます。同じ種類の衣装・ポーズ・照明は1件を選んでください。",
   "librarySearch": "素材名・カテゴリ・ファイルを検索",
+  "librarySelected": "選択済み",
+  "libraryTruncated": "他 {{count}} 件 — 検索またはカテゴリで絞り込んでください",
   "qualityProfile": "品質・画風プリセット",
   "qualityLegacy": "既存Anima（year / score / artistタグ）",
   "qualityBasic": "簡易Builder（従来）",

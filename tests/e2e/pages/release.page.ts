@@ -11,6 +11,10 @@ export class ReleasePage {
     await this.page.getByTestId('release-preview-button').click()
   }
 
+  async openPlatform(platform: 'x' | 'pixiv' | 'patreon') {
+    await this.page.getByTestId(`release-tab-${platform}`).click()
+  }
+
   previewJson() {
     return this.page.getByTestId('release-preview-json')
   }

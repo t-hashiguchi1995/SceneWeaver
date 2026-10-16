@@ -17,13 +17,28 @@ export class ShotPage {
     await this.page.getByTestId('shots-page').waitFor({ state: 'visible', timeout: 20_000 })
   }
 
+  async openAdvanced() {
+    const panel = this.page.getByTestId('shot-advanced-settings')
+    if (!(await panel.getAttribute('open'))) {
+      await panel.locator('summary').click()
+    }
+  }
+
   async enablePose(enabled = true) {
+    await this.openAdvanced()
     const box = this.page.getByTestId('shot-use-pose')
     const checked = await box.isChecked()
     if (checked !== enabled) await box.click()
     if (enabled) {
-      const uri = await this.page.evaluate(() => JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}').poseAssetUri as string | undefined)
-      await this.page.getByLabel('ポーズ参照画像URI').fill(uri ?? 'asset://pose/fixture.png')
+      const uri = await this.page.evaluate(
+        () =>
+          JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}').poseAssetUri as
+            | string
+            | undefined,
+      )
+      await this.page
+        .getByTestId('shot-pose-uri')
+        .fill(uri ?? 'asset://pose/fixture.png')
     }
   }
 

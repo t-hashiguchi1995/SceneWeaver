@@ -17,6 +17,7 @@ test.describe('M4 Visual', () => {
     await shots.goto()
     await shots.setBeatId(seeded.beat_id!)
     await shots.planShot()
+    await page.locator('.technical-details summary').click()
     await expect(page.getByTestId('shot-id')).toBeVisible()
     await expect(page.getByTestId('prompt-editor')).toBeVisible()
 

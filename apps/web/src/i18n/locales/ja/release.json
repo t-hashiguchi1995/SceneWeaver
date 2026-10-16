@@ -1,11 +1,14 @@
 {
-  "title": "公開プレビュー",
+  "title": "公開準備",
+  "lede": "作品のマスター文面を整え、各プラットフォーム向けのプレビューを確認します。",
   "build": "版プレビューを作成",
-  "editionX": "X プレビュー",
-  "editionPixiv": "pixiv プレビュー",
-  "editionPatreon": "Patreon プレビュー",
-  "masterTitle": "作品タイトル",
-  "masterSummary": "作品説明",
+  "masterSection": "マスター",
+  "platformSection": "プラットフォーム別プレビュー",
+  "editionX": "X",
+  "editionPixiv": "pixiv",
+  "editionPatreon": "Patreon",
+  "masterTitle": "タイトル",
+  "masterSummary": "本文",
   "aiDisclosure": "AI生成の開示あり",
   "previewOnly": "公開前のプレビューです。投稿は行いません。"
 }

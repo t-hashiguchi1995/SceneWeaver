@@ -1,11 +1,14 @@
 {
-  "title": "Release Preview",
+  "title": "Release Prep",
+  "lede": "Prepare the master copy, then preview each platform edition.",
   "build": "Build edition preview",
-  "editionX": "X Preview",
-  "editionPixiv": "pixiv Preview",
-  "editionPatreon": "Patreon Preview",
-  "masterTitle": "Master title",
-  "masterSummary": "Master summary",
+  "masterSection": "Master",
+  "platformSection": "Platform previews",
+  "editionX": "X",
+  "editionPixiv": "pixiv",
+  "editionPatreon": "Patreon",
+  "masterTitle": "Title",
+  "masterSummary": "Body",
   "aiDisclosure": "AI disclosure enabled",
   "previewOnly": "Preview only. Publishing is not enabled."
 }

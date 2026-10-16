@@ -31,6 +31,8 @@
   "library": "Build from prompt library",
   "libraryHelp": "Select components, save conditions, then rebuild the prompt. Existing manual edits require confirmation before replacement. Select one outfit, pose, or lighting component per kind.",
   "librarySearch": "Search labels, categories, or files",
+  "librarySelected": "Selected",
+  "libraryTruncated": "{{count}} more — narrow with search or category",
   "qualityProfile": "Quality and style preset",
   "qualityLegacy": "Legacy Anima (year / score / artist tags)",
   "qualityBasic": "Basic builder (previous)",
