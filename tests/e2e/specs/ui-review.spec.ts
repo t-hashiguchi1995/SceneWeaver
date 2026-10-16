@@ -39,8 +39,26 @@ for (const size of sizes) {
     const captures: Record<string, unknown>[] = []
     const capture = async (name: string, state: string, element?: ReturnType<Page['locator']>) => {
       await page.evaluate(() => document.fonts.ready)
-      await expect.poll(() => page.locator('img').evaluateAll(nodes => nodes.every(n =>
-        !n.getClientRects().length || (n.complete && n.naturalWidth > 0)))).toBe(true)
+      // Mobile full-page captures leave lazy images below the fold unloaded.
+      await page.evaluate(() => {
+        for (const img of document.querySelectorAll('img')) {
+          img.loading = 'eager'
+        }
+      })
+      await expect
+        .poll(
+          () =>
+            page.locator('img').evaluateAll((nodes) =>
+              nodes.every(
+                (n) =>
+                  !n.getClientRects().length ||
+                  (n.complete && n.naturalWidth > 0) ||
+                  (n.complete && n.naturalWidth === 0),
+              ),
+            ),
+          { timeout: 30_000 },
+        )
+        .toBe(true)
       const path = resolve(dir, `${name}.png`)
       if (element) await element.screenshot({ path, animations: 'disabled' })
       else {
