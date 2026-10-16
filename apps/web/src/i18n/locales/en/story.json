@@ -12,9 +12,18 @@
   "generateDialogue": "Generate Dialogue",
   "lockCandidate": "Lock candidate {{n}}",
   "lockedBanner": "Script locked",
+  "lockedEmpty": "No locked dialogue yet",
   "sceneCreated": "Scene created: {{title}}",
   "beatCreated": "Beat created: {{intent}}",
   "candidatesReady": "Dialogue candidates ready",
   "scriptLocked": "Script locked",
-  "editDialogue": "Edit dialogue"
+  "editDialogue": "Edit dialogue",
+  "scenesNav": "Scenes",
+  "beatsNav": "Beats",
+  "addScene": "+ Scene",
+  "addBeat": "+ Beat",
+  "contextScene": "Scene “{{title}}”",
+  "contextBeat": "Beat “{{intent}}”",
+  "contextInherited": "carried from previous beat",
+  "technicalInfo": "Technical details"
 }

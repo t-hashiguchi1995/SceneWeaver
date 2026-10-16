@@ -75,6 +75,7 @@
     "menu": "Menu",
     "overview": "Overview",
     "projectWorkspace": "Project workspace",
+    "projectNamed": "{{title}}",
     "workspace": "Workspace"
   },
   "assetUnavailable": "Image unavailable",

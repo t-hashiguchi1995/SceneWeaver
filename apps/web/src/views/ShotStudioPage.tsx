@@ -148,9 +148,11 @@ export function ShotStudioPage() {
   })
 
   const expression = (specSummary.expression as { id?: string } | undefined)?.id
-  const characterTags = Array.isArray(specSummary.identity_tags)
-    ? (specSummary.identity_tags as string[]).slice(0, 3).join(', ')
-    : ''
+  const characterName =
+    (specSummary.character as { name?: string } | undefined)?.name ||
+    (Array.isArray(specSummary.identity_tags)
+      ? (specSummary.identity_tags as string[]).slice(0, 3).join(', ')
+      : '')
   const selectedPresetIds = (specSummary.prompt_preset_ids as string[] | undefined) ?? []
   const selectedPresets = useMemo(
     () => (library.data ?? []).filter((p) => selectedPresetIds.includes(p.id)),
@@ -204,7 +206,8 @@ export function ShotStudioPage() {
       <div className="stack panel-card" data-testid="shot-basic-settings">
         <h2>{t('generation:basicSettings')}</h2>
         <p className="meta">
-          {t('generation:character')}: {characterTags || '—'}
+          {t('generation:character')}:{' '}
+          <span data-testid="shot-character-name">{characterName || '—'}</span>
         </p>
         <div className="semantic-grid">
           <label>

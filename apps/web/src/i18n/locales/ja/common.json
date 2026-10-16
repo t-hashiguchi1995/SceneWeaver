@@ -75,6 +75,7 @@
     "menu": "メニュー",
     "overview": "概要",
     "projectWorkspace": "プロジェクト制作",
+    "projectNamed": "{{title}}",
     "workspace": "ワークスペース"
   },
   "assetUnavailable": "画像を読み込めません",

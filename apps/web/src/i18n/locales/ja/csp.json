@@ -6,5 +6,12 @@
   "needContext": "プロジェクト・ショット・採用済みレンダーが必要です",
   "defaultOutput": "出力先: ワークスペースのruntimeフォルダ",
   "panel": "Panel {{n}}",
-  "details": "マニフェストの詳細"
+  "details": "マニフェストの詳細",
+  "openOutput": "出力フォルダのパスをコピー",
+  "outputFolder": "出力: {{name}}",
+  "pathCopied": "出力パスをコピーしました",
+  "pathCopyFailed": "パスのコピーに失敗しました",
+  "moveUp": "↑",
+  "moveDown": "↓",
+  "technicalInfo": "技術情報"
 }

@@ -6,5 +6,12 @@
   "needContext": "project, shot, and adopted render asset required",
   "defaultOutput": "Output: workspace runtime folder",
   "panel": "Panel {{n}}",
-  "details": "Manifest details"
+  "details": "Manifest details",
+  "openOutput": "Copy output folder path",
+  "outputFolder": "Output: {{name}}",
+  "pathCopied": "Output path copied",
+  "pathCopyFailed": "Could not copy path",
+  "moveUp": "↑",
+  "moveDown": "↓",
+  "technicalInfo": "Technical details"
 }

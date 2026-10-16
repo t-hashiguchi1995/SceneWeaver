@@ -12,7 +12,7 @@ test.describe('M3 Wardrobe', () => {
     await applySeedContext(seeded)
 
     await wardrobe.goto()
-    await expect(page.getByRole('heading', { name: '衣装マーケット' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '衣装' })).toBeVisible()
     await wardrobe.openOutfit('Cardigan')
     await expect(page.getByTestId('outfit-detail')).toBeVisible()
 
