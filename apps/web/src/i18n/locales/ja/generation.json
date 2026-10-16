@@ -51,8 +51,23 @@
   "camera": "構図",
   "lighting": "照明",
   "background": "背景",
-  "poseReference": "ポーズ参照画像URI",
+  "poseReference": "ポーズ参照画像",
+  "poseReferenceHint": "ポーズ参照画像のURIを指定（後でファイル選択に置き換え予定）",
   "angle": "カメラ角度",
   "controlStrength": "ポーズの反映強度",
-  "usingAttemptControls": "選択した生成履歴のModel・Workflow・Control条件を使用します。"
+  "usingAttemptControls": "選択した生成履歴のModel・Workflow・Control条件を使用します。",
+  "basicSettings": "基本設定",
+  "promptSection": "Prompt",
+  "advancedSettings": "詳細生成設定",
+  "technicalInfo": "技術情報",
+  "libraryCat": {
+    "all": "すべて",
+    "costume": "衣装",
+    "expression": "表情",
+    "pose": "ポーズ",
+    "background": "背景",
+    "lighting": "照明",
+    "style": "Style",
+    "quality": "Quality"
+  }
 }

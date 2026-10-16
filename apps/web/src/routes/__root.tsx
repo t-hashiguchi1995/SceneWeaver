@@ -32,19 +32,19 @@ function RootLayout() {
 
   const navigation = (
 <nav id="studio-navigation" className={menuOpen ? 'is-open' : ''} aria-label={t('shell.navigation')} onClick={(event) => { if ((event.target as HTMLElement).closest('a')) setMenuOpen(false) }}>
-            <Link to="/" data-testid="nav-home-link" aria-label={t("nav.home")} title={t("nav.home")}>
+            <Link to="/" activeOptions={{ exact: true }} data-testid="nav-home-link" aria-label={t("nav.home")} title={t("nav.home")}>
 <StudioIcon name="home" /><span>{t('nav.home')}</span>
             </Link>
             <p className="nav-group">{t('shell.create')}</p>
-            <Link to="/projects" data-testid="nav-projects" aria-label={t("nav.projects")} title={t("nav.projects")}>
+            <Link to="/projects" activeOptions={{ exact: true }} data-testid="nav-projects" aria-label={t("nav.projects")} title={t("nav.projects")}>
 <StudioIcon name="projects" /><span>{t('nav.projects')}</span>
             </Link>
-            <Link to="/characters" data-testid="nav-characters" aria-label={t("nav.characters")} title={t("nav.characters")}>
+            <Link to="/characters" activeOptions={{ exact: true }} data-testid="nav-characters" aria-label={t("nav.characters")} title={t("nav.characters")}>
 <StudioIcon name="characters" /><span>{t('nav.characters')}</span>
             </Link>
             {projectId && <>
-              <p className="nav-group"><span>{t('nav.projects')}</span></p>
-              <Link to="/projects/$projectId" params={{ projectId }} aria-label={t("shell.overview")} title={t("shell.overview")}><StudioIcon name="projects" /><span>{t('shell.overview')}</span></Link>
+              <p className="nav-group"><span>{t('shell.projectWorkspace')}</span></p>
+              <Link to="/projects/$projectId" params={{ projectId }} activeOptions={{ exact: true }} data-testid="nav-overview" aria-label={t("shell.overview")} title={t("shell.overview")}><StudioIcon name="projects" /><span>{t('shell.overview')}</span></Link>
               <Link to="/projects/$projectId/story" params={{ projectId }} data-testid="nav-story" aria-label={t("nav.story")} title={t("nav.story")}><StudioIcon name="story" /><span>{t('nav.story')}</span></Link>
               <Link to="/projects/$projectId/wardrobe" params={{ projectId }} data-testid="nav-wardrobe" aria-label={t("nav.wardrobe")} title={t("nav.wardrobe")}><StudioIcon name="wardrobe" /><span>{t('nav.wardrobe')}</span></Link>
               <Link to="/projects/$projectId/shots" params={{ projectId }} data-testid="nav-shots" aria-label={t("nav.shots")} title={t("nav.shots")}><StudioIcon name="shots" /><span>{t('nav.shots')}</span></Link>
@@ -52,10 +52,10 @@ function RootLayout() {
               <Link to="/projects/$projectId/release" params={{ projectId }} data-testid="nav-release" aria-label={t("nav.release")} title={t("nav.release")}><StudioIcon name="release" /><span>{t('nav.release')}</span></Link>
             </>}
             <p className="nav-group">{t('shell.system')}</p>
-            <Link to="/integrations" data-testid="nav-integrations" aria-label={t("nav.integrations")} title={t("nav.integrations")}>
+            <Link to="/integrations" activeOptions={{ exact: true }} data-testid="nav-integrations" aria-label={t("nav.integrations")} title={t("nav.integrations")}>
 <StudioIcon name="integrations" /><span>{t('nav.integrations')}</span>
             </Link>
-            <Link to="/settings" data-testid="nav-settings" aria-label={t("nav.settings")} title={t("nav.settings")}>
+            <Link to="/settings" activeOptions={{ exact: true }} data-testid="nav-settings" aria-label={t("nav.settings")} title={t("nav.settings")}>
 <StudioIcon name="settings" /><span>{t('nav.settings')}</span>
             </Link>
 

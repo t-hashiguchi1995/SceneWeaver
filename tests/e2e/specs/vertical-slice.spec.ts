@@ -82,8 +82,11 @@ test('SceneWeaver MVP vertical slice (browser)', async ({
 
   await home.openRelease()
   await release.buildPreview()
+  await release.openPlatform('x')
   await expect(release.edition('x')).toBeVisible()
+  await release.openPlatform('pixiv')
   await expect(release.edition('pixiv')).toBeVisible()
+  await release.openPlatform('patreon')
   await expect(release.edition('patreon')).toBeVisible()
 
   const after = await page.evaluate(() =>

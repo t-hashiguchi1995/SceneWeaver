@@ -1,0 +1,266 @@
+{
+  "viewport": {
+    "name": "wide",
+    "width": 1920,
+    "height": 1080
+  },
+  "appCodeCommit": "edf97af51bc878049e3a85840e006d176a8cd0d7",
+  "captureSpecSha256": "9526910ee2a9e3522396c6d7840f5cc7852eae2e46075e2924351cdd48a3948f",
+  "environment": "isolated e2e; real API/DB; stub LLM; fake image backend",
+  "imageSubstitution": "Generated/try-on image GET responses only. These display fixtures do not match fake Asset hashes or CSP bytes. No GPU or real outfit evaluation.",
+  "sourceImages": [
+    {
+      "path": "docs/validation/rize-comic/20261011T094102940732Z/images/cafe_four_panel-1-1.png",
+      "sha256": "e379f9cb24f7338aa9b6114f70b339869343c6d438a896a103834623d8ea2895"
+    },
+    {
+      "path": "docs/validation/rize-comic/20261011T094102940732Z/images/cafe_four_panel-2-1.png",
+      "sha256": "96297f99b337e5eb9a8e4e21650c84bfc5138274b50ef9636c0207daac23aea5"
+    },
+    {
+      "path": "docs/validation/rize-comic/20261011T094102940732Z/images/cafe_four_panel-3-1.png",
+      "sha256": "2fc2d53708558d051bb0592c851b4aae665796e367f9bd167945c8e8ce7bd662"
+    },
+    {
+      "path": "docs/validation/rize-comic/20261011T094102940732Z/images/cafe_four_panel-4-1.png",
+      "sha256": "169d24fe8d9ec6e4691611320e3894b7fa5b86fc025fee18d6311a202680cf74"
+    }
+  ],
+  "captures": [
+    {
+      "file": "01_home.png",
+      "state": "populated",
+      "path": "/",
+      "headings": [
+        "処理状況",
+        "制作を続けましょう",
+        "最近のプロジェクト",
+        "実行中・待機中"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "02_project_dashboard.png",
+      "state": "populated; next actions",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b",
+      "headings": [
+        "処理状況",
+        "E2E m3_tryon",
+        "シーン",
+        "ビート",
+        "キャラクター",
+        "ショット",
+        "生成履歴",
+        "採用画像",
+        "要確認",
+        "次にすること",
+        "ショット"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "03_character.png",
+      "state": "persona populated",
+      "path": "/characters/d985d3b2d7d54c95b11d137343",
+      "headings": [
+        "処理状況",
+        "リゼヘル"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "04_story.png",
+      "state": "locked dialogue",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/story",
+      "headings": [
+        "処理状況",
+        "ストーリー",
+        "セリフを確定しました"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "05_wardrobe_market.png",
+      "state": "outfit selected",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装マーケット",
+        "Soft Knit Cardigan"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "06_tryon_review.png",
+      "state": "succeeded; display fixture images, not real try-on output",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装マーケット"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "14_empty_history.png",
+      "state": "no generation attempts",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c/generations",
+      "headings": [
+        "処理状況",
+        "生成結果",
+        "生成履歴"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "07_shot_studio.png",
+      "state": "semantic settings and prompt",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "08_prompt_editor.png",
+      "state": "prompt editor detail",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "15_prompt_modified.png",
+      "state": "edited; autosave may finish during screenshot",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "16_prompt_stale.png",
+      "state": "semantic setting changed; stale",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "17_generation_failed.png",
+      "state": "injected 503; error recovery link",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "18_generating.png",
+      "state": "real fake-backend render delayed 6 seconds",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "09_generation_review.png",
+      "state": "succeeded; four display fixture images",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c/generations/c94e96aeaad9476e8acc3d4f31",
+      "headings": [
+        "処理状況",
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "19_adopted_candidate.png",
+      "state": "adopted decision persisted",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/shots/cee7d6354e574042b26f24955c/generations/c94e96aeaad9476e8acc3d4f31",
+      "headings": [
+        "処理状況",
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "10_csp.png",
+      "state": "page plan and successful handoff; bytes are fake backend bytes",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/csp",
+      "headings": [
+        "処理状況",
+        "CLIP STUDIO連携",
+        "Panel 1"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "11_release.png",
+      "state": "master form and platform tab previews; no publishing",
+      "path": "/projects/3a367f2c60f54399bdf70dff0b/release",
+      "headings": [
+        "処理状況",
+        "公開準備",
+        "マスター",
+        "プラットフォーム別プレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "12_integrations.png",
+      "state": "configured test integrations; no diagnosis request",
+      "path": "/integrations",
+      "headings": [
+        "処理状況",
+        "外部連携",
+        "ComfyUI",
+        "LLMプロバイダ",
+        "Eagle",
+        "CLIP STUDIO",
+        "機能"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "13_settings.png",
+      "state": "isolated test settings; no saved API key",
+      "path": "/settings",
+      "headings": [
+        "処理状況",
+        "設定"
+      ],
+      "horizontalOverflow": false
+    }
+  ],
+  "pageErrors": []
+}

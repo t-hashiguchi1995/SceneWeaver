@@ -43,9 +43,12 @@ test.describe('M5 Delivery', () => {
 
     await release.goto()
     await release.buildPreview()
+    await release.openPlatform('x')
     await expect(release.edition('x')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'X', exact: true })).toBeVisible()
+    await release.openPlatform('pixiv')
     await expect(release.edition('pixiv')).toBeVisible()
+    await release.openPlatform('patreon')
     await expect(release.edition('patreon')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'X プレビュー' })).toBeVisible()
   })
 })

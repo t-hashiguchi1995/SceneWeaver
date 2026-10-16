@@ -217,12 +217,46 @@ code {
 
 .stack select,
 .stack input[type="text"],
-.stack input:not([type]) {
+.stack input:not([type]),
+.stack textarea {
+  width: 100%;
   background: var(--panel);
   border: 1px solid var(--line);
   color: var(--text);
   border-radius: 8px;
   padding: 0.55rem 0.8rem;
+}
+
+.release-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.release-form input,
+.release-form textarea {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+}
+
+.release-previews {
+  margin-top: 1.25rem;
+}
+
+.release-tabs {
+  flex-wrap: wrap;
+}
+
+.release-edition {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
 }
 
 .review-layout {
@@ -233,10 +267,54 @@ code {
   margin-top: 1rem;
 }
 
+.review-layout-3pane {
+  grid-template-columns: minmax(160px, 220px) minmax(220px, 1fr) minmax(280px, 1.2fr);
+}
+
+@media (max-width: 1100px) {
+  .review-layout-3pane {
+    grid-template-columns: minmax(160px, 200px) 1fr;
+  }
+
+  .review-layout-3pane .review-detail {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 800px) {
-  .review-layout {
+  .review-layout,
+  .review-layout-3pane {
     grid-template-columns: 1fr;
   }
+}
+
+.shot-advanced {
+  margin-top: 1rem;
+}
+
+.shot-advanced > summary,
+.review-meta-panel > summary,
+.technical-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: disclosure-closed;
+}
+
+.library-categories {
+  flex-wrap: wrap;
+}
+
+.library-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 240px;
+  overflow: auto;
+  padding: 0.5rem 0;
+}
+
+.selected-presets .cta-row {
+  flex-wrap: wrap;
 }
 
 .review-history .list {
@@ -484,12 +562,13 @@ button, input, select, textarea { font: inherit; }
 .candidate-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0; list-style: none; }
 .candidate-grid li { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .candidate-select { display: flex; flex-direction: column; width: 100%; white-space: normal; }
-.asset-image { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; background: #11131a; border-radius: 8px; }
-.asset-unavailable { display: grid; place-items: center; aspect-ratio: 4 / 3; width: 100%; background: var(--panel); color: var(--muted); }
+.asset-image { display: block; width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: contain; background: #11131a; border-radius: 8px; }
+.asset-unavailable { display: grid; place-items: center; aspect-ratio: 3 / 4; width: 100%; background: var(--panel); color: var(--muted); }
 .candidate-preview { display: block; height: auto; }
-.candidate-preview .asset-image { max-height: 650px; }
+.candidate-preview .asset-image { max-height: 720px; aspect-ratio: auto; }
 .candidate-preview code { display: block; overflow-wrap: anywhere; font-size: 11px; }
-.review-main, .prompt-editor, .story-columns > *, .creator-columns > * { min-width: 0; }
+.review-main, .review-candidates, .review-detail, .prompt-editor, .story-columns > *, .creator-columns > * { min-width: 0; }
+.review-meta-panel { margin-top: 0.75rem; }
 textarea, input, select { max-width: 100%; min-width: 0; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .jobs-drawer { color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; width: min(480px, 95vw); max-height: 90dvh; margin-right: 16px; }

@@ -51,8 +51,23 @@
   "camera": "Camera",
   "lighting": "Lighting",
   "background": "Background",
-  "poseReference": "Pose reference URI",
+  "poseReference": "Pose reference image",
+  "poseReferenceHint": "Pose reference URI (file picker planned)",
   "angle": "Camera angle",
   "controlStrength": "Control strength",
-  "usingAttemptControls": "Using model, workflow and control settings from the selected attempt."
+  "usingAttemptControls": "Using model, workflow and control settings from the selected attempt.",
+  "basicSettings": "Basic settings",
+  "promptSection": "Prompt",
+  "advancedSettings": "Advanced generation settings",
+  "technicalInfo": "Technical details",
+  "libraryCat": {
+    "all": "All",
+    "costume": "Costume",
+    "expression": "Expression",
+    "pose": "Pose",
+    "background": "Background",
+    "lighting": "Lighting",
+    "style": "Style",
+    "quality": "Quality"
+  }
 }

@@ -30,7 +30,6 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
   const qc = useQueryClient()
   const [selectedAttemptId, setSelectedAttemptId] = useState(attemptId ?? '')
   const [selectedCandidate, setSelectedCandidate] = useState(0)
-  const [showPrompt, setShowPrompt] = useState(true)
   const [adoptedId, setAdoptedId] = useState('')
   const [error, setError] = useState('')
 
@@ -59,7 +58,6 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
   const candidates = selected?.output_asset_ids ?? []
   const activeAssetId = candidates[selectedCandidate] ?? ''
 
-
   const provenance = useMemo(() => {
     if (!selected) return null
     return {
@@ -81,8 +79,10 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
     setSelectedAttemptId(id)
     saveStudioContext({ shotId, generationAttemptId: id })
     void navigate({
-      to: projectId ? '/projects/$projectId/shots/$shotId/generations/$attemptId' : '/shots/$shotId/generations/$attemptId',
-      params: { projectId: projectId ?? "", shotId, attemptId: id },
+      to: projectId
+        ? '/projects/$projectId/shots/$shotId/generations/$attemptId'
+        : '/shots/$shotId/generations/$attemptId',
+      params: { projectId: projectId ?? '', shotId, attemptId: id },
     })
   }
 
@@ -110,7 +110,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
   })
 
   const regenerateSame = useMutation({
-    mutationFn: (mode: "new" | "same") => api.replayGeneration(selected!.id, mode),
+    mutationFn: (mode: 'new' | 'same') => api.replayGeneration(selected!.id, mode),
     onSuccess: (result) => {
       saveStudioContext({
         shotId: result.shot_id,
@@ -119,8 +119,14 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
       })
       void qc.invalidateQueries({ queryKey: ['generation-attempts', shotId] })
       void navigate({
-        to: projectId ? '/projects/$projectId/shots/$shotId/generations/$attemptId' : '/shots/$shotId/generations/$attemptId',
-        params: { projectId: projectId ?? "", shotId: result.shot_id, attemptId: result.generation_attempt_id },
+        to: projectId
+          ? '/projects/$projectId/shots/$shotId/generations/$attemptId'
+          : '/shots/$shotId/generations/$attemptId',
+        params: {
+          projectId: projectId ?? '',
+          shotId: result.shot_id,
+          attemptId: result.generation_attempt_id,
+        },
       })
     },
     onError: (err) => setError((err as Error).message),
@@ -133,7 +139,13 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
     await api.ensurePromptDraft(shotId)
     await api.updatePromptDraft(shotId, positive, negative)
     saveStudioContext({ shotId, generationAttemptId: selected.id })
-    void navigate({ to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId', search: { sourceAttemptId: selected.payload.render_snapshot ? selected.id : undefined }, params: { projectId: projectId ?? '', shotId } })
+    void navigate({
+      to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId',
+      search: {
+        sourceAttemptId: selected.payload.render_snapshot ? selected.id : undefined,
+      },
+      params: { projectId: projectId ?? '', shotId },
+    })
   }
 
   if (!shotId) {
@@ -154,15 +166,17 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
         <div>
           <h1>{t('generation:reviewTitle')}</h1>
           <p className="lede">{t('generation:reviewLede')}</p>
-          <p className="meta" data-testid="review-shot-id">
-            {t('generation:shotId', { id: shotId })}
-          </p>
         </div>
         <button
           type="button"
           className="btn"
           data-testid="review-open-shot-studio"
-          onClick={() => navigate({ to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId', params: { projectId: projectId ?? '', shotId } })}
+          onClick={() =>
+            navigate({
+              to: projectId ? '/projects/$projectId/shots/$shotId' : '/shots/$shotId',
+              params: { projectId: projectId ?? '', shotId },
+            })
+          }
         >
           {t('generation:openShotStudio')}
         </button>
@@ -170,7 +184,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
 
       {error && <ErrorBanner message={error} />}
 
-      <div className="review-layout">
+      <div className="review-layout review-layout-3pane">
         <aside className="review-history" data-testid="generation-history">
           <h2>{t('generation:historyTitle')}</h2>
           {attempts.length === 0 && <p className="meta">{t('generation:historyEmpty')}</p>}
@@ -198,7 +212,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
           </ul>
         </aside>
 
-        <div className="review-main">
+        <div className="review-candidates">
           {selected && (
             <>
               <p className="meta" data-testid="generation-attempt-id">
@@ -207,13 +221,16 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
                   `common:status.${selected.status === 'succeeded' ? 'succeeded' : selected.status}`,
                 )}
               </p>
-
               <ul className="candidate-grid" data-testid="generation-candidate-list">
                 {candidates.map((id, index) => (
                   <li key={id} data-testid={`generation-candidate-${index}`}>
                     <button
                       type="button"
-                      className={index === selectedCandidate ? 'btn primary candidate-select' : 'btn candidate-select'}
+                      className={
+                        index === selectedCandidate
+                          ? 'btn primary candidate-select'
+                          : 'btn candidate-select'
+                      }
                       aria-pressed={index === selectedCandidate}
                       data-testid={`generation-select-${index}`}
                       onClick={() => setSelectedCandidate(index)}
@@ -221,125 +238,129 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
                       <AssetImage assetId={id} alt={t('generation:candidate', { n: index + 1 })} />
                       {t('generation:candidate', { n: index + 1 })}
                     </button>
-                    <code>{id.slice(0, 8)}…</code>
                   </li>
                 ))}
               </ul>
-
-              {activeAssetId && (
-                <div className="stack panel-card" data-testid="generation-candidate-detail">
-                  <h2>
-                    {t('generation:candidate', { n: selectedCandidate + 1 })} —{' '}
-                    {t('generation:largePreview')}
-                  </h2>
-                  <div className="candidate-preview" data-testid="generation-large-preview">
-                    <AssetImage assetId={activeAssetId} alt={t('generation:candidate', { n: selectedCandidate + 1 })} />
-                    <code data-testid="generation-active-asset">{activeAssetId}</code>
-                  </div>
-                  <div className="cta-row">
-                    <button
-                      type="button"
-                      className="btn primary"
-                      data-testid="generation-adopt"
-                      onClick={() => adopt.mutate(activeAssetId)}
-                    >
-                      {t('generation:actions.adopt')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      data-testid="generation-reject"
-                      onClick={() => reject.mutate(activeAssetId)}
-                    >
-                      {t('generation:actions.reject')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      data-testid="generation-regenerate-same"
-                      disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
-                      onClick={() => regenerateSame.mutate("new")}
-                    >
-                      {t('generation:actions.regenerateSame')}
-                    </button>
-                    <button type="button" className="btn" data-testid="generation-reproduce"
-                      disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
-                      onClick={() => regenerateSame.mutate("same")}>
-                      {t('generation:actions.reproduce')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      data-testid="generation-edit-prompt"
-                      onClick={() => void editPromptAndRegenerate().catch((err: Error) => setError(err.message))}
-                    >
-                      {t('generation:actions.editPrompt')}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {provenance && (
-                <div className="stack" data-testid="generation-provenance">
-                  <h2>{t('generation:provenanceTitle')}</h2>
-                  <p className="meta">
-                    {t('generation:model')}: {provenance.model}
-                  </p>
-                  <p className="meta">
-                    {t('generation:template')}: {provenance.source}
-                  </p>
-                  <p className="meta">
-                    {t('generation:workflow')}: {provenance.workflow}
-                  </p>
-                  <p className="meta">
-                    {t('generation:seed')}: {provenance.seed}
-                  </p>
-                  <p className="meta">
-                    {t('generation:shotRevision')}: {provenance.revision}
-                  </p>
-                  <p className="meta">
-                    {t('generation:promptModified')}:{' '}
-                    {provenance.modified ? t('common:yes') : t('common:no')}
-                  </p>
-                  <p className="meta" data-testid="generation-workflow-hash">
-                    {t('generation:workflowHash')}: {provenance.workflowHash.slice(0, 12)}…
-                  </p>
-                </div>
-              )}
-
-              <div className="stack" data-testid="generation-prompt-snapshot">
-                <div className="row-between">
-                  <h2>{t('generation:runtimePromptTitle')}</h2>
-                  <button
-                    type="button"
-                    className="btn"
-                    data-testid="generation-toggle-prompt"
-                    onClick={() => setShowPrompt((v) => !v)}
-                  >
-                    {showPrompt ? t('generation:hidePrompt') : t('generation:showPrompt')}
-                  </button>
-                </div>
-                {showPrompt && (
-                  <>
-                    <p className="meta" data-testid="generation-prompt-hash">
-                      {t('generation:promptHash')}: {provenance?.promptHash?.slice(0, 12)}…
-                    </p>
-                    <label>
-                      {t('prompt:positive')}
-                      <pre className="lede" data-testid="generation-final-positive">
-                        {String(selected.final_positive_prompt || '')}
-                      </pre>
-                    </label>
-                    <label>
-                      {t('prompt:negative')}
-                      <pre className="lede" data-testid="generation-final-negative">
-                        {String(selected.final_negative_prompt || '')}
-                      </pre>
-                    </label>
-                  </>
-                )}
-              </div>
             </>
+          )}
+        </div>
+
+        <div className="review-detail">
+          {selected && activeAssetId && (
+            <div className="stack panel-card" data-testid="generation-candidate-detail">
+              <h2>
+                {t('generation:candidate', { n: selectedCandidate + 1 })} —{' '}
+                {t('generation:largePreview')}
+              </h2>
+              <div className="candidate-preview" data-testid="generation-large-preview">
+                <AssetImage
+                  assetId={activeAssetId}
+                  alt={t('generation:candidate', { n: selectedCandidate + 1 })}
+                />
+              </div>
+              <div className="cta-row">
+                <button
+                  type="button"
+                  className="btn primary"
+                  data-testid="generation-adopt"
+                  onClick={() => adopt.mutate(activeAssetId)}
+                >
+                  {t('generation:actions.adopt')}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  data-testid="generation-reject"
+                  onClick={() => reject.mutate(activeAssetId)}
+                >
+                  {t('generation:actions.reject')}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  data-testid="generation-regenerate-same"
+                  disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
+                  onClick={() => regenerateSame.mutate('new')}
+                >
+                  {t('generation:actions.regenerateSame')}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  data-testid="generation-reproduce"
+                  disabled={regenerateSame.isPending || !selected?.payload.render_snapshot}
+                  onClick={() => regenerateSame.mutate('same')}
+                >
+                  {t('generation:actions.reproduce')}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  data-testid="generation-edit-prompt"
+                  onClick={() =>
+                    void editPromptAndRegenerate().catch((err: Error) => setError(err.message))
+                  }
+                >
+                  {t('generation:actions.editPrompt')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {selected && provenance && (
+            <details className="panel-card review-meta-panel" data-testid="generation-provenance">
+              <summary>{t('generation:provenanceTitle')}</summary>
+              <div className="stack">
+                <p className="meta">
+                  {t('generation:model')}: {provenance.model}
+                </p>
+                <p className="meta">
+                  {t('generation:template')}: {provenance.source}
+                </p>
+                <p className="meta">
+                  {t('generation:workflow')}: {provenance.workflow}
+                </p>
+                <p className="meta">
+                  {t('generation:seed')}: {provenance.seed}
+                </p>
+                <p className="meta">
+                  {t('generation:shotRevision')}: {provenance.revision}
+                </p>
+                <p className="meta">
+                  {t('generation:promptModified')}:{' '}
+                  {provenance.modified ? t('common:yes') : t('common:no')}
+                </p>
+                <p className="meta" data-testid="generation-workflow-hash">
+                  {t('generation:workflowHash')}: {provenance.workflowHash.slice(0, 12)}…
+                </p>
+              </div>
+            </details>
+          )}
+
+          {selected && (
+            <details
+              className="panel-card review-meta-panel"
+              data-testid="generation-prompt-snapshot"
+            >
+              <summary>{t('generation:runtimePromptTitle')}</summary>
+              <div className="stack">
+                <p className="meta" data-testid="generation-prompt-hash">
+                  {t('generation:promptHash')}: {provenance?.promptHash?.slice(0, 12)}…
+                </p>
+                <label>
+                  {t('prompt:positive')}
+                  <pre className="lede" data-testid="generation-final-positive">
+                    {String(selected.final_positive_prompt || '')}
+                  </pre>
+                </label>
+                <label>
+                  {t('prompt:negative')}
+                  <pre className="lede" data-testid="generation-final-negative">
+                    {String(selected.final_negative_prompt || '')}
+                  </pre>
+                </label>
+              </div>
+            </details>
           )}
 
           {adoptedId && (
@@ -347,6 +368,16 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
               {t('generation:adoptedBanner', { asset: `${adoptedId.slice(0, 8)}…` })}
             </p>
           )}
+
+          <details className="meta technical-details">
+            <summary>{t('generation:technicalInfo')}</summary>
+            <p className="meta" data-testid="review-shot-id">
+              {t('generation:shotId', { id: shotId })}
+            </p>
+            {activeAssetId && (
+              <code data-testid="generation-active-asset">{activeAssetId}</code>
+            )}
+          </details>
         </div>
       </div>
     </section>

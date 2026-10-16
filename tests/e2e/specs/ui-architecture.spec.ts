@@ -23,10 +23,10 @@ test('project URL restores editors, autosaves prompts, compares image candidates
     await expect(img).toBeVisible()
     await expect.poll(() => img.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true)
   }
-  const seedBefore = await page.getByTestId('generation-provenance').innerText()
+  const seedBefore = await page.getByTestId('generation-provenance').textContent()
   await page.getByTestId('generation-reproduce').click()
   await expect(page.getByTestId('generation-history').locator('li')).toHaveCount(2)
-  await expect(page.getByTestId('generation-provenance')).toHaveText(seedBefore, { useInnerText: true })
+  await expect(page.getByTestId('generation-provenance')).toHaveText(seedBefore ?? '')
   await page.getByTestId('generation-regenerate-same').click()
   await expect(page.getByTestId('generation-history').locator('li')).toHaveCount(3)
   await page.getByTestId('generation-adopt').click()
