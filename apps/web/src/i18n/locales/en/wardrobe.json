@@ -6,6 +6,7 @@
   "adoptedBanner": "Adopted {{asset}} · Outfit {{outfit}}",
   "adoptedShort": "done",
   "outfitShort": "saved",
+  "outfitCount": "{{count}} looks",
   "needCharacterOutfit": "character and outfit required",
   "needCharacterFirst": "Choose a character with “Use in studio” first",
   "activeCharacter": "Try-On character: {{name}}",

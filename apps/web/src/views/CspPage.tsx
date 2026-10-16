@@ -31,21 +31,30 @@ export function CspPage() {
   const [error, setError] = useState('')
   const [copyStatus, setCopyStatus] = useState('')
   const [panels, setPanels] = useState<PanelDraft[]>([])
+  const [orderDirty, setOrderDirty] = useState(false)
 
   useEffect(() => {
     if (!dashboard.data) return
-    setPanels(
-      dashboard.data.adopted_assets.map((asset, index) => ({
-        panel_no: index + 1,
-        shot_id: asset.shot_id,
-        asset_id: asset.asset_id,
-        beat_id: asset.beat_id,
-        lines: dashboard.data.script_events
-          .filter((event) => event.locked && event.beat_id === asset.beat_id)
-          .map((event) => event.text),
-      })),
-    )
-  }, [dashboard.data])
+    const nextDrafts = dashboard.data.adopted_assets.map((asset, index) => ({
+      panel_no: index + 1,
+      shot_id: asset.shot_id,
+      asset_id: asset.asset_id,
+      beat_id: asset.beat_id,
+      lines: dashboard.data.script_events
+        .filter((event) => event.locked && event.beat_id === asset.beat_id)
+        .map((event) => event.text),
+    }))
+    setPanels((current) => {
+      if (!orderDirty || current.length === 0) return nextDrafts
+      const byId = new Map(nextDrafts.map((panel) => [panel.asset_id, panel]))
+      const kept = current
+        .filter((panel) => byId.has(panel.asset_id))
+        .map((panel) => ({ ...byId.get(panel.asset_id)!, panel_no: panel.panel_no }))
+      const keptIds = new Set(kept.map((panel) => panel.asset_id))
+      const appended = nextDrafts.filter((panel) => !keptIds.has(panel.asset_id))
+      return [...kept, ...appended].map((panel, index) => ({ ...panel, panel_no: index + 1 }))
+    })
+  }, [dashboard.data, orderDirty])
 
   const folderLabel = useMemo(() => {
     const value = path || dashboard.data?.latest_handoff?.path || ''
@@ -55,6 +64,7 @@ export function CspPage() {
   }, [dashboard.data?.latest_handoff?.path, path])
 
   const movePanel = (index: number, direction: -1 | 1) => {
+    setOrderDirty(true)
     setPanels((current) => {
       const next = [...current]
       const target = index + direction
@@ -125,7 +135,7 @@ export function CspPage() {
       })
     },
     onSuccess: (result) => {
-      void dashboard.refetch()
+      // Keep local panel order; refetch would rebuild from adopted_assets and undo reorder.
       setRevision(result.revision)
       setPath(result.path)
       setManifest(result.manifest)
@@ -158,7 +168,12 @@ export function CspPage() {
       {projectId && (
         <div className="candidate-grid" data-testid="csp-page-plan">
           {panels.map((panel, index) => (
-            <article className="panel-card csp-panel-card" key={panel.asset_id}>
+            <article
+              className="panel-card csp-panel-card"
+              key={panel.asset_id}
+              data-testid={`csp-panel-${index}`}
+              data-asset-id={panel.asset_id}
+            >
               <h2>{t('panel', { n: panel.panel_no })}</h2>
               <AssetImage assetId={panel.asset_id} alt={t('panel', { n: panel.panel_no })} />
               <ol className="dialogue-lines" data-testid={`csp-panel-lines-${index}`}>

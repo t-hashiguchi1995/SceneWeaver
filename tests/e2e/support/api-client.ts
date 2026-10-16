@@ -100,6 +100,16 @@ export class ApiClient {
     return res.json()
   }
 
+  async createBeat(sceneId: string, intent: string, speakerId?: string) {
+    const res = await fetch(`${this.base}/api/v1/scenes/${sceneId}/beats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ intent, speaker_id: speakerId }),
+    })
+    if (!res.ok) throw new Error(`create beat failed: ${res.status} ${await res.text()}`)
+    return res.json() as Promise<{ id: string; intent: string; speaker_id: string | null }>
+  }
+
   async planShot(beatId: string) {
     const res = await fetch(`${this.base}/api/v1/beats/${beatId}/shots/plan`, { method: 'POST' })
     if (!res.ok) throw new Error(`shot plan failed: ${res.status}`)

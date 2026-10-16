@@ -74,6 +74,22 @@ export function WardrobePage() {
   const characterName =
     characters.data?.find((c) => c.id === (characterId || ctx.characterId))?.display_name ||
     ctx.characterName
+  const adoptedOutfits = useMemo(() => {
+    const fromDashboard = (dashboard.data?.tryon_sessions ?? []).filter(
+      (session) => session.adopted_asset_id,
+    )
+    if (fromDashboard.length > 0) {
+      return fromDashboard.map((session) => ({
+        assetId: session.adopted_asset_id!,
+        outfitId: session.outfit_profile_id,
+        sessionId: session.session_id,
+      }))
+    }
+    if (adoptedId) {
+      return [{ assetId: adoptedId, outfitId, sessionId }]
+    }
+    return []
+  }, [adoptedId, dashboard.data?.tryon_sessions, outfitId, sessionId])
 
   const tryOn = useMutation({
     mutationFn: async () => {
@@ -318,25 +334,36 @@ export function WardrobePage() {
       )}
 
       {tab === 'mine' && (
-        <div className="stack panel-card" data-testid="wardrobe-mine-panel">
-          {adoptedId ? (
+        <div className="stack" data-testid="wardrobe-mine-panel">
+          {adoptedOutfits.length === 0 ? (
+            <p className="meta panel-card">{t('wardrobe:mineEmpty')}</p>
+          ) : (
             <>
-              <h2>{t('wardrobe:adoptedTitle')}</h2>
-              <AssetImage assetId={adoptedId} alt={t('wardrobe:adoptedTitle')} />
               <p data-testid="tryon-adopted-banner">
                 {t('wardrobe:adoptedBanner', {
                   asset: t('wardrobe:adoptedShort'),
-                  outfit: outfitId ? t('wardrobe:outfitShort') : '—',
+                  outfit: t('wardrobe:outfitCount', { count: adoptedOutfits.length }),
                 })}
               </p>
-              <details className="meta technical-details">
-                <summary>{t('common:actions.details')}</summary>
-                <p className="meta">asset={adoptedId}</p>
-                <p className="meta">outfit={outfitId || '—'}</p>
-              </details>
+              <ul className="candidate-grid" data-testid="wardrobe-adopted-list">
+                {adoptedOutfits.map((outfit, index) => (
+                  <li key={`${outfit.sessionId}-${outfit.assetId}`} data-testid={`wardrobe-adopted-${index}`}>
+                    <h2>
+                      {t('wardrobe:adoptedTitle')} {index + 1}
+                    </h2>
+                    <AssetImage
+                      assetId={outfit.assetId}
+                      alt={`${t('wardrobe:adoptedTitle')} ${index + 1}`}
+                    />
+                    <details className="meta technical-details">
+                      <summary>{t('common:actions.details')}</summary>
+                      <p className="meta">asset={outfit.assetId}</p>
+                      <p className="meta">outfit={outfit.outfitId || '—'}</p>
+                    </details>
+                  </li>
+                ))}
+              </ul>
             </>
-          ) : (
-            <p className="meta">{t('wardrobe:mineEmpty')}</p>
           )}
         </div>
       )}

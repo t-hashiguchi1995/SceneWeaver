@@ -6,6 +6,7 @@
   "adoptedBanner": "採用 {{asset}} · コーディネート {{outfit}}",
   "adoptedShort": "済み",
   "outfitShort": "保存済み",
+  "outfitCount": "{{count}}着",
   "needCharacterOutfit": "キャラクターと衣装を選んでください",
   "needCharacterFirst": "先にキャラクターライブラリで「スタジオで使う」を押してください",
   "activeCharacter": "試着キャラクター: {{name}}",

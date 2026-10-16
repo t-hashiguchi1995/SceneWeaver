@@ -121,6 +121,7 @@ for (const size of sizes) {
     await capture('14_empty_history', 'no generation attempts')
     await page.goto(studio)
     await expect(page.getByTestId('prompt-positive')).toBeVisible()
+    await expect(page.getByTestId('shot-character-name')).toHaveText('リゼヘル')
     await capture('07_shot_studio', 'semantic settings and prompt')
     await capture('08_prompt_editor', 'prompt editor detail', page.getByTestId('prompt-editor'))
     const draft = page.getByTestId('prompt-positive')
