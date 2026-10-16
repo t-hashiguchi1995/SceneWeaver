@@ -47,9 +47,16 @@ for (const size of sizes) {
         await page.evaluate(() => window.scrollTo(0, 0))
         await page.screenshot({ path, fullPage: true, animations: 'disabled' })
       }
-      captures.push({ file: `${name}.png`, state, path: new URL(page.url()).pathname,
+      const horizontalOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      )
+      expect(horizontalOverflow).toBe(false)
+      captures.push({
+        file: `${name}.png`,
+        state,
+        path: new URL(page.url()).pathname,
         headings: await page.locator('h1,h2').allTextContents(),
-        horizontalOverflow: await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+        horizontalOverflow,
       })
     }
     const seeded = await seedScenario('m3_tryon')

@@ -310,7 +310,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
           {selected && provenance && (
             <details className="panel-card review-meta-panel" data-testid="generation-provenance">
               <summary>{t('generation:provenanceTitle')}</summary>
-              <div className="stack">
+              <div className="review-meta-content">
                 <p className="meta">
                   {t('generation:model')}: {provenance.model}
                 </p>
@@ -343,7 +343,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
               data-testid="generation-prompt-snapshot"
             >
               <summary>{t('generation:runtimePromptTitle')}</summary>
-              <div className="stack">
+              <div className="review-meta-content">
                 <p className="meta" data-testid="generation-prompt-hash">
                   {t('generation:promptHash')}: {provenance?.promptHash?.slice(0, 12)}…
                 </p>

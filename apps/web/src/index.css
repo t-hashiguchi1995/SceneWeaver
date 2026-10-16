@@ -300,6 +300,30 @@ code {
   list-style: disclosure-closed;
 }
 
+.review-meta-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.review-meta-content label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.review-meta-panel:not([open]) > .review-meta-content,
+.shot-advanced:not([open]) > .stack {
+  display: none;
+}
+
+.review-detail .cta-row {
+  flex-wrap: wrap;
+}
+
 .library-categories {
   flex-wrap: wrap;
 }
