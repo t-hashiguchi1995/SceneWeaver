@@ -202,7 +202,11 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
                   >
                     {label}{' '}
                     <span className="meta">
-                      {new Date(attempt.created_at).toLocaleTimeString()}
+                      {new Date(attempt.created_at).toLocaleTimeString('ja-JP', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
                       {badge ? ` · ${t(`common:status.${badge}`)}` : ''}
                     </span>
                   </button>
@@ -258,7 +262,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
                   alt={t('generation:candidate', { n: selectedCandidate + 1 })}
                 />
               </div>
-              <div className="cta-row">
+              <div className="review-primary-actions">
                 <button
                   type="button"
                   className="btn primary"
@@ -275,6 +279,8 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
                 >
                   {t('generation:actions.reject')}
                 </button>
+              </div>
+              <div className="review-secondary-actions">
                 <button
                   type="button"
                   className="btn"

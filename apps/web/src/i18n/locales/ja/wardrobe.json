@@ -1,9 +1,12 @@
 {
-  "title": "衣装マーケット",
-  "lede": "衣装を選び、試着して、4候補から1つを採用します。",
+  "title": "衣装",
+  "lede": "マーケットで探して試着し、採用した衣装をワードローブに残します。",
   "runTryOn": "この衣装を試着",
   "statusLabel": "状態",
   "adoptedBanner": "採用 {{asset}} · コーディネート {{outfit}}",
+  "adoptedShort": "済み",
+  "outfitShort": "保存済み",
+  "outfitCount": "{{count}}着",
   "needCharacterOutfit": "キャラクターと衣装を選んでください",
   "needCharacterFirst": "先にキャラクターライブラリで「スタジオで使う」を押してください",
   "activeCharacter": "試着キャラクター: {{name}}",
@@ -12,5 +15,11 @@
   "scene": "シーン",
   "search": "衣装を検索",
   "preview": "選択候補のプレビュー",
-  "reject": "不採用"
+  "reject": "不採用",
+  "tabMarket": "マーケット",
+  "tabTryOn": "試着",
+  "tabMine": "マイワードローブ",
+  "tryonEmpty": "まだ試着候補がありません。マーケットから衣装を選んで試着してください。",
+  "mineEmpty": "採用済みの衣装はまだありません。",
+  "adoptedTitle": "採用済み衣装"
 }

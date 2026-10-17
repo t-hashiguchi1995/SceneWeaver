@@ -48,12 +48,20 @@ export function ShotStudioPage() {
   const [templateBody, setTemplateBody] = useState('')
   const [staleDismissed, setStaleDismissed] = useState(false)
   const [specSummary, setSpecSummary] = useState<Record<string, unknown>>({})
+  const [beatId, setBeatId] = useState('')
 
   const autosave = usePromptAutosave(shotId, draft)
+  const dashboard = useQuery({
+    queryKey: ['project-dashboard', projectId],
+    queryFn: () => api.projectDashboard(projectId!),
+    enabled: Boolean(projectId),
+  })
+  const characters = useQuery({ queryKey: ['characters'], queryFn: api.listCharacters })
 
   useEffect(() => {
     setDraft(null)
     setStaleDismissed(false)
+    setBeatId('')
     saveStudioContext({ shotId })
     let cancelled = false
     void (async () => {
@@ -64,6 +72,7 @@ export function ShotStudioPage() {
         ])
         const tpl = await api.getPromptTemplate(shotId)
         if (cancelled) return
+        setBeatId(shot.beat_id)
         setSpecSummary(shot.render_spec ?? {})
         setDraft(existing)
         if (!cancelled) setTemplateBody(tpl.body)
@@ -148,9 +157,14 @@ export function ShotStudioPage() {
   })
 
   const expression = (specSummary.expression as { id?: string } | undefined)?.id
-  const characterTags = Array.isArray(specSummary.identity_tags)
-    ? (specSummary.identity_tags as string[]).slice(0, 3).join(', ')
-    : ''
+  const characterName = useMemo(() => {
+    const speakerId = dashboard.data?.beats.find((b) => b.id === beatId)?.speaker_id
+    const fromBeat = characters.data?.find((c) => c.id === speakerId)?.display_name
+    if (fromBeat) return fromBeat
+    const fromSpec = (specSummary.character as { name?: string } | undefined)?.name
+    if (fromSpec) return fromSpec
+    return ''
+  }, [beatId, characters.data, dashboard.data?.beats, specSummary.character])
   const selectedPresetIds = (specSummary.prompt_preset_ids as string[] | undefined) ?? []
   const selectedPresets = useMemo(
     () => (library.data ?? []).filter((p) => selectedPresetIds.includes(p.id)),
@@ -204,7 +218,8 @@ export function ShotStudioPage() {
       <div className="stack panel-card" data-testid="shot-basic-settings">
         <h2>{t('generation:basicSettings')}</h2>
         <p className="meta">
-          {t('generation:character')}: {characterTags || '—'}
+          {t('generation:character')}:{' '}
+          <span data-testid="shot-character-name">{characterName || '—'}</span>
         </p>
         <div className="semantic-grid">
           <label>

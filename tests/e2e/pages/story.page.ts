@@ -16,11 +16,13 @@ export class StoryPage {
   }
 
   async createScene(title = 'Cafe') {
+    await this.page.getByTestId('story-add-scene').click()
     await this.page.getByTestId('story-scene-title').fill(title)
     await this.page.getByTestId('story-create-scene').click()
   }
 
   async createBeat(intent = 'もう少し一緒にいたい') {
+    await this.page.getByTestId('story-add-beat').click()
     await this.page.getByTestId('story-beat-intent').fill(intent)
     await this.page.getByTestId('story-create-beat').click()
   }

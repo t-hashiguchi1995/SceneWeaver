@@ -12,9 +12,18 @@
   "generateDialogue": "セリフ候補を生成",
   "lockCandidate": "候補 {{n}} を採用",
   "lockedBanner": "セリフを確定しました",
+  "lockedEmpty": "まだ確定セリフはありません",
   "sceneCreated": "シーンを作成しました: {{title}}",
   "beatCreated": "展開を作成しました: {{intent}}",
   "candidatesReady": "セリフ候補の準備ができました",
   "scriptLocked": "セリフを確定しました",
-  "editDialogue": "セリフを編集"
+  "editDialogue": "セリフを編集",
+  "scenesNav": "シーン",
+  "beatsNav": "展開",
+  "addScene": "+ シーン",
+  "addBeat": "+ 展開",
+  "contextScene": "Scene「{{title}}」",
+  "contextBeat": "Beat「{{intent}}」",
+  "contextInherited": "前コマから継承",
+  "technicalInfo": "技術情報"
 }

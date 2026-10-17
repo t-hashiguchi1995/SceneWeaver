@@ -1,9 +1,12 @@
 {
-  "title": "Wardrobe Market",
-  "lede": "Pick an outfit, run Try-On, adopt one of four candidates.",
+  "title": "Wardrobe",
+  "lede": "Browse the market, try outfits on, and keep adopted looks in your wardrobe.",
   "runTryOn": "Run Try-On",
   "statusLabel": "Status",
   "adoptedBanner": "Adopted {{asset}} · Outfit {{outfit}}",
+  "adoptedShort": "done",
+  "outfitShort": "saved",
+  "outfitCount": "{{count}} looks",
   "needCharacterOutfit": "character and outfit required",
   "needCharacterFirst": "Choose a character with “Use in studio” first",
   "activeCharacter": "Try-On character: {{name}}",
@@ -12,5 +15,11 @@
   "scene": "Scene",
   "search": "Search outfits",
   "preview": "Selected candidate preview",
-  "reject": "Reject"
+  "reject": "Reject",
+  "tabMarket": "Market",
+  "tabTryOn": "Try-On",
+  "tabMine": "My wardrobe",
+  "tryonEmpty": "No try-on candidates yet. Pick an outfit in Market first.",
+  "mineEmpty": "No adopted outfits yet.",
+  "adoptedTitle": "Adopted outfit"
 }

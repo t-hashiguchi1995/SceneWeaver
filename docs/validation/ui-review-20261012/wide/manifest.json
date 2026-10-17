@@ -4,8 +4,8 @@
     "width": 1920,
     "height": 1080
   },
-  "appCodeCommit": "267f97d72d730745327b1f6b6d9a50432e32dd8d",
-  "captureSpecSha256": "281f7149dae11d5d660211fe19e0536934f873b32e7976bcbd49d3b907ba906c",
+  "appCodeCommit": "062a9a6ca1149f45ff9d4de2c3c3fc2f0171c4c9",
+  "captureSpecSha256": "c9ad2b0af88f6bf35ab7044c8d5ba5f3cc9e621994cd773e0da580cfaf6c990e",
   "environment": "isolated e2e; real API/DB; stub LLM; fake image backend",
   "imageSubstitution": "Generated/try-on image GET responses only. These display fixtures do not match fake Asset hashes or CSP bytes. No GPU or real outfit evaluation.",
   "sourceImages": [
@@ -42,7 +42,7 @@
     {
       "file": "02_project_dashboard.png",
       "state": "populated; next actions",
-      "path": "/projects/8d79767011764d4f89c8644141",
+      "path": "/projects/a5fb72e28721428497e9080cf6",
       "headings": [
         "処理状況",
         "E2E m3_tryon",
@@ -61,7 +61,7 @@
     {
       "file": "03_character.png",
       "state": "persona populated",
-      "path": "/characters/5d0545feec6f4d5494cbc08e04",
+      "path": "/characters/4dfe2eef5d234e86a381a7443a",
       "headings": [
         "処理状況",
         "リゼヘル"
@@ -71,7 +71,7 @@
     {
       "file": "04_story.png",
       "state": "locked dialogue",
-      "path": "/projects/8d79767011764d4f89c8644141/story",
+      "path": "/projects/a5fb72e28721428497e9080cf6/story",
       "headings": [
         "処理状況",
         "ストーリー",
@@ -82,10 +82,10 @@
     {
       "file": "05_wardrobe_market.png",
       "state": "outfit selected",
-      "path": "/projects/8d79767011764d4f89c8644141/wardrobe",
+      "path": "/projects/a5fb72e28721428497e9080cf6/wardrobe",
       "headings": [
         "処理状況",
-        "衣装マーケット",
+        "衣装",
         "Soft Knit Cardigan"
       ],
       "horizontalOverflow": false
@@ -93,17 +93,17 @@
     {
       "file": "06_tryon_review.png",
       "state": "succeeded; display fixture images, not real try-on output",
-      "path": "/projects/8d79767011764d4f89c8644141/wardrobe",
+      "path": "/projects/a5fb72e28721428497e9080cf6/wardrobe",
       "headings": [
         "処理状況",
-        "衣装マーケット"
+        "衣装"
       ],
       "horizontalOverflow": false
     },
     {
       "file": "14_empty_history.png",
       "state": "no generation attempts",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392/generations",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5/generations",
       "headings": [
         "処理状況",
         "生成結果",
@@ -114,7 +114,7 @@
     {
       "file": "07_shot_studio.png",
       "state": "semantic settings and prompt",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -127,7 +127,7 @@
     {
       "file": "08_prompt_editor.png",
       "state": "prompt editor detail",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -140,7 +140,7 @@
     {
       "file": "15_prompt_modified.png",
       "state": "edited; autosave may finish during screenshot",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -153,7 +153,7 @@
     {
       "file": "16_prompt_stale.png",
       "state": "semantic setting changed; stale",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -166,7 +166,7 @@
     {
       "file": "17_generation_failed.png",
       "state": "injected 503; error recovery link",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -179,7 +179,7 @@
     {
       "file": "18_generating.png",
       "state": "real fake-backend render delayed 6 seconds",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -192,7 +192,7 @@
     {
       "file": "09_generation_review.png",
       "state": "succeeded; four display fixture images",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392/generations/5730ad50ca1c483c81dd4a6f90",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5/generations/833491749d224dd491e00a5674",
       "headings": [
         "処理状況",
         "生成結果",
@@ -204,7 +204,7 @@
     {
       "file": "19_adopted_candidate.png",
       "state": "adopted decision persisted",
-      "path": "/projects/8d79767011764d4f89c8644141/shots/ff28d03d0c2348a4ac9a731392/generations/5730ad50ca1c483c81dd4a6f90",
+      "path": "/projects/a5fb72e28721428497e9080cf6/shots/c43d8380b2b74d6eb2962615c5/generations/833491749d224dd491e00a5674",
       "headings": [
         "処理状況",
         "生成結果",
@@ -216,7 +216,7 @@
     {
       "file": "10_csp.png",
       "state": "page plan and successful handoff; bytes are fake backend bytes",
-      "path": "/projects/8d79767011764d4f89c8644141/csp",
+      "path": "/projects/a5fb72e28721428497e9080cf6/csp",
       "headings": [
         "処理状況",
         "CLIP STUDIO連携",
@@ -227,7 +227,7 @@
     {
       "file": "11_release.png",
       "state": "master form and platform tab previews; no publishing",
-      "path": "/projects/8d79767011764d4f89c8644141/release",
+      "path": "/projects/a5fb72e28721428497e9080cf6/release",
       "headings": [
         "処理状況",
         "公開準備",
