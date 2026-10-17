@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +13,7 @@ type WardrobeTab = 'market' | 'tryon' | 'mine'
 export function WardrobePage() {
   const { t } = useTranslation(['wardrobe', 'common'])
   const { projectId } = useParams({ strict: false })
+  const qc = useQueryClient()
   const dashboard = useQuery({
     queryKey: ['project-dashboard', projectId],
     queryFn: () => api.projectDashboard(projectId!),
@@ -75,20 +76,21 @@ export function WardrobePage() {
     characters.data?.find((c) => c.id === (characterId || ctx.characterId))?.display_name ||
     ctx.characterName
   const adoptedOutfits = useMemo(() => {
-    const fromDashboard = (dashboard.data?.tryon_sessions ?? []).filter(
-      (session) => session.adopted_asset_id,
-    )
-    if (fromDashboard.length > 0) {
-      return fromDashboard.map((session) => ({
+    const items = (dashboard.data?.tryon_sessions ?? [])
+      .filter((session) => session.adopted_asset_id)
+      .map((session) => ({
         assetId: session.adopted_asset_id!,
         outfitId: session.outfit_profile_id,
         sessionId: session.session_id,
       }))
+    if (adoptedId && !items.some((item) => item.assetId === adoptedId)) {
+      items.push({
+        assetId: adoptedId,
+        outfitId,
+        sessionId,
+      })
     }
-    if (adoptedId) {
-      return [{ assetId: adoptedId, outfitId, sessionId }]
-    }
-    return []
+    return items
   }, [adoptedId, dashboard.data?.tryon_sessions, outfitId, sessionId])
 
   const tryOn = useMutation({
@@ -131,6 +133,9 @@ export function WardrobePage() {
         tryonAdoptedAssetId: assetId,
         outfitProfileId: result.outfit_profile_id,
       })
+      if (projectId) {
+        void qc.invalidateQueries({ queryKey: ['project-dashboard', projectId] })
+      }
     },
   })
 
