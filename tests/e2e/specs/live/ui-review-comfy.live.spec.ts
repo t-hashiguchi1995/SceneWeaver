@@ -118,20 +118,19 @@ test.describe('live Comfy UX review', () => {
     await capture('04_wardrobe_market', 'outfit selected before try-on')
 
     await page.getByTestId('tryon-generate').click()
+    // Status lives on the try-on tab; market tab stays mounted until success.
+    await page.getByTestId('wardrobe-tab-tryon').click()
     await expect(page.getByTestId('tryon-status-label')).toHaveText(/待機中|処理中|完了/, {
-      timeout: 30_000,
+      timeout: 60_000,
     })
-    // May already be fast; capture processing when still running.
     const tryonPhase = await page.getByTestId('tryon-status-label').textContent()
     if (tryonPhase && /待機中|処理中/.test(tryonPhase)) {
-      await capture('05_tryon_generating', `try-on ${tryonPhase}; real Comfy Qwen`)
+      await capture('05_tryon_generating', `try-on ${tryonPhase}; real Comfy OutfitTryOn`)
     }
-    await expect(page.getByTestId('tryon-status-label')).toHaveText('完了', {
+    await expect(page.getByTestId('tryon-candidate-list').locator('img')).toHaveCount(4, {
       timeout: LIVE_TIMEOUT_MS,
     })
-    await expect(page.getByTestId('tryon-candidate-list').locator('img')).toHaveCount(4, {
-      timeout: 30_000,
-    })
+    await expect(page.getByTestId('tryon-status-label')).toHaveText('完了')
     await capture('06_tryon_review', 'real Comfy try-on candidates (no image substitution)')
     await page.getByTestId('tryon-adopt-0').click()
     await expect(page.getByTestId('tryon-adopted-banner')).toBeVisible()
