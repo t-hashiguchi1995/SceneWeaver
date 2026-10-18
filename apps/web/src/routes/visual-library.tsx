@@ -25,6 +25,7 @@ const KIND_FILTERS: Array<VisualLibraryKind | 'all'> = [
   'camera',
   'lighting',
   'background',
+  'other',
 ]
 
 function kindLabelKey(kind: VisualLibraryKind | 'all'): string {
@@ -147,13 +148,12 @@ function VisualLibraryPage() {
         />
       </label>
 
-      <div className="visual-library-filters" role="tablist" aria-label={t('title')} data-testid="visual-library-filters">
+      <div className="visual-library-filters" role="group" aria-label={t('title')} data-testid="visual-library-filters">
         {KIND_FILTERS.map((k) => (
           <button
             key={k}
             type="button"
-            role="tab"
-            aria-selected={kind === k}
+            aria-pressed={kind === k}
             className={kind === k ? 'chip active' : 'chip'}
             data-testid={`visual-library-filter-${k}`}
             onClick={() => setKind(k)}
@@ -228,8 +228,6 @@ function VisualLibraryDetail({
 
   return (
     <article className="visual-library-detail" data-testid="visual-library-detail" data-ref={item.ref}>
-      <h1 data-testid="visual-library-detail-title">{label}</h1>
-
       <div className="visual-library-detail-preview">
         {item.thumbnail_asset_id ? (
           <AssetImage assetId={item.thumbnail_asset_id} alt={label} />
@@ -245,54 +243,58 @@ function VisualLibraryDetail({
         )}
       </div>
 
-      {item.description && (
-        <section data-testid="visual-library-overview">
-          <h2>{t('overview')}</h2>
-          <p>{item.description}</p>
-        </section>
-      )}
+      <div className="visual-library-detail-body">
+        <h1 data-testid="visual-library-detail-title">{label}</h1>
 
-      {item.tags.length > 0 && (
-        <section data-testid="visual-library-detail-tags">
-          <h2>{t('tags')}</h2>
-          <p>{item.tags.join(' / ')}</p>
-        </section>
-      )}
+        {item.description && (
+          <section data-testid="visual-library-overview">
+            <h2>{t('overview')}</h2>
+            <p>{item.description}</p>
+          </section>
+        )}
 
-      {item.model_scope.length > 0 && (
-        <section data-testid="visual-library-models">
-          <h2>{t('models')}</h2>
-          <p>{item.model_scope.map((m) => (m === 'anima' ? 'Anima' : m)).join(', ')}</p>
-        </section>
-      )}
+        {item.tags.length > 0 && (
+          <section data-testid="visual-library-detail-tags">
+            <h2>{t('tags')}</h2>
+            <p>{item.tags.join(' / ')}</p>
+          </section>
+        )}
 
-      {item.prompt_fragment && (
-        <section data-testid="visual-library-prompt-section">
-          <h2>{t('prompt')}</h2>
-          <button
-            type="button"
-            className="btn ghost"
-            data-testid="visual-library-prompt-toggle"
-            aria-expanded={promptOpen}
-            onClick={onTogglePrompt}
-          >
-            {promptOpen ? t('hidePrompt') : t('showPrompt')}
-          </button>
-          {promptOpen && (
-            <pre className="visual-library-prompt" data-testid="visual-library-prompt">
-              {item.prompt_fragment}
-            </pre>
-          )}
-        </section>
-      )}
+        {item.model_scope.length > 0 && (
+          <section data-testid="visual-library-models">
+            <h2>{t('models')}</h2>
+            <p>{item.model_scope.map((m) => (m === 'anima' ? 'Anima' : m)).join(', ')}</p>
+          </section>
+        )}
 
-      {item.source_type === 'marketplace_item' && (
-        <div className="cta-row">
-          <Link to="/wardrobe" className="btn" data-testid="visual-library-open-wardrobe">
-            {t('openWardrobe')}
-          </Link>
-        </div>
-      )}
+        {item.prompt_fragment && (
+          <section data-testid="visual-library-prompt-section">
+            <h2>{t('prompt')}</h2>
+            <button
+              type="button"
+              className="btn ghost"
+              data-testid="visual-library-prompt-toggle"
+              aria-expanded={promptOpen}
+              onClick={onTogglePrompt}
+            >
+              {promptOpen ? t('hidePrompt') : t('showPrompt')}
+            </button>
+            {promptOpen && (
+              <pre className="visual-library-prompt" data-testid="visual-library-prompt">
+                {item.prompt_fragment}
+              </pre>
+            )}
+          </section>
+        )}
+
+        {item.source_type === 'marketplace_item' && (
+          <div className="cta-row">
+            <Link to="/wardrobe" className="btn" data-testid="visual-library-open-wardrobe">
+              {t('openWardrobe')}
+            </Link>
+          </div>
+        )}
+      </div>
     </article>
   )
 }

@@ -26,8 +26,13 @@ test.describe('CE-2 Visual Library', () => {
     await expect(page.getByTestId('visual-library-no-preview').first()).toBeVisible()
     await expect(page.locator('[data-testid="visual-library-card"][data-has-preview="true"] img').first()).toBeVisible()
 
+    await expect(page.getByTestId('visual-library-filter-other')).toBeVisible()
     await page.getByTestId('visual-library-filter-pose').click()
     await expect(page.getByTestId('visual-library-card')).toHaveCount(3)
+    const thumbHeights = await page
+      .locator('[data-testid="visual-library-card"] .visual-library-thumb')
+      .evaluateAll((nodes) => nodes.map((n) => Math.round(n.getBoundingClientRect().height)))
+    expect(new Set(thumbHeights).size).toBe(1)
 
     await page.getByTestId('visual-library-search').fill('振り向き')
     await expect(page.getByTestId('visual-library-card')).toHaveCount(1)

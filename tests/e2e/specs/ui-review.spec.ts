@@ -195,37 +195,39 @@ for (const size of sizes) {
     await expect(page.getByTestId('settings-llm-key')).toHaveValue('')
     await capture('13_settings', 'isolated test settings; no saved API key')
 
-    // CE-2 Visual Library — seeded separately so list/detail screenshots stay focused.
+    // CE-2 Visual Library — seeded separately. Preview assets keep their
+    // representative fixture bytes (do not cycle cafe comic panels onto poses).
     const vl = await seedScenario('visual_library')
-    const previewIds = Array.isArray(vl.extras?.preview_asset_ids)
-      ? (vl.extras.preview_asset_ids as string[])
-      : []
-    for (const [index, id] of previewIds.entries()) {
-      displayedAssets.set(id, index % images.length)
-    }
+    const vlPreviewIds = new Set(
+      Array.isArray(vl.extras?.preview_asset_ids) ? (vl.extras.preview_asset_ids as string[]) : [],
+    )
+    for (const id of vlPreviewIds) displayedAssets.delete(id)
     await page.goto('/visual-library')
     await expect(page.getByTestId('visual-library-grid')).toBeVisible()
     await expect(page.getByTestId('visual-library-card').first()).toBeVisible()
-    await capture('20_visual_library', 'CE-2 catalog; mixed preview / no-preview cards')
+    await expect(page.getByTestId('visual-library-filter-other')).toBeVisible()
+    await capture('20_visual_library', 'CE-2 catalog; meaning-aligned fixtures; equal preview slots')
     await page.getByTestId('visual-library-filter-pose').click()
     await expect(page.getByTestId('visual-library-card')).toHaveCount(3)
-    await capture('21_visual_library_pose', 'pose filter; prompts not shown on cards')
+    await capture('21_visual_library_pose', 'pose filter; concept-matched previews; no prompt on cards')
     await page.getByTestId('visual-library-search').fill('振り向き')
     await page.getByTestId('visual-library-card').click()
     await expect(page.getByTestId('visual-library-detail')).toBeVisible()
     await expect(page.getByTestId('visual-library-prompt')).toHaveCount(0)
-    await capture('22_visual_library_detail', 'look-over-shoulder detail; prompt collapsed')
+    await capture('22_visual_library_detail', 'look-over-shoulder detail; prompt collapsed; desktop 2-col')
     await page.getByTestId('visual-library-prompt-toggle').click()
     await expect(page.getByTestId('visual-library-prompt')).toBeVisible()
     await capture('23_visual_library_prompt', 'prompt revealed after explicit expand')
 
     expect(pageErrors).toEqual([])
+    const vlFixtures = (vl.extras?.preview_fixtures as Record<string, string> | undefined) ?? {}
     const manifest = { viewport: size,
       appCodeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
       captureSpecSha256: createHash('sha256').update(await readFile(resolve(root, 'tests/e2e/specs/ui-review.spec.ts'))).digest('hex'),
       environment: 'isolated e2e; real API/DB; stub LLM; fake image backend',
-      imageSubstitution: 'Generated/try-on image GET responses only. These display fixtures do not match fake Asset hashes or CSP bytes. No GPU or real outfit evaluation.',
+      imageSubstitution: 'Generated/try-on image GET responses only. Visual Library previews use seeded representative fixtures from tests/fixtures/visual_library (not comic-panel cycling).',
       sourceImages: sources.map((path, index) => ({ path: path.slice(root.length + 1), sha256: createHash('sha256').update(images[index]).digest('hex') })),
+      visualLibraryFixtures: vlFixtures,
       captures, pageErrors,
     }
     await writeFile(resolve(dir, 'manifest.json'), JSON.stringify(manifest, null, 2))

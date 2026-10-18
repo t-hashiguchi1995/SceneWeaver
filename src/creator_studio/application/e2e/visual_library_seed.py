@@ -1,4 +1,8 @@
-"""Seed PromptPreset + MarketplaceItem + VisualLibraryMetadata for CE-2 E2E."""
+"""Seed PromptPreset + MarketplaceItem + VisualLibraryMetadata for CE-2 E2E.
+
+Preview bytes come from ``tests/fixtures/visual_library/`` when present so UI
+review can evaluate meaning-aligned representative images (not production art).
+"""
 
 from __future__ import annotations
 
@@ -12,6 +16,7 @@ from creator_studio.domain.timeutil import utc_now
 from creator_studio.domain.wardrobe import MarketplaceItem
 from creator_studio.infrastructure.db.models.prompt import PromptPresetRow
 from creator_studio.infrastructure.db.models.visual_library import VisualLibraryMetadataRow
+from creator_studio.infrastructure.settings.config import REPO_ROOT
 from creator_studio.ports.unit_of_work import UnitOfWork
 
 _PNG = (
@@ -19,6 +24,8 @@ _PNG = (
     b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00"
     b"\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
 )
+
+_FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "visual_library"
 
 # kind -> fixture rows (mixed preview / no-preview)
 _PRESET_SPECS: list[dict[str, Any]] = [
@@ -31,6 +38,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "looking back, over shoulder, standing",
         "preview": True,
         "preview_kind": "curated",
+        "fixture": "pose_look_over_shoulder.png",
     },
     {
         "kind": "pose",
@@ -50,6 +58,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "hand on own hip, standing",
         "preview": True,
         "preview_kind": "generated",
+        "fixture": "pose_hand_on_hip.png",
     },
     {
         "kind": "expression",
@@ -60,6 +69,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "gentle smile, soft expression",
         "preview": True,
         "preview_kind": "curated",
+        "fixture": "expression_gentle_smile.png",
     },
     {
         "kind": "expression",
@@ -79,6 +89,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "medium shot, upper body",
         "preview": True,
         "preview_kind": "curated",
+        "fixture": "camera_medium_shot.png",
     },
     {
         "kind": "camera",
@@ -98,6 +109,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "soft indoor lighting, gentle shadows",
         "preview": True,
         "preview_kind": "generated",
+        "fixture": "lighting_soft_indoor.png",
     },
     {
         "kind": "lighting",
@@ -117,6 +129,7 @@ _PRESET_SPECS: list[dict[str, Any]] = [
         "prompt": "cafe interior, window seat",
         "preview": True,
         "preview_kind": "imported_reference",
+        "fixture": "background_cafe_interior.png",
     },
     {
         "kind": "background",
@@ -150,6 +163,7 @@ _OUTFIT_SPECS: list[dict[str, Any]] = [
         "garment_description": "soft cream oversized knit cardigan",
         "style_tags": ["soft", "casual", "立ち"],
         "with_plate": True,
+        "fixture": "outfit_soft_cardigan.png",
     },
     {
         "title": "School Blazer",
@@ -164,6 +178,13 @@ _OUTFIT_SPECS: list[dict[str, Any]] = [
 ]
 
 
+def _load_visual_fixture(name: str, *, fallback_key: str) -> bytes:
+    path = _FIXTURE_DIR / name
+    if path.exists():
+        return path.read_bytes()
+    return _PNG + fallback_key.encode()
+
+
 def seed_visual_library_catalog(
     uow: UnitOfWork,
     store: StoreAssetBytes,
@@ -173,23 +194,26 @@ def seed_visual_library_catalog(
     preset_ids: list[str] = []
     market_ids: list[str] = []
     preview_asset_ids: list[str] = []
+    preview_fixtures: dict[str, str] = {}
 
-    # Store assets first (owns its own short UoW sessions).
     thumbs: dict[str, str] = {}
     for spec in _PRESET_SPECS:
         key = f"{spec['kind']}:{spec['label']}"
-        if spec.get("preview"):
-            asset = store.execute(
-                StoreBytesCommand(
-                    data=_PNG + key.encode(),
-                    kind=AssetKind.REFERENCE,
-                    mime="image/png",
-                    relative_dir="visual_library",
-                    filename=f"{spec['kind']}_{new_id()[:8]}.png",
-                )
+        if not spec.get("preview"):
+            continue
+        fixture_name = str(spec.get("fixture") or f"{spec['kind']}.png")
+        asset = store.execute(
+            StoreBytesCommand(
+                data=_load_visual_fixture(fixture_name, fallback_key=key),
+                kind=AssetKind.REFERENCE,
+                mime="image/png",
+                relative_dir="visual_library",
+                filename=fixture_name,
             )
-            thumbs[key] = asset.id
-            preview_asset_ids.append(asset.id)
+        )
+        thumbs[key] = asset.id
+        preview_asset_ids.append(asset.id)
+        preview_fixtures[asset.id] = f"tests/fixtures/visual_library/{fixture_name}"
 
     now = utc_now()
     with uow as session_uow:
@@ -238,17 +262,21 @@ def seed_visual_library_catalog(
     for spec in _OUTFIT_SPECS:
         plate_id = None
         if spec.get("with_plate"):
+            fixture_name = str(spec.get("fixture") or "outfit.png")
             plate = store.execute(
                 StoreBytesCommand(
-                    data=_PNG + b"outfit:" + spec["title"].encode(),
+                    data=_load_visual_fixture(
+                        fixture_name, fallback_key=f"outfit:{spec['title']}"
+                    ),
                     kind=AssetKind.PLATE,
                     mime="image/png",
                     relative_dir="plates",
-                    filename=f"vl_{new_id()[:8]}.png",
+                    filename=fixture_name,
                 )
             )
             plate_id = plate.id
             preview_asset_ids.append(plate_id)
+            preview_fixtures[plate_id] = f"tests/fixtures/visual_library/{fixture_name}"
 
         item = MarketplaceItem.create(
             title=spec["title"],
@@ -286,6 +314,7 @@ def seed_visual_library_catalog(
         "preset_ids": preset_ids,
         "marketplace_item_ids": market_ids,
         "preview_asset_ids": preview_asset_ids,
+        "preview_fixtures": preview_fixtures,
         "counts": {
             "pose": 3,
             "expression": 2,
