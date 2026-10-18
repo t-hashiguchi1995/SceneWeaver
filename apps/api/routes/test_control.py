@@ -18,7 +18,10 @@ router = APIRouter(prefix="/api/test", tags=["test-control"])
 
 class SeedBody(BaseModel):
     scenario: str = Field(
-        description="m1_foundation | m2_story | m3_tryon | m4_visual | m5_delivery | vertical_slice"
+        description=(
+            "m1_foundation | m2_story | m3_tryon | m4_visual | m5_delivery | "
+            "vertical_slice | visual_library"
+        )
     )
 
 

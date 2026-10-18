@@ -107,12 +107,13 @@ test.describe('CE-1 Workflow Guidance', () => {
     await expect(page.getByTestId('shot-beat-id')).toHaveValue(seeded.beat_id!)
   })
 
-  test('Quick Test and Visual Library stubs keep escape hatches', async ({ page }) => {
+  test('Quick Test stub keeps escape hatch; Visual Library is real list', async ({ page }) => {
     await page.goto('/quick-test')
     await expect(page.getByTestId('quick-test-page')).toBeVisible()
     await expect(page.getByTestId('quick-test-fallback')).toBeVisible()
     await page.goto('/visual-library')
     await expect(page.getByTestId('visual-library-page')).toBeVisible()
-    await expect(page.getByTestId('visual-library-fallback')).toBeVisible()
+    await expect(page.getByTestId('visual-library-title')).toBeVisible()
+    await expect(page.getByTestId('visual-library-fallback')).toHaveCount(0)
   })
 })

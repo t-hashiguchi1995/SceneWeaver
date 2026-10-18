@@ -13,6 +13,7 @@ from apps.api.routes import (
     settings as settings_routes,
     shots,
     story,
+    visual_library,
     wardrobe,
 )
 from creator_studio.infrastructure.container import get_container
@@ -38,6 +39,7 @@ def create_app() -> FastAPI:
     app.include_router(characters.router)
     app.include_router(story.router)
     app.include_router(wardrobe.router)
+    app.include_router(visual_library.router)
     app.include_router(shots.router)
     app.include_router(assets.router)
     app.include_router(csp.router)

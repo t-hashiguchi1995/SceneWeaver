@@ -16,11 +16,13 @@ from creator_studio.infrastructure.db.models import (  # noqa: F401
     MarketplaceItemRow,
     OutfitProfileRow,
     ProjectRow,
+    PromptPresetRow,
     RenderPlanRow,
     SceneRow,
     ScriptEventRow,
     ShotRow,
     TryOnSessionRow,
+    VisualLibraryMetadataRow,
 )
 from creator_studio.infrastructure.settings import get_settings
 

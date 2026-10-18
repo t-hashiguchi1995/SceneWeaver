@@ -18,6 +18,7 @@ from creator_studio.infrastructure.db.models.wardrobe import (
     OutfitProfileRow,
     TryOnSessionRow,
 )
+from creator_studio.infrastructure.db.models.visual_library import VisualLibraryMetadataRow
 
 __all__ = [
     "ProjectRow",
@@ -37,4 +38,5 @@ __all__ = [
     "PromptDraftRow",
     "PromptPresetRow",
     "LegacyImportRecordRow",
+    "VisualLibraryMetadataRow",
 ]

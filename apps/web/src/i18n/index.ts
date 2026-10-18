@@ -13,6 +13,7 @@ import promptEn from './locales/en/prompt.json'
 import releaseEn from './locales/en/release.json'
 import settingsEn from './locales/en/settings.json'
 import storyEn from './locales/en/story.json'
+import visualLibraryEn from './locales/en/visualLibrary.json'
 import wardrobeEn from './locales/en/wardrobe.json'
 
 import commonJa from './locales/ja/common.json'
@@ -27,6 +28,7 @@ import promptJa from './locales/ja/prompt.json'
 import releaseJa from './locales/ja/release.json'
 import settingsJa from './locales/ja/settings.json'
 import storyJa from './locales/ja/story.json'
+import visualLibraryJa from './locales/ja/visualLibrary.json'
 import wardrobeJa from './locales/ja/wardrobe.json'
 
 export const LOCALE_STORAGE_KEY = 'sceneweaver.locale'
@@ -47,6 +49,7 @@ export const namespaces = [
   'settings',
   'integrations',
   'jobs',
+  'visualLibrary',
 ] as const
 
 const resources = {
@@ -64,6 +67,7 @@ const resources = {
     settings: settingsJa,
     integrations: integrationsJa,
     jobs: jobsJa,
+    visualLibrary: visualLibraryJa,
   },
   en: {
     common: commonEn,
@@ -79,6 +83,7 @@ const resources = {
     settings: settingsEn,
     integrations: integrationsEn,
     jobs: jobsEn,
+    visualLibrary: visualLibraryEn,
   },
 } as const
 

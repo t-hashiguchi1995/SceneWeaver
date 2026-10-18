@@ -21,6 +21,9 @@ from creator_studio.infrastructure.db.repositories.shot_repo import (
     SqlAlchemyRenderPlanRepository,
     SqlAlchemyShotRepository,
 )
+from creator_studio.infrastructure.db.repositories.visual_library_repo import (
+    SqlAlchemyVisualLibraryMetadataRepository,
+)
 from creator_studio.infrastructure.db.repositories.wardrobe_repo import (
     SqlAlchemyMarketplaceRepository,
     SqlAlchemyOutfitProfileRepository,
@@ -48,6 +51,7 @@ class SqlAlchemyUnitOfWork:
         self.prompt_drafts: SqlAlchemyPromptDraftRepository
         self.prompt_presets: SqlAlchemyPromptPresetRepository
         self.legacy_imports: SqlAlchemyLegacyImportRepository
+        self.visual_library_metadata: SqlAlchemyVisualLibraryMetadataRepository
 
     def __enter__(self) -> SqlAlchemyUnitOfWork:
         self.session = self._session_factory()
@@ -67,6 +71,7 @@ class SqlAlchemyUnitOfWork:
         self.prompt_drafts = SqlAlchemyPromptDraftRepository(self.session)
         self.prompt_presets = SqlAlchemyPromptPresetRepository(self.session)
         self.legacy_imports = SqlAlchemyLegacyImportRepository(self.session)
+        self.visual_library_metadata = SqlAlchemyVisualLibraryMetadataRepository(self.session)
         return self
 
     def __exit__(self, exc_type: object, exc: object, tb: object) -> None:

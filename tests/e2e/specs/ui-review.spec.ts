@@ -194,6 +194,31 @@ for (const size of sizes) {
     await expect(page.getByTestId('settings-comfy-url')).toBeVisible()
     await expect(page.getByTestId('settings-llm-key')).toHaveValue('')
     await capture('13_settings', 'isolated test settings; no saved API key')
+
+    // CE-2 Visual Library — seeded separately so list/detail screenshots stay focused.
+    const vl = await seedScenario('visual_library')
+    const previewIds = Array.isArray(vl.extras?.preview_asset_ids)
+      ? (vl.extras.preview_asset_ids as string[])
+      : []
+    for (const [index, id] of previewIds.entries()) {
+      displayedAssets.set(id, index % images.length)
+    }
+    await page.goto('/visual-library')
+    await expect(page.getByTestId('visual-library-grid')).toBeVisible()
+    await expect(page.getByTestId('visual-library-card').first()).toBeVisible()
+    await capture('20_visual_library', 'CE-2 catalog; mixed preview / no-preview cards')
+    await page.getByTestId('visual-library-filter-pose').click()
+    await expect(page.getByTestId('visual-library-card')).toHaveCount(3)
+    await capture('21_visual_library_pose', 'pose filter; prompts not shown on cards')
+    await page.getByTestId('visual-library-search').fill('振り向き')
+    await page.getByTestId('visual-library-card').click()
+    await expect(page.getByTestId('visual-library-detail')).toBeVisible()
+    await expect(page.getByTestId('visual-library-prompt')).toHaveCount(0)
+    await capture('22_visual_library_detail', 'look-over-shoulder detail; prompt collapsed')
+    await page.getByTestId('visual-library-prompt-toggle').click()
+    await expect(page.getByTestId('visual-library-prompt')).toBeVisible()
+    await capture('23_visual_library_prompt', 'prompt revealed after explicit expand')
+
     expect(pageErrors).toEqual([])
     const manifest = { viewport: size,
       appCodeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
