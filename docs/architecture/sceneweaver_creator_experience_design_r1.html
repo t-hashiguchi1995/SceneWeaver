@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SceneWeaver Creator Experience Design R1</title>
+<style>
+:root{--bg:#090d14;--panel:#141b26;--panel2:#192231;--line:#2a3444;--text:#edf2f7;--muted:#99a6b7;--accent:#b9a7ff;--good:#86efac;--warn:#fde68a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#090d14;color:var(--text);font-family:Inter,"Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;line-height:1.7}
+a{color:#c9c0ff;text-decoration:none}.wrap{width:min(1460px,calc(100% - 34px));margin:auto}.top{position:sticky;top:0;z-index:10;background:#090d14ee;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.topin{height:58px;display:flex;align-items:center;gap:10px}.brand{font-weight:850}.pill{font-size:9px;border:1px solid #50477b;border-radius:999px;padding:4px 8px;color:#d8d0ff;background:#211d35}
+.nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}.nav a{font-size:9px;color:#a8b3c3;padding:6px}.hero{padding:56px 0 34px}.eyebrow{font-size:10px;color:#9f8cff;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:46px;line-height:1.08;margin:8px 0 14px}h2{font-size:28px;margin:0 0 12px}h3{font-size:20px;margin:26px 0 9px}h4{font-size:14px;margin:12px 0 6px}.lede{color:#b2bdca;max-width:1100px}
+.section{padding:36px 0;border-top:1px solid #232c39}.head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.num{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#231f3b;border:1px solid #50477b;color:#d8d0ff;font-size:10px;font-weight:800}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:#141b26;border:1px solid var(--line);border-radius:13px;padding:13px}.small{font-size:10px;color:var(--muted)}
+.callout{border:1px solid #4a426f;border-left:4px solid var(--accent);background:#1b1830;border-radius:10px;padding:12px 14px;margin:12px 0}.callout.good{border-left-color:var(--good);background:#10251b;border-color:#2f6547}.callout.warn{border-left-color:var(--warn);background:#2a2410;border-color:#6f5d25}
+table{width:100%;border-collapse:collapse;border:1px solid var(--line);background:#141b26;font-size:11px}th,td{padding:9px 10px;border-bottom:1px solid #263041;text-align:left;vertical-align:top}th{background:#192231}
+pre{white-space:pre-wrap;word-break:break-word;background:#070c13;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:10px;color:#cbd6e4}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border:1px solid var(--line);background:#0d141e;border-radius:12px;padding:12px}.node{border:1px solid #39465a;background:#17202c;border-radius:9px;padding:8px 10px;font-size:9px;text-align:center;min-width:120px}.arrow{color:#9c8fff;font-weight:900}
+.screen{margin:16px 0;border:1px solid #39455a;background:#0b1119;border-radius:16px;overflow:hidden}.windowbar{height:34px;background:#111824;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:0 11px}.dot{width:8px;height:8px;border-radius:50%;background:#526074}.wtitle{font-size:9px;color:#a9b4c3;margin-left:6px}
+.app{display:grid;grid-template-columns:190px 1fr;min-height:680px}.side{background:#101620;border-right:1px solid var(--line);padding:10px}.logo{height:44px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:850;border-bottom:1px solid #263041}.ng{font-size:7px;color:#707e90;letter-spacing:.13em;text-transform:uppercase;margin:14px 8px 5px}.ni{font-size:9px;color:#a8b3c2;padding:7px 9px;border-radius:7px;margin:2px 0}.ni.active{background:#292441;border:1px solid #4e4770;color:#f1edff}
+.main{min-width:0}.appbar{height:50px;display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--line);background:#0e151f}.actions{margin-left:auto;display:flex;gap:5px}.content{padding:14px}.btn{border:1px solid #3b465a;background:#17202c;color:#dbe3ee;padding:7px 10px;border-radius:7px;font-size:8px;font-weight:700}.btn.primary{background:#6352a4;border-color:#8575c6;color:#fff}
+.modegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.modecard{border:1px solid #354156;background:#131c28;border-radius:12px;padding:13px;min-height:125px}.modecard.reco{outline:2px solid #8c7bd3}.modeicon{font-size:24px}.steps{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.step{border:1px solid #3a4558;background:#111925;border-radius:999px;padding:5px 8px;font-size:8px;color:#a8b3c2}.step.active{background:#302a4d;border-color:#65599b;color:#efeaff}.step.done{background:#12251b;border-color:#356549;color:#b9f6d1}
+.workspace3{display:grid;grid-template-columns:230px minmax(0,1fr) 310px;gap:10px}.panel{border:1px solid #303b4d;background:#121a25;border-radius:11px;padding:10px;min-width:0}.visualgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.visualcard{border:1px solid #334052;background:#111a26;border-radius:10px;overflow:hidden}.visualcard.selected{outline:2px solid #9c8fff}.thumb{aspect-ratio:3/4;background:linear-gradient(150deg,#594d7a55,#20445a44),repeating-linear-gradient(45deg,#172131,#172131 8px,#141d2a 8px,#141d2a 16px);display:grid;place-items:center;color:#718094;font-size:8px}.thumb.land{aspect-ratio:4/3}.visualbody{padding:7px}.vtitle{font-size:9px;font-weight:750}.vmeta{font-size:7px;color:#8795a7}.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}.chip{font-size:7px;border:1px solid #3b485b;color:#a9b6c6;border-radius:999px;padding:2px 5px}
+.filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}.filter{padding:5px 7px;font-size:7px;border:1px solid #344155;border-radius:999px;color:#9dabbc;background:#131d29}.filter.active{background:#332c50;border-color:#655a95;color:#efeaff}.input,.select,.textarea{width:100%;background:#0b121c;border:1px solid #344156;color:#e7edf5;border-radius:7px;padding:7px 8px;font-size:8px}.textarea{min-height:92px}
+.comic{width:min(360px,100%);aspect-ratio:3/4;margin:auto;position:relative;overflow:hidden;border:1px solid #3b475a;border-radius:8px;background:linear-gradient(145deg,#566f8850,#563b6940),repeating-linear-gradient(45deg,#17212f,#17212f 12px,#141d29 12px,#141d29 24px)}.bubble{position:absolute;background:#f7f7f5;color:#111;border:2px solid #111;border-radius:45%;padding:9px 11px;font-size:8px;line-height:1.35;max-width:48%}.b1{top:12%;right:6%}
+.dcard{border:1px solid #344052;background:#111925;border-radius:9px;padding:8px;margin-bottom:7px}.dcard.selected{border-color:#8d80c8;background:#1f1c32}.kind{font-size:7px;color:#a9b4c2}.line{font-size:10px;margin:4px 0}.meter{height:5px;background:#273143;border-radius:999px;overflow:hidden}.meter span{display:block;height:100%;background:#8e7ed0}
+.previewrow{display:grid;grid-template-columns:1fr 1fr;gap:7px}.previewcell{border:1px solid #334052;background:#111925;border-radius:8px;padding:7px}.status{display:inline-flex;padding:3px 7px;border-radius:999px;border:1px solid #465166;background:#1a2230;color:#b6c4d6;font-size:8px}.status.good{border-color:#3e7455;background:#12271d;color:#a7f3d0}
+.footer{padding:35px 0 60px;color:#778496;text-align:center;font-size:9px}
+@media(max-width:1100px){.grid4{grid-template-columns:1fr 1fr}.workspace3{grid-template-columns:210px 1fr}.workspace3>.panel:last-child{grid-column:1/-1}.visualgrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){h1{font-size:34px}.nav{display:none}.grid2,.grid3,.grid4,.modegrid,.workspace3,.previewrow{grid-template-columns:1fr}.app{grid-template-columns:1fr}.side{display:none}.visualgrid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body>
+<header class="top"><div class="wrap topin"><div class="brand">SceneWeaver</div><span class="pill">Creator Experience Design R1</span><nav class="nav"><a href="#goal">方針</a><a href="#ia">IA</a><a href="#home">入口</a><a href="#quick">Quick Test</a><a href="#library">Library</a><a href="#dialogue">セリフ</a><a href="#shot">Shot</a><a href="#implementation">実装</a></nav></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">Creator-first information architecture</div><h1>設定するアプリから、<br>見ながら決められる制作ツールへ。</h1><p class="lede">現在のSceneWeaverのDomain、Prompt、Generation、CSP、Release基盤を維持したまま、「次に何をするか」「この設定がどう見えるか」「一度だけ試したいときどこへ行くか」を画面から理解できるようにする追加UI/UX設計。</p><div class="callout good"><b>基本方針:</b> Backendの作り直しではない。既存Project / Story / Wardrobe / Shot / Generation Reviewを残し、その上に「制作工程」「視覚辞書」「軽量検証」のレイヤーを追加する。</div></section>
+
+<section class="section" id="goal"><div class="head"><span class="num">01</span><h2>今回解決する課題</h2></div><div class="grid3"><div class="card"><h4>順番が分からない</h4><p class="small">初見ユーザーが「キャラ→セリフ→衣装→Shot」のどこから始めればよいか判断しにくい。</p></div><div class="card"><h4>結果を想像しにくい</h4><p class="small">pose / outfit / lighting / preset が文字列中心で、生成結果の雰囲気が見えにくい。</p></div><div class="card"><h4>軽く試せない</h4><p class="small">本制作フローに入らず「この衣装だけ」「このPromptだけ」を試す短い導線がない。</p></div></div>
+<h3>設計原則</h3><table><tr><th>原則</th><th>従来</th><th>Creator-first</th></tr><tr><td>選択</td><td>名前・タグ</td><td>サムネイルを見て選び、詳細でPromptを見る</td></tr><tr><td>工程</td><td>機能一覧</td><td>「次にやること」から工程順に移動</td></tr><tr><td>Prompt</td><td>文字列中心</td><td>見た目の部品 → 最終Prompt → 詳細設定</td></tr><tr><td>セリフ</td><td>テキスト候補</td><td>コマ上の配置イメージ + 種類 + 文字量</td></tr><tr><td>検証</td><td>Project / Shotが必要</td><td>Quick Testで1画面完結、良ければ作品へ採用</td></tr></table></section>
+
+<section class="section" id="ia"><div class="head"><span class="num">02</span><h2>Information Architecture</h2></div><pre>SceneWeaver
+│
+├ ホーム
+│   ├ 制作を続ける
+│   ├ かんたん検証        ← NEW
+│   ├ 新しい作品を作る
+│   └ Visual Library      ← NEW
+│
+├ ライブラリ
+│   ├ キャラクター
+│   └ Visual Library
+│       ├ 衣装
+│       ├ ポーズ
+│       ├ 表情
+│       ├ 構図
+│       ├ 照明
+│       └ 背景
+│
+├ Project
+│   ├ 概要 / 次にやること
+│   ├ ストーリー
+│   │   ├ シーン / 展開
+│   │   ├ セリフ候補
+│   │   └ コマプレビュー ← NEW
+│   ├ 衣装
+│   ├ ショット
+│   │   ├ 見た目の部品   ← NEW
+│   │   ├ Prompt
+│   │   ├ 詳細設定
+│   │   ├ 生成結果
+│   │   └ 履歴
+│   ├ CLIP STUDIO
+│   └ 公開準備
+│
+└ システム
+    ├ 外部連携
+    └ 設定</pre></section>
+
+<section class="section" id="home"><div class="head"><span class="num">03</span><h2>Home — 「何をしたいか」から始める</h2></div>
+<div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Home</span></div><div class="app"><aside class="side"><div class="logo">SceneWeaver</div><div class="ng">Create</div><div class="ni active">⌂ ホーム</div><div class="ni">⚡ かんたん検証</div><div class="ni">▣ プロジェクト</div><div class="ng">Library</div><div class="ni">♙ キャラクター</div><div class="ni">▦ Visual Library</div><div class="ng">System</div><div class="ni">⌁ 外部連携</div><div class="ni">⚙ 設定</div></aside><div class="main"><div class="appbar"><strong>今日は何をしますか？</strong><div class="actions"><span class="status good">ComfyUI 接続済み</span></div></div><div class="content"><h3 style="margin-top:0">作業を始める</h3><div class="modegrid"><div class="modecard reco"><div class="modeicon">🎬</div><h4>作品制作を続ける</h4><div class="small">Projectの進捗から次に必要な作業へ進みます。</div><p><button class="btn primary">Project A を続ける</button></p></div><div class="modecard"><div class="modeicon">⚡</div><h4>かんたん検証</h4><div class="small">衣装、ポーズ、Promptを1回だけ試します。Project不要。</div><p><button class="btn">試してみる</button></p></div><div class="modecard"><div class="modeicon">▦</div><h4>素材を見る</h4><div class="small">衣装、ポーズ、表情、構図を画像から探します。</div><p><button class="btn">Visual Library</button></p></div></div><h3>最近の作品</h3><div class="grid3"><div class="card"><h4>カフェの寄り道</h4><p class="small">3 / 8 Shot 完成</p><span class="status">次: Shot 4 の画像採用</span></div><div class="card"><h4>放課後の教室</h4><p class="small">Story作成中</p><span class="status">次: セリフ確定</span></div><div class="card"><h4>衣装テスト</h4><p class="small">2日前</p><span class="status good">完成</span></div></div></div></div></div></div></section>
+
+<section class="section" id="quick"><div class="head"><span class="num">04</span><h2>Quick Test / かんたん検証</h2></div><p class="lede">Project / Scene / Beat / Shotを事前作成せず、一度だけ生成を試す軽量モード。良かった設定だけ本制作へ移す。</p>
+<div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Quick Test</span></div><div class="content"><div class="steps"><span class="step done">1 キャラクター</span><span class="step active">2 見た目</span><span class="step">3 生成</span><span class="step">4 比較</span></div><div class="workspace3"><div class="panel"><h4>基本設定</h4><div class="select">リゼヘル</div><h4>選択済み</h4><div class="chips"><span class="chip">Cardigan ×</span><span class="chip">振り向き ×</span><span class="chip">照れ ×</span><span class="chip">膝上 ×</span></div><p><button class="btn primary">4枚生成する</button></p></div><div class="panel"><h4>見た目から選ぶ</h4><div class="filters"><span class="filter">衣装</span><span class="filter active">ポーズ</span><span class="filter">表情</span><span class="filter">構図</span></div><div class="visualgrid"><div class="visualcard selected"><div class="thumb">参考画像</div><div class="visualbody"><div class="vtitle">振り向き</div><div class="vmeta">look_over_shoulder</div></div></div><div class="visualcard"><div class="thumb">参考画像</div><div class="visualbody"><div class="vtitle">正面立ち</div></div></div><div class="visualcard"><div class="thumb">参考画像</div><div class="visualbody"><div class="vtitle">腰に手</div></div></div><div class="visualcard"><div class="thumb">参考画像</div><div class="visualbody"><div class="vtitle">頬に手</div></div></div></div></div><div class="panel"><h4>この設定で生成される内容</h4><div class="previewcell"><b>衣装</b><div class="small">Soft Knit Cardigan</div></div><div class="previewcell"><b>ポーズ</b><div class="small">振り向き</div></div><div class="previewcell"><b>構図</b><div class="small">膝上 / eye level</div></div><details><summary class="small">Promptを見る</summary><pre>1girl, ..., cardigan, look over shoulder, cowboy shot, ...</pre></details></div></div></div></div>
+<table><tr><th>項目</th><th>仕様</th></tr><tr><td>Project</td><td>不要。任意で既存Project contextを指定可能。</td></tr><tr><td>保存</td><td>QuickTestRunとして履歴保存。作品状態へは影響しない。</td></tr><tr><td>採用</td><td>Shotへ採用 / OutfitPreset保存 / PosePreset保存。</td></tr><tr><td>用途</td><td>Prompt比較、LoRA確認、衣装試作、Pose確認、Lighting比較。</td></tr></table></section>
+
+<section class="section" id="library"><div class="head"><span class="num">05</span><h2>Visual Library — 見た目から探す辞書</h2></div><p class="lede">Prompt Libraryを「文字列の倉庫」から「生成部品の視覚辞書」へ拡張。カードの主役はサンプル画像と人間向け名称。</p>
+<div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Visual Library</span></div><div class="content"><div class="input">検索: 「制服」「振り向き」「夕方」...</div><div class="filters" style="margin-top:8px"><span class="filter">すべて</span><span class="filter active">衣装</span><span class="filter">ポーズ</span><span class="filter">表情</span><span class="filter">構図</span><span class="filter">照明</span><span class="filter">背景</span></div><div class="visualgrid"><div class="visualcard"><div class="thumb">サンプル</div><div class="visualbody"><div class="vtitle">カーディガン制服</div><div class="vmeta">costume / general</div><div class="chips"><span class="chip">制服</span><span class="chip">秋冬</span></div></div></div><div class="visualcard"><div class="thumb">サンプル</div><div class="visualbody"><div class="vtitle">セーラー夏服</div><div class="vmeta">costume / general</div></div></div><div class="visualcard"><div class="thumb">サンプル</div><div class="visualbody"><div class="vtitle">ゴシックワンピース</div><div class="vmeta">costume / general</div></div></div><div class="visualcard"><div class="thumb">サンプル</div><div class="visualbody"><div class="vtitle">オーバーサイズパーカー</div><div class="vmeta">costume / general</div></div></div></div></div></div>
+<pre>{
+  "preset_id": "costume:cardigan_uniform",
+  "label_ja": "カーディガン制服",
+  "category": "costume",
+  "thumbnail_asset_id": "...",
+  "prompt_fragment": "school uniform, cardigan, pleated skirt",
+  "content_rating": "general",
+  "model_scope": ["anima"],
+  "tags": ["制服", "秋冬"],
+  "related": ["pose:standing_front", "pose:look_over_shoulder"]
+}</pre><div class="callout warn"><b>サンプル画像:</b> 「このPromptなら必ずこの見た目」ではなく、Preset理解用のrepresentative preview。モデル・キャラ・seedによる差を明示する。</div></section>
+
+<section class="section" id="dialogue"><div class="head"><span class="num">06</span><h2>Story — セリフがどこに入るかを見せる</h2></div><p class="lede">StoryでCSPの本格組版を行うのではなく、「この文章が漫画上でどういう役割になるか」を理解できる簡易プレビューを表示する。</p>
+<div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Story</span></div><div class="content"><div class="steps"><span class="step done">キャラ</span><span class="step done">シーン</span><span class="step active">展開・セリフ</span><span class="step">ショット</span></div><div class="workspace3"><div class="panel"><h4>シーン</h4><button class="btn primary" style="width:100%">Cafe</button><h4>展開</h4><button class="btn primary" style="width:100%">もう少し一緒にいたい</button><h4>前から引き継ぐ</h4><div class="small">衣装: Cardigan</div><div class="small">感情: 少し照れている</div><div class="small">場所: Cafe</div></div><div class="panel"><h4>セリフ候補</h4><div class="dcard selected"><div class="kind">吹き出し · 22文字</div><div class="line">「えへへ、まだ帰らなくてもいいですよ？」</div><div class="meter"><span style="width:48%"></span></div></div><div class="dcard"><div class="kind">吹き出し · 19文字</div><div class="line">「じゃあ、もうちょっとだけ一緒に。」</div></div><div class="dcard"><div class="kind">モノローグ · 27文字</div><div class="line">（もう少しだけ、この時間が続けばいいのに。）</div></div><p><button class="btn primary">選択して編集</button> <button class="btn">候補を再生成</button></p></div><div class="panel"><h4>コマ上のイメージ</h4><div class="comic"><div class="bubble b1">えへへ、まだ帰らなくてもいいですよ？</div></div><p class="small">※ 仮配置。最終的な吹き出し位置・形状はCLIP STUDIOで調整。</p></div></div></div></div>
+<table><tr><th>ScriptEvent.kind</th><th>Story表示</th><th>CSP想定</th></tr><tr><td>speech</td><td>吹き出し</td><td>通常吹き出し</td></tr><tr><td>inner_voice</td><td>内心 / モノローグ</td><td>心内語表現</td></tr><tr><td>narration</td><td>ナレーション帯</td><td>四角形テキスト枠</td></tr><tr><td>caption</td><td>キャプション</td><td>小型説明枠</td></tr><tr><td>offpanel_voice</td><td>画面外セリフ</td><td>画面外の話者</td></tr><tr><td>sfx</td><td>効果音</td><td>描き文字</td></tr></table><div class="callout"><b>責務境界:</b> SceneWeaverは意味と仮配置のみ。吹き出し形状や最終座標はCSP。</div></section>
+
+<section class="section" id="wardrobe"><div class="head"><span class="num">07</span><h2>Wardrobe — 服名ではなく見た目で選ぶ</h2></div><div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Wardrobe</span></div><div class="content"><div class="input">衣装を検索</div><div class="filters" style="margin-top:8px"><span class="filter active">おすすめ</span><span class="filter">制服</span><span class="filter">私服</span><span class="filter">ドレス</span><span class="filter">スポーティ</span></div><div class="visualgrid"><div class="visualcard selected"><div class="thumb">衣装見本</div><div class="visualbody"><div class="vtitle">Soft Knit Cardigan</div><div class="vmeta">柔らかいカーディガン + スカート</div></div></div><div class="visualcard"><div class="thumb">衣装見本</div><div class="visualbody"><div class="vtitle">Summer Sailor</div></div></div><div class="visualcard"><div class="thumb">衣装見本</div><div class="visualbody"><div class="vtitle">Gothic Dress</div></div></div><div class="visualcard"><div class="thumb">衣装見本</div><div class="visualbody"><div class="vtitle">Casual Hoodie</div></div></div></div><p style="text-align:right"><button class="btn">詳細を見る</button> <button class="btn primary">この衣装を試着</button></p></div></div></section>
+
+<section class="section" id="shot"><div class="head"><span class="num">08</span><h2>Shot Studio — Promptの前に見た目の部品を置く</h2></div><p class="lede">現在の「基本設定 → Prompt → 詳細設定」は維持し、Promptセクションに「見た目の部品」タブを追加する。</p>
+<div class="screen"><div class="windowbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wtitle">SceneWeaver — Shot Studio</span></div><div class="content"><div class="steps"><span class="step done">セリフ確定</span><span class="step done">衣装</span><span class="step active">ショット</span><span class="step">画像採用</span><span class="step">CSP</span></div><div class="grid2"><div class="panel"><h4>基本設定</h4><div class="previewrow"><div class="previewcell"><b>Character</b><div class="small">リゼヘル</div></div><div class="previewcell"><b>Outfit</b><div class="small">Soft Knit Cardigan</div></div><div class="previewcell"><b>Expression</b><div class="small">少し照れる</div></div><div class="previewcell"><b>Pose</b><div class="small">振り向き</div></div><div class="previewcell"><b>Camera</b><div class="small">膝上</div></div><div class="previewcell"><b>Background</b><div class="small">Cafe</div></div></div></div><div class="panel"><h4>コマの意図</h4><p class="small">「まだ帰りたくない」という気持ちを、少し照れた表情と振り向きで見せる。</p><h4>セリフ</h4><div class="dcard"><div class="kind">speech</div><div class="line">「えへへ、まだ帰らなくてもいいですよ？」</div></div></div></div><h3>Prompt</h3><div class="panel"><div class="filters"><span class="filter active">見た目の部品</span><span class="filter">生成Prompt</span><span class="filter">生成ルール</span></div><div class="grid3"><div class="previewcell"><b>衣装</b><div class="small">Cardigan Uniform</div><div class="thumb land">preview</div></div><div class="previewcell"><b>ポーズ</b><div class="small">Look Over Shoulder</div><div class="thumb land">preview</div></div><div class="previewcell"><b>構図</b><div class="small">Cowboy Shot</div><div class="thumb land">preview</div></div></div><details><summary class="small">最終Promptを編集</summary><textarea class="textarea">1girl, ..., cardigan, look over shoulder, cowboy shot, cafe, soft indoor lighting...</textarea></details><p style="text-align:right"><button class="btn primary">4枚生成する</button></p></div></div></div></section>
+
+<section class="section" id="dashboard"><div class="head"><span class="num">09</span><h2>Project Dashboard — 次にやることを工程で示す</h2></div><div class="grid2"><div class="card"><h4>作品全体</h4><div class="flow"><div class="node">Story<br><span class="small">8 / 8 確定</span></div><div class="arrow">→</div><div class="node">Shots<br><span class="small">4 / 8 採用</span></div><div class="arrow">→</div><div class="node">CSP<br><span class="small">未出力</span></div><div class="arrow">→</div><div class="node">Release<br><span class="small">未準備</span></div></div></div><div class="card"><h4>次にやること</h4><div class="dcard"><b>Shot 4</b><div class="small">画像候補の採用待ち</div></div><div class="dcard"><b>Shot 5</b><div class="small">ポーズ未選択</div></div><div class="dcard"><b>Scene 3</b><div class="small">セリフ未確定</div></div></div></div></section>
+
+<section class="section" id="flow"><div class="head"><span class="num">10</span><h2>制作順序をUIとして固定</h2></div><div class="flow"><div class="node">1 Project</div><div class="arrow">→</div><div class="node">2 Character</div><div class="arrow">→</div><div class="node">3 Story</div><div class="arrow">→</div><div class="node">4 Wardrobe</div><div class="arrow">→</div><div class="node">5 Shot</div><div class="arrow">→</div><div class="node">6 Review</div><div class="arrow">→</div><div class="node">7 CSP</div><div class="arrow">→</div><div class="node">8 Release</div></div>
+<table style="margin-top:12px"><tr><th>画面</th><th>完了条件</th><th>次へ</th></tr><tr><td>Character</td><td>VisualIdentity + Persona最低限</td><td>ストーリーを作る</td></tr><tr><td>Story</td><td>ScriptEvent locked</td><td>衣装を決める</td></tr><tr><td>Wardrobe</td><td>OutfitState決定</td><td>ショットを作る</td></tr><tr><td>Shot</td><td>PromptDraft fresh</td><td>生成する</td></tr><tr><td>Review</td><td>Asset adopted</td><td>次Shot / CSP</td></tr><tr><td>CSP</td><td>Handoff作成済み</td><td>公開準備</td></tr></table></section>
+
+<section class="section" id="domain"><div class="head"><span class="num">11</span><h2>Domain / Data追加</h2></div><pre>VisualPresetMetadata
+├ thumbnail_asset_id
+├ label_ja
+├ description_ja
+├ tags[]
+├ category / subcategory
+├ content_rating
+├ recommended_with[]
+├ sample_generation_ids[]
+└ source / source_ref
+
+DialoguePresentationHint
+├ script_event_id
+├ presentation_kind
+│   ├ speech_bubble
+│   ├ inner_voice
+│   ├ narration_box
+│   ├ caption
+│   └ sfx
+├ preferred_region
+├ emphasis
+└ note
+
+QuickTestRun
+├ id
+├ purpose
+├ character_id?
+├ selected_preset_ids[]
+├ prompt_snapshot
+├ generation_attempt_ids[]
+├ adopted_to_project_id?
+└ adopted_to_shot_id?</pre><div class="callout warn"><b>非ゴール:</b> Balloon geometry、フォントサイズ、CSP layer構造までは持たない。PresentationHintは仮配置とhandoff hintのみ。</div></section>
+
+<section class="section" id="api"><div class="head"><span class="num">12</span><h2>API追加案</h2></div><table><tr><th>API</th><th>用途</th></tr><tr><td>GET /api/v1/visual-presets</td><td>Visual Library一覧。category/tag/model/rating filter。</td></tr><tr><td>GET /api/v1/visual-presets/{id}</td><td>画像、説明、Prompt fragment、関連Preset。</td></tr><tr><td>POST /api/v1/quick-tests</td><td>軽量生成context作成。</td></tr><tr><td>POST /api/v1/quick-tests/{id}/render</td><td>4候補生成。</td></tr><tr><td>POST /api/v1/quick-tests/{id}/adopt-to-shot</td><td>設定をProject/Shotへ移す。</td></tr><tr><td>PUT /api/v1/script-events/{id}/presentation-hint</td><td>吹き出し/ナレーション等の表示ヒント。</td></tr><tr><td>GET /api/v1/projects/{id}/workflow-status</td><td>次工程・未決定項目の集約。</td></tr></table></section>
+
+<section class="section" id="implementation"><div class="head"><span class="num">13</span><h2>実装計画</h2></div><table><tr><th>PR</th><th>テーマ</th><th>主な変更</th><th>Backend影響</th></tr><tr><td>CE-1</td><td>Workflow Guidance</td><td>Home入口、Project工程表示、各画面「次へ」</td><td>小</td></tr><tr><td>CE-2</td><td>Visual Library Foundation</td><td>thumbnail metadata、一覧、filter、detail</td><td>中</td></tr><tr><td>CE-3</td><td>Story Comic Preview</td><td>presentation kind、仮コマ表示</td><td>中</td></tr><tr><td>CE-4</td><td>Shot Visual Parts</td><td>Prompt前にvisual component cards</td><td>小</td></tr><tr><td>CE-5</td><td>Quick Test</td><td>Project不要の軽量生成、Shotへ採用</td><td>中</td></tr><tr><td>CE-6</td><td>Visual Asset Seeding</td><td>Legacy Prompt Libraryにpreview割当</td><td>データ中心</td></tr></table>
+<div class="flow" style="margin-top:12px"><div class="node">CE-1<br>作る順番</div><div class="arrow">→</div><div class="node">CE-2<br>見た目辞書</div><div class="arrow">→</div><div class="node">CE-3<br>セリフ可視化</div><div class="arrow">→</div><div class="node">CE-4<br>Shot連携</div><div class="arrow">→</div><div class="node">CE-5<br>Quick Test</div></div></section>
+
+<section class="section" id="acceptance"><div class="head"><span class="num">14</span><h2>受入条件</h2></div><table><tr><th>ID</th><th>Acceptance</th></tr><tr><td>CX-01</td><td>Homeから「作品制作」「かんたん検証」「素材を見る」の3目的へ1クリックで移動。</td></tr><tr><td>CX-02</td><td>Project Dashboardだけで次に必要な工程を判断できる。</td></tr><tr><td>CX-03</td><td>衣装 / Pose / Expression / CameraをPrompt文字列を読まずにサンプル画像から選べる。</td></tr><tr><td>CX-04</td><td>Storyでspeech / inner_voice / narration / sfxの違いを仮コマで確認できる。</td></tr><tr><td>CX-05</td><td>Shot Studioで「見た目の部品」と「実際のPrompt」を行き来できる。</td></tr><tr><td>CX-06</td><td>Quick TestはProjectなしで4候補生成まで完了できる。</td></tr><tr><td>CX-07</td><td>Quick Test結果を既存ProjectのShotへ移せる。</td></tr><tr><td>CX-08</td><td>mobileでもVisual Libraryは2列、横overflow 0。</td></tr><tr><td>CX-09</td><td>サンプル画像がreferenceかgeneratedかを識別できる。</td></tr><tr><td>CX-10</td><td>Prompt / provenance / technical IDは必要時に確認できるが通常操作を圧迫しない。</td></tr></table></section>
+
+<section class="section"><div class="head"><span class="num">15</span><h2>最終イメージ</h2></div><pre>「振り向きってどんなPose？」
+        ↓
+Visual Libraryで画像から選ぶ
+        ↓
+「この衣装と組み合わせたら？」
+        ↓
+Quick Testで4枚生成
+        ↓
+良かった設定をShotへ採用
+        ↓
+Storyのセリフをコマ上で確認
+        ↓
+Shot Studioで見た目の部品を確認
+        ↓
+必要ならPromptだけ手編集
+        ↓
+Generation Reviewで画像を採用
+        ↓
+CSPへ画像 + セリフ + Presentation Hint
+        ↓
+仕上げ → Release</pre><div class="callout good"><b>目標:</b> Prompt専門知識がなくても「見た目 → 意味 → Prompt」の順で制作できる。一方、必要なユーザーはSeed、Model、Workflowまで降りられる。</div></section>
+
+<div class="footer">SceneWeaver · Creator Experience Design R1 · Visual-first / Workflow-guided / Quick-test capable</div>
+</main></body></html>

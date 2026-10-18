@@ -78,6 +78,17 @@ function AppShell() {
         <span>{t('nav.projects')}</span>
       </Link>
       <Link
+        to="/quick-test"
+        activeOptions={{ exact: true }}
+        data-testid="nav-quick-test"
+        aria-label={t('nav.quickTest')}
+        title={t('nav.quickTest')}
+      >
+        <StudioIcon name="review" />
+        <span>{t('nav.quickTest')}</span>
+      </Link>
+      <p className="nav-group">{t('shell.library')}</p>
+      <Link
         to="/characters"
         activeOptions={{ exact: true }}
         data-testid="nav-characters"
@@ -86,6 +97,16 @@ function AppShell() {
       >
         <StudioIcon name="characters" />
         <span>{t('nav.characters')}</span>
+      </Link>
+      <Link
+        to="/visual-library"
+        activeOptions={{ exact: true }}
+        data-testid="nav-visual-library"
+        aria-label={t('nav.visualLibrary')}
+        title={t('nav.visualLibrary')}
+      >
+        <StudioIcon name="wardrobe" />
+        <span>{t('nav.visualLibrary')}</span>
       </Link>
       {projectId && (
         <>

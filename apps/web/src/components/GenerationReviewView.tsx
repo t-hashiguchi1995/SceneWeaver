@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from './AssetImage'
 import { ErrorBanner } from './ErrorBanner'
+import { WorkflowCompletionCard } from './WorkflowCompletionCard'
 import {
   api,
   saveStudioContext,
@@ -25,7 +26,7 @@ export type GenerationReviewViewProps = {
 }
 
 export function GenerationReviewView({ shotId, attemptId, projectId }: GenerationReviewViewProps) {
-  const { t } = useTranslation(['generation', 'common', 'prompt'])
+  const { t } = useTranslation(['generation', 'common', 'prompt', 'project'])
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [selectedAttemptId, setSelectedAttemptId] = useState(attemptId ?? '')
@@ -386,6 +387,23 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
           </details>
         </div>
       </div>
+      {adoptedId && projectId && (
+        <WorkflowCompletionCard
+          testId="review-next-csp"
+          title={t('project:completion.reviewTitle')}
+          description={t('project:completion.reviewDescription')}
+          action={
+            <Link
+              className="btn primary"
+              to="/projects/$projectId/csp"
+              params={{ projectId }}
+              data-testid="review-next-csp-action"
+            >
+              {t('project:completion.reviewAction')}
+            </Link>
+          }
+        />
+      )}
     </section>
   )
 }

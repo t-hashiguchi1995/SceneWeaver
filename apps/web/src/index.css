@@ -358,6 +358,64 @@ code {
   padding: 0.55rem 0.8rem;
 }
 
+.intent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin: 0 0 1.5rem;
+}
+
+.intent-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.intent-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  transform: translateY(-1px);
+}
+
+.intent-card h3 {
+  margin: 0 0 0.35rem;
+}
+
+.intent-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.workflow-stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workflow-stages li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+
+.workflow-stages li[data-status='complete'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.workflow-primary,
+.workflow-completion-card {
+  margin: 1rem 0;
+}
+
+.workflow-completion-card .lede {
+  margin-bottom: 0.85rem;
+}
+
 .wardrobe-tabs,
 .story-nav-list {
   display: flex;

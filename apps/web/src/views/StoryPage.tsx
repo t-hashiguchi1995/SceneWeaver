@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useParams, useSearch } from '@tanstack/react-router'
+import { Link, useParams, useSearch } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import {
   api,
   loadStudioContext,
@@ -11,7 +12,7 @@ import {
 } from '../lib/api'
 
 export function StoryPage() {
-  const { t } = useTranslation('story')
+  const { t } = useTranslation(['story', 'project'])
   const params = useParams({ strict: false })
   const search = useSearch({ strict: false }) as { sceneId?: string; beatId?: string }
   const qc = useQueryClient()
@@ -414,6 +415,23 @@ export function StoryPage() {
           )}
         </aside>
       </div>
+      {lockedId && projectId && (
+        <WorkflowCompletionCard
+          testId="story-next-wardrobe"
+          title={t('project:completion.storyTitle')}
+          description={t('project:completion.storyDescription')}
+          action={
+            <Link
+              className="btn primary"
+              to="/projects/$projectId/wardrobe"
+              params={{ projectId }}
+              data-testid="story-next-wardrobe-action"
+            >
+              {t('project:completion.storyAction')}
+            </Link>
+          }
+        />
+      )}
     </section>
   )
 }

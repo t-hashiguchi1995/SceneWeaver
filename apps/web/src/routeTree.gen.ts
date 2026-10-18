@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuickTestRouteImport } from './routes/quick-test'
+import { Route as VisualLibraryRouteImport } from './routes/visual-library'
 import { Route as CapabilitiesIndexRouteImport } from './routes/capabilities/index'
 import { Route as CharactersIndexRouteImport } from './routes/characters/index'
 import { Route as CharactersCharacterIdRouteImport } from './routes/characters/$characterId'
@@ -40,6 +42,16 @@ import { Route as ProjectsProjectIdShotsShotIdGenerationsAttemptIdRouteImport } 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuickTestRoute = QuickTestRouteImport.update({
+  id: '/quick-test',
+  path: '/quick-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisualLibraryRoute = VisualLibraryRouteImport.update({
+  id: '/visual-library',
+  path: '/visual-library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CapabilitiesIndexRoute = CapabilitiesIndexRouteImport.update({
@@ -182,6 +194,8 @@ const ProjectsProjectIdShotsShotIdGenerationsAttemptIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/quick-test': typeof QuickTestRoute
+  '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities/': typeof CapabilitiesIndexRoute
@@ -211,6 +225,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/quick-test': typeof QuickTestRoute
+  '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities': typeof CapabilitiesIndexRoute
@@ -241,6 +257,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/quick-test': typeof QuickTestRoute
+  '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/capabilities/': typeof CapabilitiesIndexRoute
@@ -272,6 +290,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/quick-test'
+    | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
     | '/capabilities/'
@@ -301,6 +321,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/quick-test'
+    | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
     | '/capabilities'
@@ -330,6 +352,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/quick-test'
+    | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
     | '/capabilities/'
@@ -360,6 +384,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  QuickTestRoute: typeof QuickTestRoute
+  VisualLibraryRoute: typeof VisualLibraryRoute
   CharactersCharacterIdRoute: typeof CharactersCharacterIdRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   CapabilitiesIndexRoute: typeof CapabilitiesIndexRoute
@@ -392,6 +418,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quick-test': {
+      id: '/quick-test'
+      path: '/quick-test'
+      fullPath: '/quick-test'
+      preLoaderRoute: typeof QuickTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visual-library': {
+      id: '/visual-library'
+      path: '/visual-library'
+      fullPath: '/visual-library'
+      preLoaderRoute: typeof VisualLibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/capabilities/': {
@@ -626,6 +666,8 @@ const ProjectsProjectIdShotsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  QuickTestRoute: QuickTestRoute,
+  VisualLibraryRoute: VisualLibraryRoute,
   CharactersCharacterIdRoute: CharactersCharacterIdRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   CapabilitiesIndexRoute: CapabilitiesIndexRoute,

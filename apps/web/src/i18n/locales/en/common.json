@@ -13,7 +13,9 @@
     "integrations": "Integrations",
     "settings": "Settings",
     "jobs": "Jobs",
-    "capabilities": "Capabilities"
+    "capabilities": "Capabilities",
+    "quickTest": "Quick Test",
+    "visualLibrary": "Visual Library"
   },
   "actions": {
     "create": "Create",
@@ -70,6 +72,7 @@
     "skip": "Skip to content",
     "navigation": "Main navigation",
     "create": "Create",
+    "library": "Library",
     "finish": "Finish",
     "system": "System",
     "menu": "Menu",
