@@ -1,0 +1,187 @@
+{
+  "viewport": {
+    "name": "desktop",
+    "width": 1280,
+    "height": 800
+  },
+  "appCodeCommit": "80ff99519740902eac62ed64b54493c389e50cc4",
+  "captureSpecSha256": "43a9e508406b8ab1c03ef7a6787088ebd21c3f0d30874c32c800bef704dcf8f7",
+  "environment": "live-test; real ComfyUI; stub LLM; NO asset content substitution",
+  "imageBackend": "comfy",
+  "capabilities": {
+    "BaseRender": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "anima_base",
+      "detail": "comfy online"
+    },
+    "OutfitTryOn": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "qwen_image_edit_2509",
+      "detail": "comfy online"
+    }
+  },
+  "captures": [
+    {
+      "file": "01_home.png",
+      "state": "live stack; real Comfy backend",
+      "path": "/",
+      "headings": [
+        "処理状況",
+        "制作を続けましょう",
+        "今日は何をしますか？",
+        "最近のプロジェクト",
+        "実行中・待機中"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "02_visual_library_pose.png",
+      "state": "CE-2 catalog on live stack",
+      "path": "/visual-library",
+      "headings": [
+        "処理状況",
+        "素材ライブラリ"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "03_project_dashboard.png",
+      "state": "workflow guidance",
+      "path": "/projects/257bec543a7541bc83a6230625",
+      "headings": [
+        "処理状況",
+        "E2E m4_visual",
+        "制作の進み具合",
+        "いま進める工程",
+        "シーン",
+        "ビート",
+        "キャラクター",
+        "ショット",
+        "生成履歴",
+        "採用画像",
+        "要確認",
+        "ショット"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "04_wardrobe_market.png",
+      "state": "outfit selected before try-on",
+      "path": "/projects/257bec543a7541bc83a6230625/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装",
+        "Soft Knit Cardigan"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "05_tryon_generating.png",
+      "state": "try-on 待機中; real Comfy OutfitTryOn",
+      "path": "/projects/257bec543a7541bc83a6230625/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "06_tryon_review.png",
+      "state": "real Comfy try-on candidates (no image substitution)",
+      "path": "/projects/257bec543a7541bc83a6230625/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装",
+        "選択候補のプレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "07_tryon_adopted.png",
+      "state": "adopted try-on look",
+      "path": "/projects/257bec543a7541bc83a6230625/wardrobe",
+      "headings": [
+        "処理状況",
+        "衣装",
+        "採用済み衣装 1"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "08_shot_studio.png",
+      "state": "shot ready; real backend",
+      "path": "/projects/257bec543a7541bc83a6230625/shots/2c2922fff9d4459f8be4aa4f4b",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "09_generating.png",
+      "state": "real Comfy BaseRender in progress",
+      "path": "/projects/257bec543a7541bc83a6230625/shots/2c2922fff9d4459f8be4aa4f4b",
+      "headings": [
+        "処理状況",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "10_generation_review.png",
+      "state": "real Comfy generation candidates (no substitution)",
+      "path": "/projects/257bec543a7541bc83a6230625/shots/2c2922fff9d4459f8be4aa4f4b/generations/c7a2719d60b747888c5d631882",
+      "headings": [
+        "処理状況",
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "11_adopted_candidate.png",
+      "state": "adopted real generation asset",
+      "path": "/projects/257bec543a7541bc83a6230625/shots/2c2922fff9d4459f8be4aa4f4b/generations/c7a2719d60b747888c5d631882",
+      "headings": [
+        "処理状況",
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "12_csp.png",
+      "state": "CSP handoff with real adopted panel bytes",
+      "path": "/projects/257bec543a7541bc83a6230625/csp",
+      "headings": [
+        "処理状況",
+        "CLIP STUDIO連携",
+        "Panel 1"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "13_release.png",
+      "state": "release preview after live generation",
+      "path": "/projects/257bec543a7541bc83a6230625/release",
+      "headings": [
+        "処理状況",
+        "公開準備",
+        "マスター",
+        "プラットフォーム別プレビュー"
+      ],
+      "horizontalOverflow": false
+    }
+  ],
+  "pageErrors": []
+}
