@@ -1,5 +1,5 @@
 {
-  "title": "Projects",
+  "title": "Project",
   "newTitlePlaceholder": "New project title",
   "newTitleAria": "New project title",
   "status": "Status",
@@ -7,22 +7,65 @@
   "id": "ID",
   "createdAt": "Created",
   "updatedAt": "Updated",
-  "detailHint": "Continue from Story / Wardrobe / Shot screens.",
+  "detailHint": "Continue from Story, Wardrobe, or Shots.",
   "nextActions": "Next actions",
+  "primaryNext": "Primary next step",
   "recentShots": "Shots",
-  "metadata": "Project information",
+  "metadata": "Project details",
+  "workflowTitle": "Workflow progress",
+  "stages": {
+    "story": "Story / dialogue",
+    "shots": "Shot production",
+    "csp": "CLIP STUDIO",
+    "release": "Release prep"
+  },
+  "stageStatus": {
+    "complete": "Complete",
+    "in_progress": "In progress",
+    "not_started": "Not started",
+    "ready": "Ready to start",
+    "waiting": "Not ready yet",
+    "csp_pending": "Not exported",
+    "csp_done": "Exported",
+    "release_after_csp": "After CSP"
+  },
+  "progressCount": "{{done}} / {{total}}",
+  "primary": {
+    "create_story": "Start the story",
+    "continue_story": "Lock dialogue",
+    "choose_outfit": "Choose an outfit",
+    "configure_shot": "Configure a shot",
+    "review_generation": "Review generations",
+    "create_csp_handoff": "Build CLIP STUDIO handoff",
+    "prepare_release": "Prepare release",
+    "complete": "Workflow is complete"
+  },
+  "completion": {
+    "storyTitle": "Dialogue locked for this beat",
+    "storyDescription": "You can choose an outfit next. Optional, but recommended.",
+    "storyAction": "Go to Wardrobe",
+    "wardrobeTitle": "Outfit adopted",
+    "wardrobeDescription": "Next, create a shot and generate images.",
+    "wardrobeAction": "Go to Shots",
+    "reviewTitle": "Image adopted",
+    "reviewDescription": "Next, build a CLIP STUDIO handoff.",
+    "reviewAction": "Go to CLIP STUDIO",
+    "cspTitle": "Handoff created",
+    "cspDescription": "Next, preview release editions.",
+    "cspAction": "Go to Release"
+  },
   "counts": {
     "scenes": "Scenes",
     "beats": "Beats",
     "characters": "Characters",
     "shots": "Shots",
     "generations": "Generations",
-    "adopted": "Adopted",
-    "pending": "To review"
+    "adopted": "Adopted images",
+    "pending": "Needs review"
   },
   "actions": {
-    "prompt_stale": "Prompt needs rebuilding",
-    "shot_stale": "Shot needs replanning",
+    "prompt_stale": "Prompt needs rebuild",
+    "shot_stale": "Shot needs replan",
     "generation_pending": "Review generation",
     "dialogue_unlocked": "Lock dialogue"
   }

@@ -13,7 +13,9 @@
     "integrations": "外部連携",
     "settings": "設定",
     "jobs": "処理状況",
-    "capabilities": "機能"
+    "capabilities": "機能",
+    "quickTest": "かんたん検証",
+    "visualLibrary": "Visual Library"
   },
   "actions": {
     "create": "作成",
@@ -70,6 +72,7 @@
     "skip": "本文へ移動",
     "navigation": "メインナビゲーション",
     "create": "制作",
+    "library": "ライブラリ",
     "finish": "仕上げ",
     "system": "システム",
     "menu": "メニュー",

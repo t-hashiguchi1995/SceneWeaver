@@ -9,8 +9,51 @@
   "updatedAt": "更新日時",
   "detailHint": "ストーリー / 衣装 / ショットは各画面から続けられます。",
   "nextActions": "次にすること",
+  "primaryNext": "いま進める工程",
   "recentShots": "ショット",
   "metadata": "プロジェクト情報",
+  "workflowTitle": "制作の進み具合",
+  "stages": {
+    "story": "Story / セリフ",
+    "shots": "ショット制作",
+    "csp": "CLIP STUDIO",
+    "release": "公開準備"
+  },
+  "stageStatus": {
+    "complete": "完了",
+    "in_progress": "進行中",
+    "not_started": "未開始",
+    "ready": "開始可能",
+    "waiting": "まだ開始できません",
+    "csp_pending": "未出力",
+    "csp_done": "出力済み",
+    "release_after_csp": "CSP完了後"
+  },
+  "progressCount": "{{done}} / {{total}}",
+  "primary": {
+    "create_story": "ストーリーを作り始める",
+    "continue_story": "セリフを確定する",
+    "choose_outfit": "衣装を決める",
+    "configure_shot": "ショットを設定する",
+    "review_generation": "生成結果を確認する",
+    "create_csp_handoff": "CLIP STUDIOへ出力する",
+    "prepare_release": "公開準備へ進む",
+    "complete": "制作工程は一通り完了しています"
+  },
+  "completion": {
+    "storyTitle": "この展開のセリフは確定済み",
+    "storyDescription": "次は衣装を決められます。必須ではありませんが、おすすめの次工程です。",
+    "storyAction": "衣装へ進む",
+    "wardrobeTitle": "衣装を採用しました",
+    "wardrobeDescription": "次はショットを作って画像を生成できます。",
+    "wardrobeAction": "ショットへ進む",
+    "reviewTitle": "画像を採用しました",
+    "reviewDescription": "次はCLIP STUDIO向けの出力を作れます。",
+    "reviewAction": "CLIP STUDIOへ進む",
+    "cspTitle": "Handoffを作成しました",
+    "cspDescription": "次は公開準備のプレビューを確認できます。",
+    "cspAction": "公開準備へ進む"
+  },
   "counts": {
     "scenes": "シーン",
     "beats": "ビート",

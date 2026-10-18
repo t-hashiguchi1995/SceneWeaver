@@ -1,17 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useParams } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from '../components/AssetImage'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import { formatStatus } from '../i18n/format'
 import { api, loadStudioContext, saveStudioContext } from '../lib/api'
 
 type WardrobeTab = 'market' | 'tryon' | 'mine'
 
 export function WardrobePage() {
-  const { t } = useTranslation(['wardrobe', 'common'])
+  const { t } = useTranslation(['wardrobe', 'common', 'project'])
   const { projectId } = useParams({ strict: false })
   const qc = useQueryClient()
   const dashboard = useQuery({
@@ -368,6 +369,23 @@ export function WardrobePage() {
                   </li>
                 ))}
               </ul>
+              {projectId && (
+                <WorkflowCompletionCard
+                  testId="wardrobe-next-shots"
+                  title={t('project:completion.wardrobeTitle')}
+                  description={t('project:completion.wardrobeDescription')}
+                  action={
+                    <Link
+                      className="btn primary"
+                      to="/projects/$projectId/shots"
+                      params={{ projectId }}
+                      data-testid="wardrobe-next-shots-action"
+                    >
+                      {t('project:completion.wardrobeAction')}
+                    </Link>
+                  }
+                />
+              )}
             </>
           )}
         </div>

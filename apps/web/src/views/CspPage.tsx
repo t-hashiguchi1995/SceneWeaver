@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useParams } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from '../components/AssetImage'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import { api, loadStudioContext, saveStudioContext } from '../lib/api'
 
 type PanelDraft = {
@@ -16,7 +17,7 @@ type PanelDraft = {
 }
 
 export function CspPage() {
-  const { t } = useTranslation('csp')
+  const { t } = useTranslation(['csp', 'project'])
   const { projectId } = useParams({ strict: false })
   const ctx = projectId ? {} : loadStudioContext()
   const dashboard = useQuery({
@@ -254,6 +255,23 @@ export function CspPage() {
             </p>
           </details>
         </div>
+      )}
+      {(revision || dashboard.data?.latest_handoff?.revision) && projectId && (
+        <WorkflowCompletionCard
+          testId="csp-next-release"
+          title={t('project:completion.cspTitle')}
+          description={t('project:completion.cspDescription')}
+          action={
+            <Link
+              className="btn primary"
+              to="/projects/$projectId/release"
+              params={{ projectId }}
+              data-testid="csp-next-release-action"
+            >
+              {t('project:completion.cspAction')}
+            </Link>
+          }
+        />
       )}
     </section>
   )

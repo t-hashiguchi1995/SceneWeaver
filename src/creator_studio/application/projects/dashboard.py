@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from creator_studio.domain.ids import ProjectId
+from creator_studio.application.projects.workflow import compute_workflow
 from creator_studio.application.prompt.context import resolve_prompt_context
+from creator_studio.domain.ids import ProjectId
 from creator_studio.domain.prompt import compute_context_hash
 from creator_studio.ports.unit_of_work import UnitOfWork
 
@@ -26,12 +27,16 @@ class ProjectDashboard:
                 for session_id in scene.initial_state.get("tryon_session_ids", [])
                 if (session := uow.tryon_sessions.get(session_id)) is not None]
             locked = [event for event in events if event.locked]
+            locked_beat_ids = {str(event.beat_id) for event in locked}
             characters = sorted({str(b.speaker_id) for b in beats if b.speaker_id})
             next_actions: list[dict[str, str]] = []
             shot_items: list[dict[str, Any]] = []
             generations: list[dict[str, Any]] = []
             adopted: dict[str, dict[str, str]] = {}
+            adopted_shot_ids: set[str] = set()
             pending_ids: set[str] = set()
+            pending_reviews: list[dict[str, str]] = []
+            workflow_shots: list[dict[str, Any]] = []
             for shot in shots:
                 draft = uow.prompt_drafts.get(shot.current_prompt_draft_id) if shot.current_prompt_draft_id else None
                 stale = bool(draft and draft.is_stale(compute_context_hash(
@@ -41,7 +46,11 @@ class ProjectDashboard:
                                    "stale_reason": shot.stale_reason, "prompt_stale": stale})
                 if stale or shot.is_stale:
                     next_actions.append({"kind": "prompt_stale" if stale else "shot_stale", "shot_id": str(shot.id)})
-                for attempt in uow.generation_attempts.list_for_shot(shot.id):
+                attempts = uow.generation_attempts.list_for_shot(shot.id)
+                # list_for_shot is created_at DESC — first item is the newest attempt.
+                latest_attempt_id = attempts[0].id if attempts else None
+                has_generation = bool(attempts)
+                for attempt in attempts:
                     decisions: dict[str, str] = {}
                     for aid in attempt.output_asset_ids:
                         asset = uow.assets.get(aid)
@@ -50,19 +59,38 @@ class ProjectDashboard:
                         decisions[aid] = asset.review_decision.value
                         if asset.review_decision.value == "adopted":
                             adopted[aid] = {"asset_id": aid, "shot_id": str(shot.id), "beat_id": str(shot.beat_id)}
+                            adopted_shot_ids.add(str(shot.id))
                         elif asset.review_decision.value == "pending":
                             pending_ids.add(aid)
                     generations.append({"id": attempt.id, "shot_id": str(shot.id), "created_at": attempt.created_at.isoformat(),
                                         "output_asset_ids": attempt.output_asset_ids, "asset_decisions": decisions})
                     if "pending" in decisions.values():
                         next_actions.append({"kind": "generation_pending", "shot_id": str(shot.id), "attempt_id": attempt.id})
+                        pending_reviews.append({"shot_id": str(shot.id), "attempt_id": attempt.id})
+                workflow_shots.append({
+                    "id": str(shot.id),
+                    "beat_id": str(shot.beat_id),
+                    "prompt_stale": stale,
+                    "is_stale": bool(shot.is_stale),
+                    "has_generation": has_generation,
+                    "latest_attempt_id": latest_attempt_id,
+                })
             for beat in beats:
                 if not any(event.beat_id == beat.id for event in locked):
                     next_actions.append({"kind": "dialogue_unlocked", "scene_id": str(beat.scene_id), "beat_id": str(beat.id)})
             generations.sort(key=lambda item: (item["created_at"], item["id"]), reverse=True)
             latest = self._handoff.latest(project_id)
+            workflow = compute_workflow(
+                beats=[{"id": str(b.id), "scene_id": str(b.scene_id)} for b in beats],
+                locked_beat_ids=locked_beat_ids,
+                shots=workflow_shots,
+                adopted_shot_ids=adopted_shot_ids,
+                pending_reviews=pending_reviews,
+                latest_handoff=latest,
+            )
             return {"counts": {"scenes": len(scenes), "beats": len(beats), "characters": len(characters),
                                "shots": len(shots), "generations": len(generations), "adopted": len(adopted), "pending": len(pending_ids)},
+                    "workflow": workflow,
                     "next_actions": next_actions, "recent_shots": shot_items, "recent_generations": generations[:12],
                     "latest_handoff": latest, "scenes": [{"id": str(s.id), "title": s.title, "objective": s.objective} for s in scenes],
                     "beats": [{"id": str(b.id), "scene_id": str(b.scene_id), "intent": b.intent, "speaker_id": b.speaker_id} for b in beats],

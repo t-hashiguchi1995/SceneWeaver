@@ -22,8 +22,33 @@ export type Project = {
   updated_at: string
 }
 
+export type WorkflowPrimaryNextKind =
+  | 'create_story'
+  | 'continue_story'
+  | 'choose_outfit'
+  | 'configure_shot'
+  | 'review_generation'
+  | 'create_csp_handoff'
+  | 'prepare_release'
+  | 'complete'
+
+export type ProjectWorkflow = {
+  story: { done: number; total: number }
+  shots: { done: number; total: number }
+  csp: { ready: boolean; done: boolean }
+  release: { ready: boolean; done: null }
+  primary_next: {
+    kind: WorkflowPrimaryNextKind
+    scene_id?: string
+    beat_id?: string
+    shot_id?: string
+    attempt_id?: string
+  }
+}
+
 export type ProjectDashboard = {
   counts: Record<string, number>
+  workflow: ProjectWorkflow
   next_actions: { kind: string; shot_id?: string; attempt_id?: string; scene_id?: string; beat_id?: string }[]
   recent_shots: { id: string; beat_id: string; revision: number; stale_reason: string | null; prompt_stale: boolean }[]
   recent_generations: { id: string; shot_id: string; output_asset_ids: string[]; created_at: string }[]
