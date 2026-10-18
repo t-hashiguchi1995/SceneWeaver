@@ -144,17 +144,24 @@ test.describe('live Comfy UX review', () => {
     await capture('08_shot_studio', 'shot ready; real backend')
 
     await page.getByTestId('shot-generate').click()
-    await expect(page.getByTestId('shot-status-label')).toHaveText(/処理中|完了|失敗/, {
-      timeout: 60_000,
-    })
-    const shotPhase = await page.getByTestId('shot-status-label').textContent()
-    if (shotPhase === '処理中') {
-      await capture('09_generating', 'real Comfy BaseRender in progress')
+    // Processing status sits on Shot Studio; success navigates into Generation Review.
+    const statusVisible = await page
+      .getByTestId('shot-status-label')
+      .isVisible()
+      .catch(() => false)
+    if (statusVisible) {
+      await expect(page.getByTestId('shot-status-label')).toHaveText(/処理中|完了|失敗/, {
+        timeout: 60_000,
+      })
+      const shotPhase = await page.getByTestId('shot-status-label').textContent()
+      if (shotPhase === '処理中') {
+        await capture('09_generating', 'real Comfy BaseRender in progress')
+      }
     }
+    await expect(page.getByTestId('generation-review')).toBeVisible({ timeout: LIVE_TIMEOUT_MS })
     await expect(page.getByTestId('generation-candidate-list').locator('img')).toHaveCount(4, {
       timeout: LIVE_TIMEOUT_MS,
     })
-    await expect(page.getByTestId('shot-status-label')).toHaveText('完了', { timeout: 30_000 })
     await capture('10_generation_review', 'real Comfy generation candidates (no substitution)')
 
     await page.getByTestId('generation-adopt').click()
