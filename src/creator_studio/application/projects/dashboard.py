@@ -47,11 +47,10 @@ class ProjectDashboard:
                 if stale or shot.is_stale:
                     next_actions.append({"kind": "prompt_stale" if stale else "shot_stale", "shot_id": str(shot.id)})
                 attempts = uow.generation_attempts.list_for_shot(shot.id)
-                latest_attempt_id: str | None = None
-                has_generation = False
+                # list_for_shot is created_at DESC — first item is the newest attempt.
+                latest_attempt_id = attempts[0].id if attempts else None
+                has_generation = bool(attempts)
                 for attempt in attempts:
-                    has_generation = True
-                    latest_attempt_id = attempt.id
                     decisions: dict[str, str] = {}
                     for aid in attempt.output_asset_ids:
                         asset = uow.assets.get(aid)

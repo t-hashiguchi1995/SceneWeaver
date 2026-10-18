@@ -48,12 +48,18 @@ function ProjectDetailPage() {
           <article className="panel-card workflow-summary" data-testid="project-workflow">
             <h2>{t('project:workflowTitle')}</h2>
             <ol className="workflow-stages">
-              <li data-testid="workflow-stage-story" data-status={storyState}>
+              <li data-testid="workflow-stage-story" data-status={storyState} data-step="1">
+                <span className="workflow-step" aria-hidden="true">
+                  1
+                </span>
                 <strong>{t('project:stages.story')}</strong>
                 <span>{t('project:progressCount', workflow.story)}</span>
                 <span className="meta">{t(`project:stageStatus.${storyState}`)}</span>
               </li>
-              <li data-testid="workflow-stage-shots" data-status={shotsState}>
+              <li data-testid="workflow-stage-shots" data-status={shotsState} data-step="2">
+                <span className="workflow-step" aria-hidden="true">
+                  2
+                </span>
                 <strong>{t('project:stages.shots')}</strong>
                 <span>{t('project:progressCount', workflow.shots)}</span>
                 <span className="meta">{t(`project:stageStatus.${shotsState}`)}</span>
@@ -61,7 +67,11 @@ function ProjectDetailPage() {
               <li
                 data-testid="workflow-stage-csp"
                 data-status={workflow.csp.done ? 'complete' : 'not_started'}
+                data-step="3"
               >
+                <span className="workflow-step" aria-hidden="true">
+                  3
+                </span>
                 <strong>{t('project:stages.csp')}</strong>
                 <span className="meta">
                   {workflow.csp.done
@@ -72,7 +82,11 @@ function ProjectDetailPage() {
               <li
                 data-testid="workflow-stage-release"
                 data-status={workflow.release.ready ? 'ready' : 'waiting'}
+                data-step="4"
               >
+                <span className="workflow-step" aria-hidden="true">
+                  4
+                </span>
                 <strong>{t('project:stages.release')}</strong>
                 <span className="meta">
                   {workflow.release.ready
@@ -110,42 +124,44 @@ function ProjectDetailPage() {
             ))}
           </div>
           <div className="creator-columns">
-            <article className="panel-card">
-              <h2>{t('project:nextActions')}</h2>
-              <ul className="list">
-                {dashboard.data.next_actions.map((action, index) => (
-                  <li key={index}>
-                    <span>{t(`project:actions.${action.kind}`)}</span>
-                    {action.shot_id ? (
-                      <Link
-                        className="btn"
-                        to={
-                          action.attempt_id
-                            ? '/projects/$projectId/shots/$shotId/generations/$attemptId'
-                            : '/projects/$projectId/shots/$shotId'
-                        }
-                        params={{
-                          projectId,
-                          shotId: action.shot_id,
-                          attemptId: action.attempt_id ?? '',
-                        }}
-                      >
-                        {t('common:actions.open')}
-                      </Link>
-                    ) : (
-                      <Link
-                        className="btn"
-                        to="/projects/$projectId/story"
-                        params={{ projectId }}
-                        search={{ sceneId: action.scene_id, beatId: action.beat_id }}
-                      >
-                        {t('common:actions.open')}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </article>
+            {dashboard.data.next_actions.length > 0 && (
+              <article className="panel-card" data-testid="project-next-actions">
+                <h2>{t('project:nextActions')}</h2>
+                <ul className="list">
+                  {dashboard.data.next_actions.map((action, index) => (
+                    <li key={index}>
+                      <span>{t(`project:actions.${action.kind}`)}</span>
+                      {action.shot_id ? (
+                        <Link
+                          className="btn"
+                          to={
+                            action.attempt_id
+                              ? '/projects/$projectId/shots/$shotId/generations/$attemptId'
+                              : '/projects/$projectId/shots/$shotId'
+                          }
+                          params={{
+                            projectId,
+                            shotId: action.shot_id,
+                            attemptId: action.attempt_id ?? '',
+                          }}
+                        >
+                          {t('common:actions.open')}
+                        </Link>
+                      ) : (
+                        <Link
+                          className="btn"
+                          to="/projects/$projectId/story"
+                          params={{ projectId }}
+                          search={{ sceneId: action.scene_id, beatId: action.beat_id }}
+                        >
+                          {t('common:actions.open')}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            )}
             <article className="panel-card">
               <h2>{t('project:recentShots')}</h2>
               <ul className="list">

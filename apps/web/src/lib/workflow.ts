@@ -5,7 +5,7 @@ export type PrimaryNext = NonNullable<ProjectDashboard['workflow']>['primary_nex
 export type WorkflowLink =
   | { to: '/projects/$projectId/story'; params: { projectId: string }; search?: { sceneId?: string; beatId?: string } }
   | { to: '/projects/$projectId/wardrobe'; params: { projectId: string } }
-  | { to: '/projects/$projectId/shots'; params: { projectId: string } }
+  | { to: '/projects/$projectId/shots'; params: { projectId: string }; search?: { beatId?: string } }
   | { to: '/projects/$projectId/shots/$shotId'; params: { projectId: string; shotId: string } }
   | {
       to: '/projects/$projectId/shots/$shotId/generations/$attemptId'
@@ -33,7 +33,11 @@ export function primaryNextLink(projectId: string, next: PrimaryNext): WorkflowL
           params: { projectId, shotId: next.shot_id },
         }
       }
-      return { to: '/projects/$projectId/shots', params: { projectId } }
+      return {
+        to: '/projects/$projectId/shots',
+        params: { projectId },
+        search: next.beat_id ? { beatId: next.beat_id } : undefined,
+      }
     case 'review_generation':
       if (next.shot_id && next.attempt_id) {
         return {

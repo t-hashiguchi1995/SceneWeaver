@@ -92,7 +92,6 @@ for (const size of sizes) {
     await page.goto(project)
     await expect(page.getByTestId('project-workflow')).toBeVisible()
     await expect(page.getByTestId('project-primary-next')).toBeVisible()
-    await expect(page.getByRole('heading', { name: '次にすること' })).toBeVisible()
     await expect(page.getByTestId('workspace-context')).not.toHaveText('…')
     await expect(page.getByTestId('workspace-context')).not.toHaveText('ワークスペース')
     await capture('02_project_dashboard', 'populated; next actions')

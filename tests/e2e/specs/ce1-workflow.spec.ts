@@ -86,6 +86,27 @@ test.describe('CE-1 Workflow Guidance', () => {
     await expect(page.getByText('次へ：生成する')).toHaveCount(0)
   })
 
+  test('Dashboard configure_shot primary CTA carries beatId into Shots', async ({
+    page,
+    api,
+    seedScenario,
+    applySeedContext,
+  }) => {
+    const seeded = await seedScenario('m3_tryon')
+    await applySeedContext(seeded)
+    const dialogue = await api.generateDialogue(seeded.beat_id!, seeded.character_id!)
+    await api.lockScript(dialogue.candidates[0].id, 'もう少し一緒にいたい')
+
+    const projectPath = `/projects/${seeded.project_id}`
+    await page.goto(projectPath)
+    await expect(page.getByTestId('project-primary-next')).toContainText(/ショットを設定|Configure a shot/i)
+    await expect(page.getByTestId('project-next-actions')).toHaveCount(0)
+    await page.getByTestId('project-primary-next-action').click()
+    await expect(page).toHaveURL(new RegExp(`${projectPath}/shots\\?beatId=${seeded.beat_id}`))
+    await expect(page.getByTestId('shots-entry-page')).toBeVisible()
+    await expect(page.getByTestId('shot-beat-id')).toHaveValue(seeded.beat_id!)
+  })
+
   test('Quick Test and Visual Library stubs keep escape hatches', async ({ page }) => {
     await page.goto('/quick-test')
     await expect(page.getByTestId('quick-test-page')).toBeVisible()
