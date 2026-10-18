@@ -81,6 +81,16 @@ class PromptDraftRepository(Protocol):
     def save(self, draft: object) -> object: ...
 
 
+class PromptPresetRepository(Protocol):
+    def list_enabled(self) -> list: ...
+
+
+class VisualLibraryMetadataRepository(Protocol):
+    def map_by_source(self) -> dict: ...
+    def get(self, source_type: str, source_id: str) -> object | None: ...
+    def upsert(self, row: object) -> object: ...
+
+
 class UnitOfWork(Protocol):
     projects: ProjectRepository
     jobs: JobRepository
@@ -96,6 +106,8 @@ class UnitOfWork(Protocol):
     render_plans: RenderPlanRepository
     generation_attempts: GenerationAttemptRepository
     prompt_drafts: PromptDraftRepository
+    prompt_presets: PromptPresetRepository
+    visual_library_metadata: VisualLibraryMetadataRepository
 
     def __enter__(self) -> UnitOfWork: ...
 

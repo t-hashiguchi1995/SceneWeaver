@@ -120,6 +120,41 @@ export type MarketItem = {
   canonical_plate_asset_id: string | null
 }
 
+export type VisualLibraryKind =
+  | 'outfit'
+  | 'pose'
+  | 'expression'
+  | 'camera'
+  | 'lighting'
+  | 'background'
+  | 'other'
+
+export type VisualLibraryPreviewKind = 'curated' | 'generated' | 'imported_reference'
+
+export type VisualLibraryItemSummary = {
+  ref: string
+  source_type: 'prompt_preset' | 'marketplace_item'
+  source_id: string
+  kind: VisualLibraryKind
+  label: string
+  label_ja?: string | null
+  description?: string | null
+  thumbnail_asset_id?: string | null
+  preview_kind?: VisualLibraryPreviewKind | null
+  tags: string[]
+  subcategory?: string | null
+  content_rating: string
+  model_scope: string[]
+  related_refs: string[]
+  has_preview: boolean
+}
+
+export type VisualLibraryItemDetail = VisualLibraryItemSummary & {
+  prompt_fragment?: string | null
+  source?: string | null
+  source_file?: string | null
+}
+
 export type TryOnResult = {
   session_id: string
   candidate_asset_ids: string[]
@@ -304,6 +339,27 @@ export const api = {
 
   listMarket: (q = '') =>
     request<MarketItem[]>(`/api/v1/market/items${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+  listVisualLibrary: (params: {
+    q?: string
+    kind?: string
+    content_rating?: string
+    model?: string
+    has_preview?: boolean
+  } = {}) => {
+    const qs = new URLSearchParams()
+    if (params.q) qs.set('q', params.q)
+    if (params.kind) qs.set('kind', params.kind)
+    if (params.content_rating) qs.set('content_rating', params.content_rating)
+    if (params.model) qs.set('model', params.model)
+    if (params.has_preview !== undefined) qs.set('has_preview', String(params.has_preview))
+    const suffix = qs.toString() ? `?${qs}` : ''
+    return request<VisualLibraryItemSummary[]>(`/api/v1/visual-library${suffix}`)
+  },
+  getVisualLibraryItem: (sourceType: string, sourceId: string) =>
+    request<VisualLibraryItemDetail>(
+      `/api/v1/visual-library/${encodeURIComponent(sourceType)}/${encodeURIComponent(sourceId)}`,
+    ),
+
   runTryOn: (characterId: string, marketplaceItemId: string, sceneId?: string) =>
     request<TryOnResult>('/api/v1/tryon/sessions', {
       method: 'POST',

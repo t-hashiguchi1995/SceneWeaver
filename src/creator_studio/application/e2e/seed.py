@@ -66,10 +66,25 @@ class E2ESeedService:
             project = self._create_project.execute(CreateProjectCommand(title="E2E Foundation"))
             return SeedResult(scenario=scenario, project_id=project.id)
 
+        if scenario == "visual_library":
+            return self._seed_visual_library()
+
         if scenario in {"m2_story", "m3_tryon", "m4_visual", "m5_delivery", "vertical_slice"}:
             return self._seed_story_base(scenario)
 
         raise ValueError(f"unknown scenario: {scenario}")
+
+    def _seed_visual_library(self) -> SeedResult:
+        from creator_studio.application.e2e.visual_library_seed import seed_visual_library_catalog
+
+        project = self._create_project.execute(CreateProjectCommand(title="E2E Visual Library"))
+        catalog = seed_visual_library_catalog(self._uow, self._store, self._seed_market)
+        return SeedResult(
+            scenario="visual_library",
+            project_id=project.id,
+            marketplace_item_id=(catalog["marketplace_item_ids"] or [None])[0],
+            extras=catalog,
+        )
 
     def _seed_story_base(self, scenario: str) -> SeedResult:
         project = self._create_project.execute(CreateProjectCommand(title=f"E2E {scenario}"))

@@ -4,10 +4,10 @@
     "width": 390,
     "height": 844
   },
-  "appCodeCommit": "7e2fa8f009b9b0aba833ae7cfec6753619c5abcc",
-  "captureSpecSha256": "affecca6111a0aaa73876bf260d4e4693cc5835c8a9bd8b71659227010a295e4",
+  "appCodeCommit": "6bae1a85aa2d557689bd940a99d25a493cbfad52",
+  "captureSpecSha256": "e416e7423e1d7ac82b4bd1558b173c1866f74a10aaf0d6c1a13c6c523d17f5f9",
   "environment": "isolated e2e; real API/DB; stub LLM; fake image backend",
-  "imageSubstitution": "Generated/try-on image GET responses only. These display fixtures do not match fake Asset hashes or CSP bytes. No GPU or real outfit evaluation.",
+  "imageSubstitution": "Generated/try-on image GET responses only. Visual Library previews use seeded representative fixtures from tests/fixtures/visual_library (not comic-panel cycling).",
   "sourceImages": [
     {
       "path": "docs/validation/rize-comic/20261011T094102940732Z/images/cafe_four_panel-1-1.png",
@@ -26,6 +26,15 @@
       "sha256": "169d24fe8d9ec6e4691611320e3894b7fa5b86fc025fee18d6311a202680cf74"
     }
   ],
+  "visualLibraryFixtures": {
+    "994f2a347114477eb306c67301": "tests/fixtures/visual_library/pose_look_over_shoulder.png",
+    "11f7d3ad95aa43ad9079e246e7": "tests/fixtures/visual_library/pose_hand_on_hip.png",
+    "a7cb0da4cbbd47278385d233cb": "tests/fixtures/visual_library/expression_gentle_smile.png",
+    "d89b4f727eed4d2f94589b299c": "tests/fixtures/visual_library/camera_medium_shot.png",
+    "e45e6f68a67640e78728420b1a": "tests/fixtures/visual_library/lighting_soft_indoor.png",
+    "1529b501a38242359524a078cc": "tests/fixtures/visual_library/background_cafe_interior.png",
+    "0f6ba0c0c75643c59ef500cd47": "tests/fixtures/visual_library/outfit_soft_cardigan.png"
+  },
   "captures": [
     {
       "file": "01_home.png",
@@ -43,7 +52,7 @@
     {
       "file": "02_project_dashboard.png",
       "state": "populated; next actions",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407",
+      "path": "/projects/404fc0accadc4199bd5d5f805c",
       "headings": [
         "処理状況",
         "E2E m3_tryon",
@@ -63,7 +72,7 @@
     {
       "file": "03_character.png",
       "state": "persona populated",
-      "path": "/characters/aa81eaed3df045dfaff59332d2",
+      "path": "/characters/b0879133e5064f1dba53e5fb8b",
       "headings": [
         "処理状況",
         "リゼヘル"
@@ -73,7 +82,7 @@
     {
       "file": "04_story.png",
       "state": "locked dialogue",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/story",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/story",
       "headings": [
         "処理状況",
         "ストーリー",
@@ -84,7 +93,7 @@
     {
       "file": "05_wardrobe_market.png",
       "state": "outfit selected",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/wardrobe",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/wardrobe",
       "headings": [
         "処理状況",
         "衣装",
@@ -95,7 +104,7 @@
     {
       "file": "06_tryon_review.png",
       "state": "succeeded; display fixture images, not real try-on output",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/wardrobe",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/wardrobe",
       "headings": [
         "処理状況",
         "衣装"
@@ -105,7 +114,7 @@
     {
       "file": "14_empty_history.png",
       "state": "no generation attempts",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e/generations",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806/generations",
       "headings": [
         "処理状況",
         "生成結果",
@@ -116,7 +125,7 @@
     {
       "file": "07_shot_studio.png",
       "state": "semantic settings and prompt",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -129,7 +138,7 @@
     {
       "file": "08_prompt_editor.png",
       "state": "prompt editor detail",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -142,7 +151,7 @@
     {
       "file": "15_prompt_modified.png",
       "state": "edited; autosave may finish during screenshot",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -155,7 +164,7 @@
     {
       "file": "16_prompt_stale.png",
       "state": "semantic setting changed; stale",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -168,7 +177,7 @@
     {
       "file": "17_generation_failed.png",
       "state": "injected 503; error recovery link",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -181,7 +190,7 @@
     {
       "file": "18_generating.png",
       "state": "real fake-backend render delayed 6 seconds",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806",
       "headings": [
         "処理状況",
         "ショット設定",
@@ -194,7 +203,7 @@
     {
       "file": "09_generation_review.png",
       "state": "succeeded; four display fixture images",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e/generations/6d8f8351815441b892ac9c11a1",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806/generations/e2cbb0eb19f44aea9f95a931d4",
       "headings": [
         "処理状況",
         "生成結果",
@@ -206,7 +215,7 @@
     {
       "file": "19_adopted_candidate.png",
       "state": "adopted decision persisted",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/shots/1155979c533b4d6cb8be6e0f7e/generations/6d8f8351815441b892ac9c11a1",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/shots/9bed1d05448b448c9ed2026806/generations/e2cbb0eb19f44aea9f95a931d4",
       "headings": [
         "処理状況",
         "生成結果",
@@ -218,7 +227,7 @@
     {
       "file": "10_csp.png",
       "state": "page plan and successful handoff; bytes are fake backend bytes",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/csp",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/csp",
       "headings": [
         "処理状況",
         "CLIP STUDIO連携",
@@ -229,7 +238,7 @@
     {
       "file": "11_release.png",
       "state": "master form and platform tab previews; no publishing",
-      "path": "/projects/c7ddaaed7f2b4ed6917b4c9407/release",
+      "path": "/projects/404fc0accadc4199bd5d5f805c/release",
       "headings": [
         "処理状況",
         "公開準備",
@@ -260,6 +269,54 @@
       "headings": [
         "処理状況",
         "設定"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "20_visual_library.png",
+      "state": "CE-2 catalog; meaning-aligned fixtures; equal preview slots",
+      "path": "/visual-library",
+      "headings": [
+        "処理状況",
+        "素材ライブラリ"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "21_visual_library_pose.png",
+      "state": "pose filter; concept-matched previews; no prompt on cards",
+      "path": "/visual-library",
+      "headings": [
+        "処理状況",
+        "素材ライブラリ"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "22_visual_library_detail.png",
+      "state": "look-over-shoulder detail; prompt collapsed; desktop 2-col",
+      "path": "/visual-library",
+      "headings": [
+        "処理状況",
+        "振り向き",
+        "概要",
+        "タグ",
+        "対応モデル",
+        "Prompt"
+      ],
+      "horizontalOverflow": false
+    },
+    {
+      "file": "23_visual_library_prompt.png",
+      "state": "prompt revealed after explicit expand",
+      "path": "/visual-library",
+      "headings": [
+        "処理状況",
+        "振り向き",
+        "概要",
+        "タグ",
+        "対応モデル",
+        "Prompt"
       ],
       "horizontalOverflow": false
     }

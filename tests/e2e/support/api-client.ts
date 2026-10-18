@@ -8,7 +8,7 @@ export type SeedResult = {
   beat_id?: string
   marketplace_item_id?: string
   tryon_base_asset_id?: string
-  extras?: Record<string, string>
+  extras?: Record<string, unknown>
 }
 
 export class ApiClient {
