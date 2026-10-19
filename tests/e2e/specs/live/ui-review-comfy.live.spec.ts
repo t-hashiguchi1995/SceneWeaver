@@ -80,11 +80,16 @@ test.describe('live Comfy UX review', () => {
         () => document.documentElement.scrollWidth > innerWidth,
       )
       expect(horizontalOverflow).toBe(false)
-      const context = {
-        project: await page.getByTestId('context-project').textContent().catch(() => null),
-        beat: await page.getByTestId('context-beat').textContent().catch(() => null),
-        shot: await page.getByTestId('context-shot').textContent().catch(() => null),
-      }
+      // Do not use locator.textContent() for optional nodes — it waits until test timeout.
+      const context = await page.evaluate(() => {
+        const text = (id: string) =>
+          document.querySelector(`[data-testid="${id}"]`)?.textContent?.trim() ?? null
+        return {
+          project: text('context-project'),
+          beat: text('context-beat'),
+          shot: text('context-shot'),
+        }
+      })
       captures.push({
         file: `${name}.png`,
         state,
