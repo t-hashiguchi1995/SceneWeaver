@@ -1,0 +1,32 @@
+---
+description: Human/UX review must use real Comfy and share full-flow screenshots
+alwaysApply: true
+---
+
+# Live Comfy UX Review Gate
+
+When verifying **creator-facing UX**, **Human Review**, merge readiness for CE/CX features, or answering "does generation actually work?", do **not** rely on `SCENEWEAVER_IMAGE_BACKEND=fake` or UI Review image substitution alone.
+
+## Required
+
+1. **Real Comfy** (`SCENEWEAVER_IMAGE_BACKEND=comfy`, Comfy at `SCENEWEAVER_COMFY_URL` / `COMFY_BASE_URL`, default `http://127.0.0.1:8188`).
+2. Run through the **user-visible path** (UI clicks for generate / try-on where the feature under review is generation), not only API-only smoke.
+3. Capture the **full experience sequence** as screenshots (at least desktop), **without** replacing `/api/v1/assets/*/content` with comic/fixture panels for generated or try-on outputs.
+4. **Share those screenshots in the chat** (read/attach the PNG files so the user can see the real UI + real Comfy pixels). Summaries without images are incomplete for UX questions.
+
+## Canonical command
+
+```bash
+pnpm ux:review:live
+```
+
+Artifacts: `docs/validation/ui-review-live-comfy/desktop/*.png` + `manifest.json`.
+
+## Fake E2E remains valid for
+
+- Contract / layout / overflow / i18n gates (`pnpm test:e2e`, `SCENEWEAVER_UI_REVIEW=1` mock ui-review).
+- Never present fake-backend or substituted images as proof of **model output** or **end-user generation feel**.
+
+## If Comfy is unreachable
+
+Say so explicitly, skip live capture, and do **not** claim real generation UX was verified.
