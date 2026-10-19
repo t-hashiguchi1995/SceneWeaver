@@ -1,7 +1,27 @@
 {
   "title": "Jobs",
+  "drawerTitle": "Background jobs",
+  "indicatorMany": "{{count}} jobs running",
+  "empty": "No jobs in progress",
+  "failedSummary": "{{count}} failed",
   "enqueueStub": "Enqueue stub job",
   "watching": "Watching SSE for {{id}}",
   "live": "Live",
-  "attempts": "attempts {{n}}"
+  "attempts": "attempts {{n}}",
+  "kinds": {
+    "render": "Image generation",
+    "tryon": "Try-On",
+    "dialogue_candidates": "Dialogue",
+    "csp_handoff": "CSP export",
+    "release_build": "Release prep",
+    "stub": "Job"
+  },
+  "running": {
+    "render": "Generating image",
+    "tryon": "Running Try-On",
+    "dialogue_candidates": "Generating dialogue",
+    "csp_handoff": "Exporting CSP",
+    "release_build": "Preparing release",
+    "stub": "Processing"
+  }
 }

@@ -3,6 +3,7 @@ import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { api } from '../lib/api'
 
 type Platform = 'x' | 'pixiv' | 'patreon'
@@ -27,6 +28,7 @@ export function ReleasePage() {
 
   return (
     <section className="page release-page" data-testid="release-page">
+      {projectId && <ProjectContextBar />}
       <h1>{t('title')}</h1>
       <p className="lede">{t('lede')}</p>
 

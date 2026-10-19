@@ -61,6 +61,24 @@ export type ProjectDashboard = {
   character_ids: string[]
 }
 
+export type ProjectContextEntity = {
+  id: string
+  title?: string
+  label?: string
+  display_name?: string
+  index?: number
+}
+
+export type ProjectContext = {
+  project: { id: string; title: string }
+  scene: { id: string; title: string } | null
+  beat: { id: string; title: string } | null
+  shot: { id: string; label: string; index: number } | null
+  character: { id: string; display_name: string } | null
+  outfit: { id: string; label: string } | null
+  script_excerpt: string | null
+}
+
 export type Job = {
   id: string
   kind: string
@@ -276,6 +294,17 @@ export const api = {
       body: JSON.stringify({ title }),
     }),
   getProject: (id: string) => request<Project>(`/api/v1/projects/${id}`),
+  projectContext: (
+    id: string,
+    params?: { sceneId?: string; beatId?: string; shotId?: string },
+  ) => {
+    const q = new URLSearchParams()
+    if (params?.sceneId) q.set('scene_id', params.sceneId)
+    if (params?.beatId) q.set('beat_id', params.beatId)
+    if (params?.shotId) q.set('shot_id', params.shotId)
+    const suffix = q.toString() ? `?${q}` : ''
+    return request<ProjectContext>(`/api/v1/projects/${id}/context${suffix}`)
+  },
   listJobs: () => request<Job[]>('/api/v1/jobs'),
   getJob: (id: string) => request<Job>(`/api/v1/jobs/${id}`),
   enqueueStubJob: (payload: Record<string, unknown> = {}) =>

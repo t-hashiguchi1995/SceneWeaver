@@ -990,3 +990,141 @@ dialog::backdrop { background: #0009; }
   .app-shell.is-expanded .brand-name, .app-shell.is-expanded .nav-group, .app-shell.is-expanded nav a span { display: inline; }
   .app-shell.is-expanded nav a { justify-content: flex-start; }
 }
+
+/* CX-F0: Project context / jobs / operation error / empty states */
+.project-context-bar {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  min-width: 0;
+}
+.project-context-bar__crumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.project-context-bar__crumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 13px;
+}
+.project-context-bar__crumb li + li::before {
+  content: "›";
+  color: var(--muted);
+  opacity: 0.7;
+}
+.project-context-bar__crumb li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(280px, 40vw);
+}
+.project-context-bar__crumb li:first-child span,
+.project-context-bar__crumb li:last-child span {
+  color: var(--text);
+  font-weight: 600;
+}
+.project-context-bar__mobile-primary { display: none; }
+.project-context-bar__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.project-context-chip {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-context-bar__script {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+  min-width: 0;
+}
+.project-context-bar__script-short { display: none; }
+.jobs-indicator__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.jobs-indicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3dd68c;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #3dd68c 25%, transparent);
+}
+.jobs-drawer__list li { display: grid; gap: 6px; }
+.jobs-drawer__progress {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 80%, transparent);
+  overflow: hidden;
+}
+.jobs-drawer__progress > span {
+  display: block;
+  height: 100%;
+  background: #3dd68c;
+}
+.operation-error {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, #e35d6a 55%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, #e35d6a 10%, var(--panel));
+}
+.operation-error__title { margin: 0; font-weight: 700; }
+.operation-error__message { margin: 0; color: var(--text); }
+.operation-error__details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+.operation-error__details pre {
+  margin: 8px 0 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0f1218;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.actionable-empty {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  justify-items: start;
+}
+.actionable-empty__title { margin: 0; font-weight: 600; }
+@media (max-width: 799px) {
+  .project-context-bar__crumb { display: none; }
+  .project-context-bar__mobile-primary { display: grid; gap: 2px; }
+  .project-context-bar__crumb-beat { display: none; }
+  .project-context-bar__script-full { display: none; }
+  .project-context-bar__script-short { display: inline; }
+  .project-context-bar__chips .project-context-chip:nth-child(n + 2) { display: none; }
+}

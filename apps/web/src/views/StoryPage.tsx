@@ -3,6 +3,7 @@ import { Link, useParams, useSearch } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import {
   api,
@@ -137,6 +138,9 @@ export function StoryPage() {
 
   return (
     <section className="page" data-testid="story-page">
+      {scopedProjectId && (
+        <ProjectContextBar sceneId={sceneId || undefined} beatId={beatId || undefined} strict />
+      )}
       <h1>{t('title')}</h1>
       <p className="lede">{t('lede')}</p>
 

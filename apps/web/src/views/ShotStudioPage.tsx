@@ -5,8 +5,11 @@ import { useTranslation } from 'react-i18next'
 
 import { usePromptAutosave } from '../hooks/usePromptAutosave'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { OperationError } from '../components/OperationError'
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { PromptEditor } from '../components/PromptEditor'
 import { formatStatus } from '../i18n/format'
+import { endActiveOperation, startActiveOperation, updateActiveOperation } from '../lib/activeOperations'
 import { api, saveStudioContext, type PromptDraft } from '../lib/api'
 
 function withLocalEdits(
@@ -108,16 +111,29 @@ export function ShotStudioPage() {
   const render = useMutation({
     mutationFn: async () => {
       await autosave.flush()
+      const opId = `render-${shotId}`
+      startActiveOperation({
+        id: opId,
+        kind: 'render',
+        detail: `Shot ${shotId.slice(0, 8)}`,
+        status: 'queued',
+        progress: 10,
+      })
       setPhase('queued')
       await new Promise((r) => setTimeout(r, 120))
       setPhase('running')
-      return api.renderShot(
-        shotId,
-        usePose,
-        seedMode === 'fixed' ? seed : undefined,
-        usePose ? poseUri : undefined,
-        sourceAttemptId,
-      )
+      updateActiveOperation(opId, { status: 'running', progress: 55 })
+      try {
+        return await api.renderShot(
+          shotId,
+          usePose,
+          seedMode === 'fixed' ? seed : undefined,
+          usePose ? poseUri : undefined,
+          sourceAttemptId,
+        )
+      } finally {
+        endActiveOperation(opId)
+      }
     },
     onSuccess: (result) => {
       setPhase('succeeded')
@@ -192,6 +208,7 @@ export function ShotStudioPage() {
 
   return (
     <section className="page shot-studio" data-testid="shots-page">
+      {projectId && <ProjectContextBar shotId={shotId} strict />}
       <div className="row-between">
         <div>
           <h1>{t('generation:title')}</h1>
@@ -319,7 +336,20 @@ export function ShotStudioPage() {
               rebuild.mutate(draft.modified)
             }}
             onDismissStale={() => setStaleDismissed(true)}
-            onGenerate={() => render.mutate()}
+            onGenerate={() => {
+              setError('')
+              render.mutate()
+            }}
+          />
+        )}
+        {error && (
+          <OperationError
+            title={t('common:errors.generationFailedTitle')}
+            message={error}
+            onRetry={() => {
+              setError('')
+              render.mutate()
+            }}
           />
         )}
       </div>
@@ -524,7 +554,7 @@ export function ShotStudioPage() {
         <summary>{t('generation:technicalInfo')}</summary>
         <p data-testid="shot-id">{t('generation:shotId', { id: shotId })}</p>
       </details>
-      {(error || autosave.error) && <ErrorBanner message={error || autosave.error} />}
+      {autosave.error && <ErrorBanner message={autosave.error} />}
     </section>
   )
 }
