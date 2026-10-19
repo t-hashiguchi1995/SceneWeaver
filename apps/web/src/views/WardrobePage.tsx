@@ -158,7 +158,11 @@ export function WardrobePage() {
   return (
     <section className="page" data-testid="wardrobe-page">
       {projectId && (
-        <ProjectContextBar sceneId={sceneId || ctx.sceneId} strict />
+        <ProjectContextBar
+          sceneId={sceneId || ctx.sceneId}
+          beatId={loadStudioContext().beatId}
+          shotId={loadStudioContext().shotId}
+        />
       )}
       <h1>{t('wardrobe:title')}</h1>
       <p className="lede">{t('wardrobe:lede')}</p>
