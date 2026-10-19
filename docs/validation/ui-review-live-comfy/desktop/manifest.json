@@ -1,0 +1,224 @@
+{
+  "viewport": {
+    "name": "desktop",
+    "width": 1280,
+    "height": 800
+  },
+  "focus": "CX-F0 Story→Generate→Adopt context continuity",
+  "appCodeCommit": "aa9131d66edba92aa195f5364aaf233b8ac74c2a",
+  "captureSpecSha256": "3e58ebc8f4b7f277e1678859e7a9cded0f8e8e1fc51f4416a925b4a2f3ad2d23",
+  "environment": "live-test; real ComfyUI; stub LLM; NO asset content substitution",
+  "imageBackend": "comfy",
+  "contextChecked": {
+    "projectTitle": "E2E m4_visual",
+    "beatTitle": "もう少し一緒にいたい",
+    "shotLabel": "Shot 01"
+  },
+  "capabilities": {
+    "BaseRender": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "anima_base",
+      "detail": "comfy online"
+    },
+    "OutfitTryOn": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "qwen_image_edit_2509",
+      "detail": "comfy online"
+    }
+  },
+  "captures": [
+    {
+      "file": "01_home.png",
+      "state": "idle header: no jobs indicator",
+      "path": "/",
+      "headings": [
+        "制作を続けましょう",
+        "今日は何をしますか？",
+        "最近のプロジェクト",
+        "実行中・待機中"
+      ],
+      "context": {
+        "project": null,
+        "beat": null,
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "02_story_context.png",
+      "state": "CX-F0 context bar on Story",
+      "path": "/projects/183132ea8c8c44f685d734158b/story",
+      "headings": [
+        "ストーリー",
+        "セリフを確定しました"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "03_wardrobe_market.png",
+      "state": "outfit selected before try-on",
+      "path": "/projects/183132ea8c8c44f685d734158b/wardrobe",
+      "headings": [
+        "衣装",
+        "Soft Knit Cardigan"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": null,
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "04_tryon_generating.png",
+      "state": "try-on 待機中; jobs/indicator may show",
+      "path": "/projects/183132ea8c8c44f685d734158b/wardrobe",
+      "headings": [
+        "バックグラウンド処理",
+        "衣装"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": null,
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "05_tryon_review.png",
+      "state": "real Comfy try-on candidates",
+      "path": "/projects/183132ea8c8c44f685d734158b/wardrobe",
+      "headings": [
+        "衣装",
+        "選択候補のプレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": null,
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "06_tryon_adopted.png",
+      "state": "adopted try-on look",
+      "path": "/projects/183132ea8c8c44f685d734158b/wardrobe",
+      "headings": [
+        "衣装",
+        "採用済み衣装 1"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": null,
+        "shot": null
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "07_shot_studio.png",
+      "state": "same Project/Beat/Shot context; idle jobs",
+      "path": "/projects/183132ea8c8c44f685d734158b/shots/c0b78a858e2e469f99115026f7",
+      "headings": [
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "08_generating_jobs.png",
+      "state": "JobsIndicator while real Comfy render runs",
+      "path": "/projects/183132ea8c8c44f685d734158b/shots/c0b78a858e2e469f99115026f7",
+      "headings": [
+        "バックグラウンド処理",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "09_generation_review.png",
+      "state": "Review keeps Story→Shot context; real Comfy pixels",
+      "path": "/projects/183132ea8c8c44f685d734158b/shots/c0b78a858e2e469f99115026f7/generations/775af070f2be4d309854788ce3",
+      "headings": [
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "10_adopted_candidate.png",
+      "state": "adopted real generation asset",
+      "path": "/projects/183132ea8c8c44f685d734158b/shots/c0b78a858e2e469f99115026f7/generations/775af070f2be4d309854788ce3",
+      "headings": [
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "11_csp.png",
+      "state": "CSP with continuous context from Story",
+      "path": "/projects/183132ea8c8c44f685d734158b/csp",
+      "headings": [
+        "CLIP STUDIO連携",
+        "Panel 1"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "file": "12_release.png",
+      "state": "release after continuous Story→Adopt path",
+      "path": "/projects/183132ea8c8c44f685d734158b/release",
+      "headings": [
+        "公開準備",
+        "マスター",
+        "プラットフォーム別プレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "horizontalOverflow": false
+    }
+  ],
+  "pageErrors": []
+}
