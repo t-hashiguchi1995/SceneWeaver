@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from creator_studio.domain.character.presets import ANIMA_RIZE_QUALITY_POSITIVE, ANIMA_RIZE_STYLE
 from creator_studio.domain.prompt import (
     ANIMA_COMPILER_ID,
     ANIMA_COMPILER_LABEL,
@@ -62,8 +63,8 @@ class PromptRenderer:
         pose = render_spec.get("pose", {}).get("id", "standing")
         camera = render_spec.get("camera", {})
         positive = (
-            "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, "
-            f"safe, @fuzichoco, @rella, {identity}, {outfit}, {expression}, {pose}, "
+            f"{ANIMA_RIZE_QUALITY_POSITIVE}, {ANIMA_RIZE_STYLE}, {identity}, {outfit}, "
+            f"{expression}, {pose}, "
             f"{camera.get('shot', 'medium')}, {camera.get('angle', 'eye_level')}"
         )
         for field in ("background", "lighting"):

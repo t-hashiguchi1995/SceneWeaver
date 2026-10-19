@@ -4,6 +4,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from creator_studio.domain.character import Character, Persona, VisualIdentity
+from creator_studio.domain.character.presets import (
+    is_lize_helesta_name,
+    lize_helesta_visual_identity,
+)
 from creator_studio.domain.ids import AssetId, CharacterId
 from creator_studio.domain.timeutil import utc_now
 from creator_studio.ports.unit_of_work import UnitOfWork
@@ -48,6 +52,8 @@ class CreateCharacter:
 
     def execute(self, display_name: str) -> CharacterDTO:
         character = Character.create(display_name)
+        if is_lize_helesta_name(display_name):
+            character.visual_identity = lize_helesta_visual_identity()
         with self._uow as uow:
             uow.characters.add(character)
             uow.commit()

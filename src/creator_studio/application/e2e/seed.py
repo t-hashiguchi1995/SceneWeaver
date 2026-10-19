@@ -14,6 +14,7 @@ from creator_studio.application.characters.manage import (
 from creator_studio.application.story.manage import CreateBeat, CreateScene
 from creator_studio.application.wardrobe.tryon import SeedMarketplaceItem
 from creator_studio.domain.asset import AssetKind
+from creator_studio.domain.character.presets import LIZE_HELESTA_BODY, LIZE_HELESTA_IDENTITY_TAGS
 from creator_studio.domain.ids import AssetId
 from creator_studio.domain.wardrobe import MarketplaceItem
 from creator_studio.infrastructure.settings.config import REPO_ROOT
@@ -111,7 +112,11 @@ class E2ESeedService:
         )
         self._update_visual.execute(
             character.id,
-            {"tryon_base_asset_id": base.id, "hair": "black", "identity_tags": ["1girl"]},
+            {
+                "tryon_base_asset_id": base.id,
+                "identity_tags": list(LIZE_HELESTA_IDENTITY_TAGS),
+                "body": LIZE_HELESTA_BODY,
+            },
         )
         scene = self._create_scene.execute(
             project.id,

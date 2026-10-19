@@ -5,6 +5,7 @@ import re
 from dataclasses import replace
 from typing import Any
 
+from creator_studio.domain.character.presets import ANIMA_RIZE_QUALITY_POSITIVE, ANIMA_RIZE_STYLE
 from creator_studio.domain.prompt.assembly import BuiltPrompt, PromptAssemblyProfile, PromptComponent
 
 _LORA = re.compile(r"<lora:([^:>]+):(-?\d+(?:\.\d+)?)>")
@@ -17,8 +18,9 @@ QUALITY_PROFILES = {
         'negative': 'worst quality, low quality, bad anatomy, bad hands, text, watermark',
     },
     'anima_legacy_v1': {
-        'style': '@fuzichoco, @rella',
-        'positive': 'year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe',
+        # Rize / Lize Helesta Anima base — see domain.character.presets
+        'style': ANIMA_RIZE_STYLE,
+        'positive': ANIMA_RIZE_QUALITY_POSITIVE,
         'negative': 'worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, signature, watermark, username, artist name',
     },
 }

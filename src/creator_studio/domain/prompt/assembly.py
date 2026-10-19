@@ -29,9 +29,22 @@ class PromptAssemblyProfile:
     profile_version: str = "v1"
     content_rating: str = "general"
     model: str = "anima"
+    # Order matches the Rize / Lize Helesta Anima base:
+    # quality → 1girl → identity → style → traits → shot semantics…
     positive_order: tuple[str, ...] = (
-        "subject_count", "character_identity", "character_traits", "outfit", "expression",
-        "pose", "gaze", "camera", "background", "lighting", "style", "quality", "user_additions",
+        "quality",
+        "subject_count",
+        "character_identity",
+        "style",
+        "character_traits",
+        "outfit",
+        "expression",
+        "pose",
+        "gaze",
+        "camera",
+        "background",
+        "lighting",
+        "user_additions",
     )
 
 
