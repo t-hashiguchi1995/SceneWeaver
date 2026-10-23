@@ -3,9 +3,16 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ActionableEmptyState } from './ActionableEmptyState'
 import { AssetImage } from './AssetImage'
-import { ErrorBanner } from './ErrorBanner'
+import { OperationError } from './OperationError'
+import { ProjectContextBar } from './ProjectContextBar'
 import { WorkflowCompletionCard } from './WorkflowCompletionCard'
+import {
+  endActiveOperation,
+  startActiveOperation,
+  updateActiveOperation,
+} from '../lib/activeOperations'
 import {
   api,
   saveStudioContext,
@@ -149,6 +156,45 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
     })
   }
 
+  const generateFirst = useMutation({
+    mutationFn: async () => {
+      const opId = `render-${shotId}`
+      startActiveOperation({
+        id: opId,
+        kind: 'render',
+        detail: `Shot ${shotId.slice(0, 8)}`,
+        status: 'queued',
+        progress: 10,
+      })
+      updateActiveOperation(opId, { status: 'running', progress: 55 })
+      try {
+        await api.ensurePromptDraft(shotId)
+        return await api.renderShot(shotId, false)
+      } finally {
+        endActiveOperation(opId)
+      }
+    },
+    onSuccess: (result) => {
+      saveStudioContext({
+        shotId: result.shot_id,
+        generationAssetIds: result.output_asset_ids,
+        generationAttemptId: result.generation_attempt_id,
+      })
+      void qc.invalidateQueries({ queryKey: ['generation-attempts', shotId] })
+      void navigate({
+        to: projectId
+          ? '/projects/$projectId/shots/$shotId/generations/$attemptId'
+          : '/shots/$shotId/generations/$attemptId',
+        params: {
+          projectId: projectId ?? '',
+          shotId: result.shot_id,
+          attemptId: result.generation_attempt_id,
+        },
+      })
+    },
+    onError: (err) => setError((err as Error).message),
+  })
+
   if (!shotId) {
     return (
       <section className="page" data-testid="generation-review">
@@ -163,6 +209,7 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
 
   return (
     <section className="page" data-testid="generation-review">
+      {projectId && <ProjectContextBar shotId={shotId} strict />}
       <div className="row-between">
         <div>
           <h1>{t('generation:reviewTitle')}</h1>
@@ -183,12 +230,34 @@ export function GenerationReviewView({ shotId, attemptId, projectId }: Generatio
         </button>
       </div>
 
-      {error && <ErrorBanner message={error} />}
+      {error && (
+        <OperationError
+          title={t('common:errors.generationFailedTitle')}
+          message={error}
+          onRetry={() => {
+            setError('')
+            if (attempts.length === 0) generateFirst.mutate()
+            else regenerateSame.mutate('new')
+          }}
+        />
+      )}
 
       <div className="review-layout review-layout-3pane">
         <aside className="review-history" data-testid="generation-history">
           <h2>{t('generation:historyTitle')}</h2>
-          {attempts.length === 0 && <p className="meta">{t('generation:historyEmpty')}</p>}
+          {attempts.length === 0 && (
+            <ActionableEmptyState
+              title={t('generation:historyEmptyTitle')}
+              description={t('generation:historyEmptyDescription')}
+              actionLabel={t('generation:historyEmptyAction')}
+              actionTestId="generation-history-empty-action"
+              actionDisabled={generateFirst.isPending}
+              onAction={() => {
+                setError('')
+                generateFirst.mutate()
+              }}
+            />
+          )}
           <ul className="list">
             {attempts.map((attempt, index) => {
               const badge = attemptBadge(attempt)

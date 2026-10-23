@@ -62,8 +62,13 @@
     "OUTPUT_NOT_FOUND": "Could not retrieve generation output",
     "TIMEOUT": "Image generation timed out",
     "generic": "Something went wrong",
+    "generationFailedTitle": "Could not generate images",
+    "tryonFailedTitle": "Could not run Try-On",
     "comfyUnreachableDetail": "Could not reach {{url}}. Make sure ComfyUI is running.",
-    "openIntegrations": "Open Integrations"
+    "openIntegrations": "Open Integrations",
+    "checkConnection": "Check connection settings",
+    "retry": "Try again",
+    "technicalDetails": "Details"
   },
   "datetime": {
     "unknown": "—"

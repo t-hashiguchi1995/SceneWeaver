@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ErrorBanner } from '../components/ErrorBanner'
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { api, loadStudioContext, saveStudioContext } from '../lib/api'
 
 export function ShotsEntryPage() {
@@ -39,6 +40,7 @@ export function ShotsEntryPage() {
 
   return (
     <section className="page" data-testid="shots-entry-page">
+      {projectId && <ProjectContextBar beatId={beatId || undefined} strict />}
       <h1>{t('generation:title')}</h1>
       <p className="lede">{t('generation:lede')}</p>
 

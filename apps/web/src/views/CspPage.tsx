@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from '../components/AssetImage'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import { api, loadStudioContext, saveStudioContext } from '../lib/api'
 
@@ -161,6 +162,7 @@ export function CspPage() {
 
   return (
     <section className="page" data-testid="csp-page">
+      {projectId && <ProjectContextBar />}
       <h1>{t('title')}</h1>
       <p className="lede">{t('lede')}</p>
 

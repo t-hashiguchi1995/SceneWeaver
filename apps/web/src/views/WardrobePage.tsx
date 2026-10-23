@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from '../components/AssetImage'
-import { ErrorBanner } from '../components/ErrorBanner'
+import { OperationError } from '../components/OperationError'
+import { ProjectContextBar } from '../components/ProjectContextBar'
 import { WorkflowCompletionCard } from '../components/WorkflowCompletionCard'
 import { formatStatus } from '../i18n/format'
+import { endActiveOperation, startActiveOperation, updateActiveOperation } from '../lib/activeOperations'
 import { api, loadStudioContext, saveStudioContext } from '../lib/api'
 
 type WardrobeTab = 'market' | 'tryon' | 'mine'
@@ -99,10 +101,24 @@ export function WardrobePage() {
       const effectiveCharacterId = characterId || ctx.characterId
       const effectiveSceneId = sceneId || ctx.sceneId
       if (!effectiveCharacterId || !selectedId) throw new Error(t('wardrobe:needCharacterOutfit'))
+      const opId = `tryon-${effectiveCharacterId}-${selectedId}`
+      startActiveOperation({
+        id: opId,
+        kind: 'tryon',
+        detail: characterName || effectiveCharacterId,
+        status: 'queued',
+        progress: 8,
+      })
       setPhase('queued')
-      await new Promise((r) => setTimeout(r, 120))
+      // Keep queued visible long enough for Header / body status to agree (CX-F0).
+      await new Promise((r) => setTimeout(r, 500))
       setPhase('running')
-      return api.runTryOn(effectiveCharacterId!, selectedId, effectiveSceneId)
+      updateActiveOperation(opId, { status: 'running', progress: 45 })
+      try {
+        return await api.runTryOn(effectiveCharacterId!, selectedId, effectiveSceneId)
+      } finally {
+        endActiveOperation(opId)
+      }
     },
     onSuccess: (result) => {
       setSessionId(result.session_id)
@@ -142,6 +158,13 @@ export function WardrobePage() {
 
   return (
     <section className="page" data-testid="wardrobe-page">
+      {projectId && (
+        <ProjectContextBar
+          sceneId={sceneId || ctx.sceneId}
+          beatId={loadStudioContext().beatId}
+          shotId={loadStudioContext().shotId}
+        />
+      )}
       <h1>{t('wardrobe:title')}</h1>
       <p className="lede">{t('wardrobe:lede')}</p>
       {characterName || ctx.characterId ? (
@@ -251,6 +274,16 @@ export function WardrobePage() {
               >
                 {t('wardrobe:runTryOn')}
               </button>
+              {error && (
+                <OperationError
+                  title={t('common:errors.tryonFailedTitle')}
+                  message={error}
+                  onRetry={() => {
+                    setError('')
+                    tryOn.mutate()
+                  }}
+                />
+              )}
             </div>
           )}
         </div>
@@ -262,7 +295,16 @@ export function WardrobePage() {
             {t('wardrobe:statusLabel')}:{' '}
             <span data-testid="tryon-status-label">{formatStatus(t, phase)}</span>
           </p>
-          {error && <ErrorBanner message={error} />}
+          {error && (
+            <OperationError
+              title={t('common:errors.tryonFailedTitle')}
+              message={error}
+              onRetry={() => {
+                setError('')
+                tryOn.mutate()
+              }}
+            />
+          )}
           {candidates.length === 0 ? (
             <p className="meta">{t('wardrobe:tryonEmpty')}</p>
           ) : (

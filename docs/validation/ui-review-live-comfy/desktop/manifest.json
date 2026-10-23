@@ -1,0 +1,194 @@
+{
+  "viewport": {
+    "name": "desktop",
+    "width": 1280,
+    "height": 800
+  },
+  "focus": "CX-F0 nine-state Story→Wardrobe→Try-On→Shot→Generate→Review→CSP→Release",
+  "appCodeCommit": "3658ccaa1b2993e788e942a5c123ee4aa37b6c23",
+  "captureSpecSha256": "bea01a0985acc445ed1105af472df7e83433fe2cea26ab75b9043b05f0c4bea5",
+  "environment": "live-test; real ComfyUI; stub LLM; NO asset content substitution",
+  "imageBackend": "comfy",
+  "contextChecked": {
+    "projectTitle": "E2E m4_visual",
+    "beatTitle": "もう少し一緒にいたい",
+    "shotLabel": "Shot 01"
+  },
+  "capabilities": {
+    "BaseRender": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "anima_base",
+      "detail": "comfy online"
+    },
+    "OutfitTryOn": {
+      "configured": true,
+      "runtime_available": true,
+      "model_id": "qwen_image_edit_2509",
+      "detail": "comfy online"
+    }
+  },
+  "captures": [
+    {
+      "file": "01_story_context.png",
+      "state": "Story context",
+      "path": "/projects/5b9aecb50a354878a771c939cf/story",
+      "headings": [
+        "ストーリー",
+        "セリフを確定しました"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": null
+      },
+      "jobsLabel": null,
+      "bodyStatus": null,
+      "horizontalOverflow": false
+    },
+    {
+      "file": "02_wardrobe_context.png",
+      "state": "Wardrobe keeps Project + Beat",
+      "path": "/projects/5b9aecb50a354878a771c939cf/wardrobe",
+      "headings": [
+        "衣装",
+        "Soft Knit Cardigan"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": null
+      },
+      "jobsLabel": null,
+      "bodyStatus": null,
+      "horizontalOverflow": false
+    },
+    {
+      "file": "03_tryon_queued.png",
+      "state": "Try-On queued: Header and body both 待機中",
+      "path": "/projects/5b9aecb50a354878a771c939cf/wardrobe",
+      "headings": [
+        "バックグラウンド処理",
+        "衣装"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": null
+      },
+      "jobsLabel": "Try-On 待機中",
+      "bodyStatus": "待機中",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "04_tryon_running.png",
+      "state": "Try-On running: Header and body agree",
+      "path": "/projects/5b9aecb50a354878a771c939cf/wardrobe",
+      "headings": [
+        "バックグラウンド処理",
+        "衣装"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": null
+      },
+      "jobsLabel": "Try-On 実行中",
+      "bodyStatus": "処理中",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "05_shot_context.png",
+      "state": "Shot context: Project / Beat / Shot 01",
+      "path": "/projects/5b9aecb50a354878a771c939cf/shots/a549d9a2fef543f687cee3303e",
+      "headings": [
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "jobsLabel": null,
+      "bodyStatus": "待機",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "06_generating.png",
+      "state": "Generating: 画像生成を待機中",
+      "path": "/projects/5b9aecb50a354878a771c939cf/shots/a549d9a2fef543f687cee3303e",
+      "headings": [
+        "バックグラウンド処理",
+        "ショット設定",
+        "基本設定",
+        "Prompt",
+        "画像生成プロンプト"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "jobsLabel": "画像生成を待機中",
+      "bodyStatus": "待機中",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "07_review.png",
+      "state": "Review keeps Story→Shot context; real Comfy pixels",
+      "path": "/projects/5b9aecb50a354878a771c939cf/shots/a549d9a2fef543f687cee3303e/generations/26b2672e271f4f4ea903021089",
+      "headings": [
+        "生成結果",
+        "生成履歴",
+        "候補 1 — 拡大プレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "jobsLabel": null,
+      "bodyStatus": null,
+      "horizontalOverflow": false
+    },
+    {
+      "file": "08_csp.png",
+      "state": "CSP with continuous Project / Beat / Shot",
+      "path": "/projects/5b9aecb50a354878a771c939cf/csp",
+      "headings": [
+        "CLIP STUDIO連携",
+        "Panel 1"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "jobsLabel": null,
+      "bodyStatus": null,
+      "horizontalOverflow": false
+    },
+    {
+      "file": "09_release.png",
+      "state": "Release keeps continuous context",
+      "path": "/projects/5b9aecb50a354878a771c939cf/release",
+      "headings": [
+        "公開準備",
+        "マスター",
+        "プラットフォーム別プレビュー"
+      ],
+      "context": {
+        "project": "E2E m4_visual",
+        "beat": "もう少し一緒にいたい",
+        "shot": "Shot 01"
+      },
+      "jobsLabel": null,
+      "bodyStatus": null,
+      "horizontalOverflow": false
+    }
+  ],
+  "pageErrors": []
+}

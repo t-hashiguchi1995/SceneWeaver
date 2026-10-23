@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 
 import commonEn from './locales/en/common.json'
 import characterEn from './locales/en/character.json'
+import contextEn from './locales/en/context.json'
 import cspEn from './locales/en/csp.json'
 import generationEn from './locales/en/generation.json'
 import homeEn from './locales/en/home.json'
@@ -18,6 +19,7 @@ import wardrobeEn from './locales/en/wardrobe.json'
 
 import commonJa from './locales/ja/common.json'
 import characterJa from './locales/ja/character.json'
+import contextJa from './locales/ja/context.json'
 import cspJa from './locales/ja/csp.json'
 import generationJa from './locales/ja/generation.json'
 import homeJa from './locales/ja/home.json'
@@ -40,6 +42,7 @@ export const namespaces = [
   'home',
   'project',
   'character',
+  'context',
   'story',
   'wardrobe',
   'generation',
@@ -58,6 +61,7 @@ const resources = {
     home: homeJa,
     project: projectJa,
     character: characterJa,
+    context: contextJa,
     story: storyJa,
     wardrobe: wardrobeJa,
     generation: generationJa,
@@ -74,6 +78,7 @@ const resources = {
     home: homeEn,
     project: projectEn,
     character: characterEn,
+    context: contextEn,
     story: storyEn,
     wardrobe: wardrobeEn,
     generation: generationEn,

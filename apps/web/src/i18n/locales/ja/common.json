@@ -62,8 +62,13 @@
     "OUTPUT_NOT_FOUND": "生成結果を取得できませんでした",
     "TIMEOUT": "画像生成がタイムアウトしました",
     "generic": "エラーが発生しました",
+    "generationFailedTitle": "画像を生成できませんでした",
+    "tryonFailedTitle": "Try-Onを実行できませんでした",
     "comfyUnreachableDetail": "{{url}} に接続できませんでした。ComfyUIが起動していることを確認してください。",
-    "openIntegrations": "外部連携設定を開く"
+    "openIntegrations": "外部連携設定を開く",
+    "checkConnection": "接続設定を確認",
+    "retry": "もう一度試す",
+    "technicalDetails": "詳細"
   },
   "datetime": {
     "unknown": "—"

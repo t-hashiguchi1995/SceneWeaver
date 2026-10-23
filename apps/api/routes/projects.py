@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from apps.api.deps import container
 from apps.api.schemas import ProjectCreate, ProjectOut
@@ -38,5 +38,26 @@ def get_dashboard(project_id: str, c: Container = Depends(container)) -> dict:
     from creator_studio.application.projects.dashboard import ProjectDashboard
     try:
         return ProjectDashboard(c.uow(), c.csp_handoff()).get(project_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get("/{project_id}/context")
+def get_project_context(
+    project_id: str,
+    scene_id: str | None = Query(default=None),
+    beat_id: str | None = Query(default=None),
+    shot_id: str | None = Query(default=None),
+    c: Container = Depends(container),
+) -> dict:
+    from creator_studio.application.projects.context import ProjectContextQuery
+
+    try:
+        return ProjectContextQuery(c.uow()).get(
+            project_id,
+            scene_id=scene_id,
+            beat_id=beat_id,
+            shot_id=shot_id,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
