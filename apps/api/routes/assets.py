@@ -27,6 +27,15 @@ def get_asset(asset_id: str, c: Container = Depends(container)) -> dict[str, Any
         return to_dto(asset).__dict__
 
 
+@router.get("/{asset_id}/tags")
+def get_asset_tags(asset_id: str, c: Container = Depends(container)) -> list[dict[str, Any]]:
+    with c.uow() as uow:
+        asset = uow.assets.get(AssetId(asset_id))
+        if asset is None:
+            raise HTTPException(status_code=404, detail="asset not found")
+    return c.list_asset_tags().execute(asset_id)
+
+
 @router.put("/{asset_id}/decision")
 def set_decision(
     asset_id: str, body: DecisionBody, c: Container = Depends(container)

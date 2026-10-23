@@ -9,6 +9,7 @@ from creator_studio.infrastructure.db.base import Base
 from creator_studio.infrastructure.db.models import (  # noqa: F401
     AssetLinkRow,
     AssetRow,
+    AssetTagRow,
     BeatRow,
     CharacterRow,
     GenerationAttemptRow,

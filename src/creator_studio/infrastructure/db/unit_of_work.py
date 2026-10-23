@@ -3,6 +3,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from creator_studio.infrastructure.db.repositories.asset_repo import SqlAlchemyAssetRepository
+from creator_studio.infrastructure.db.repositories.asset_tag_repo import SqlAlchemyAssetTagRepository
 from creator_studio.infrastructure.db.repositories.character_repo import SqlAlchemyCharacterRepository
 from creator_studio.infrastructure.db.repositories.job_repo import SqlAlchemyJobRepository
 from creator_studio.infrastructure.db.repositories.project_repo import SqlAlchemyProjectRepository
@@ -38,6 +39,7 @@ class SqlAlchemyUnitOfWork:
         self.projects: SqlAlchemyProjectRepository
         self.jobs: SqlAlchemyJobRepository
         self.assets: SqlAlchemyAssetRepository
+        self.asset_tags: SqlAlchemyAssetTagRepository
         self.characters: SqlAlchemyCharacterRepository
         self.scenes: SqlAlchemySceneRepository
         self.beats: SqlAlchemyBeatRepository
@@ -58,6 +60,7 @@ class SqlAlchemyUnitOfWork:
         self.projects = SqlAlchemyProjectRepository(self.session)
         self.jobs = SqlAlchemyJobRepository(self.session)
         self.assets = SqlAlchemyAssetRepository(self.session)
+        self.asset_tags = SqlAlchemyAssetTagRepository(self.session)
         self.characters = SqlAlchemyCharacterRepository(self.session)
         self.scenes = SqlAlchemySceneRepository(self.session)
         self.beats = SqlAlchemyBeatRepository(self.session)

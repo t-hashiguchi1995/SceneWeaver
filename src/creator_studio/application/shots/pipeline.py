@@ -9,6 +9,7 @@ from typing import Any
 
 import yaml
 
+from creator_studio.application.assets.tag_asset import schedule_asset_tagging
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
 from creator_studio.application.prompt.renderer import PromptRenderer
 from creator_studio.application.prompt.context import resolve_prompt_context
@@ -291,6 +292,7 @@ class ShotPipeline:
                     provenance=provenance,
                 )
                 uow.assets.add(asset)
+                schedule_asset_tagging(uow, str(asset.id))
                 outputs.append(str(asset.id))
             if not workflow_hash:
                 workflow_hash = self._fallback_workflow_hash(workflow_template_id, slots)

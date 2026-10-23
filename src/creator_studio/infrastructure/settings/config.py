@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     comfy_url: str = "http://127.0.0.1:8188"
     image_backend: str = "fake"
+    # off (dev default — no TAG_ASSET) | stub (e2e/CI) | pixai (live + vision extra)
+    image_tagger: str = "off"
+    pixai_tagger_model: str = "pixai-labs/pixai-tagger-v1.0"
+    # Pinned HF revision; also used as asset_tags.model_version for PixAI.
+    pixai_tagger_revision: str = "9fe10addf9326e292da8a85a98ea74cd91b41771"
+    # None → pipeline category defaults; float or leave unset for live overrides.
+    pixai_tagger_threshold: float | None = None
     config_dir: str = "config"
     fake_image_delay_ms: int = 200
     comfy_poll_timeout_seconds: float = 300.0
