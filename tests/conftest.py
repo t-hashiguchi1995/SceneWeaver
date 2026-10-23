@@ -24,6 +24,8 @@ def settings(tmp_runtime: Path, monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("SCENEWEAVER_RUNTIME_DIR", str(tmp_runtime))
     monkeypatch.setenv("SCENEWEAVER_DATABASE_URL", f"sqlite:///{db}")
     monkeypatch.setenv("SCENEWEAVER_IMAGE_BACKEND", "fake")
+    # Unit/integration default: stub (production/dev default remains off).
+    monkeypatch.setenv("SCENEWEAVER_IMAGE_TAGGER", "stub")
     monkeypatch.setenv("SCENEWEAVER_WORKER_ID", "test-worker")
     clear_settings_cache()
     reset_engine()

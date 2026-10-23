@@ -9,7 +9,7 @@ from creator_studio.ports.image_tagger import ImageTag, TaggingResult
 
 class StubImageTagger:
     SOURCE_MODEL = "stub"
-    MODEL_VERSION = "1"
+    MODEL_VERSION = "stub-1"
 
     def tag(self, image: bytes) -> TaggingResult:
         digest = hashlib.sha256(image).hexdigest()

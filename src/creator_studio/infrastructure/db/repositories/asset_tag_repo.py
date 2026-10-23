@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -57,6 +57,36 @@ class SqlAlchemyAssetTagRepository:
             )
             self._session.execute(stmt)
         return tags
+
+    def replace_for_source(
+        self,
+        asset_id: str,
+        source_model: str,
+        model_version: str,
+        tags: list[AssetTag],
+    ) -> list[AssetTag]:
+        """Atomically replace all tags for one (asset, source_model, model_version)."""
+        self._session.execute(
+            delete(AssetTagRow).where(
+                AssetTagRow.asset_id == asset_id,
+                AssetTagRow.source_model == source_model,
+                AssetTagRow.model_version == model_version,
+            )
+        )
+        for tag in tags:
+            self._session.add(
+                AssetTagRow(
+                    id=tag.id,
+                    asset_id=tag.asset_id,
+                    tag=tag.tag,
+                    category=tag.category,
+                    score=tag.score,
+                    source_model=tag.source_model,
+                    model_version=tag.model_version,
+                    created_at=tag.created_at,
+                )
+            )
+        return self.list_for_asset(asset_id)
 
     def search_asset_ids(self, tag_query: str, *, limit: int = 200) -> list[str]:
         needle = tag_query.strip().lower()

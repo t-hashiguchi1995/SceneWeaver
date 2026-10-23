@@ -159,17 +159,28 @@ class Container:
 
     def image_tagger(self) -> ImageTagger:
         key = self.settings.image_tagger.strip().lower()
-        if self._image_tagger is None or self._image_tagger_key != key:
+        if key in {"", "off", "none"}:
+            raise RuntimeError(
+                "SCENEWEAVER_IMAGE_TAGGER=off; tagging is disabled "
+                "(set stub for E2E/CI or pixai for live)"
+            )
+        cache_key = f"{key}:{self.settings.pixai_tagger_revision}"
+        if self._image_tagger is None or self._image_tagger_key != cache_key:
             if key == "pixai":
                 from creator_studio.adapters.vision.pixai_tagger import PixAITaggerAdapter
 
                 self._image_tagger = PixAITaggerAdapter(
                     model_id=self.settings.pixai_tagger_model,
+                    revision=self.settings.pixai_tagger_revision,
                     threshold=self.settings.pixai_tagger_threshold,
                 )
-            else:
+            elif key == "stub":
                 self._image_tagger = StubImageTagger()
-            self._image_tagger_key = key
+            else:
+                raise RuntimeError(
+                    f"unknown SCENEWEAVER_IMAGE_TAGGER={key!r}; use off|stub|pixai"
+                )
+            self._image_tagger_key = cache_key
         return self._image_tagger
 
     def tag_asset(self) -> TagAsset:

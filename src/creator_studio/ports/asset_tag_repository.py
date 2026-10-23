@@ -12,4 +12,12 @@ class AssetTagRepository(Protocol):
 
     def upsert_many(self, tags: list[AssetTag]) -> list[AssetTag]: ...
 
+    def replace_for_source(
+        self,
+        asset_id: str,
+        source_model: str,
+        model_version: str,
+        tags: list[AssetTag],
+    ) -> list[AssetTag]: ...
+
     def search_asset_ids(self, tag_query: str, *, limit: int = 200) -> list[str]: ...
