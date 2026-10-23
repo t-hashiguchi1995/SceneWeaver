@@ -23,5 +23,13 @@
     "csp_handoff": "Exporting CSP",
     "release_build": "Preparing release",
     "stub": "Processing"
+  },
+  "queued": {
+    "render": "Waiting to generate image",
+    "tryon": "Try-On waiting",
+    "dialogue_candidates": "Waiting to generate dialogue",
+    "csp_handoff": "Waiting to export CSP",
+    "release_build": "Waiting to prepare release",
+    "stub": "Waiting"
   }
 }

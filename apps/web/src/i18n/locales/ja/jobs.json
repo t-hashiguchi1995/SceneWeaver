@@ -23,5 +23,13 @@
     "csp_handoff": "CSP書き出し中",
     "release_build": "公開準備中",
     "stub": "処理中"
+  },
+  "queued": {
+    "render": "画像生成を待機中",
+    "tryon": "Try-On 待機中",
+    "dialogue_candidates": "セリフ生成を待機中",
+    "csp_handoff": "CSP書き出しを待機中",
+    "release_build": "公開準備を待機中",
+    "stub": "処理を待機中"
   }
 }

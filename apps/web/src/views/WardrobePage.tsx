@@ -110,7 +110,8 @@ export function WardrobePage() {
         progress: 8,
       })
       setPhase('queued')
-      await new Promise((r) => setTimeout(r, 120))
+      // Keep queued visible long enough for Header / body status to agree (CX-F0).
+      await new Promise((r) => setTimeout(r, 500))
       setPhase('running')
       updateActiveOperation(opId, { status: 'running', progress: 45 })
       try {

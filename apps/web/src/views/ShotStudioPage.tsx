@@ -120,7 +120,7 @@ export function ShotStudioPage() {
         progress: 10,
       })
       setPhase('queued')
-      await new Promise((r) => setTimeout(r, 120))
+      await new Promise((r) => setTimeout(r, 500))
       setPhase('running')
       updateActiveOperation(opId, { status: 'running', progress: 55 })
       try {

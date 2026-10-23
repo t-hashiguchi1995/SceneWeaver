@@ -25,6 +25,17 @@ function runningLabel(t: (key: string, opts?: Record<string, unknown>) => string
   return t(`running.${kind}`, { defaultValue: kindLabel(t, kind) })
 }
 
+function queuedLabel(t: (key: string, opts?: Record<string, unknown>) => string, kind: string): string {
+  return t(`queued.${kind}`, { defaultValue: kindLabel(t, kind) })
+}
+
+function indicatorLabelFor(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  job: Pick<DisplayJob, 'kind' | 'status'>,
+): string {
+  return job.status === 'queued' ? queuedLabel(t, job.kind) : runningLabel(t, job.kind)
+}
+
 function jobDetail(job: Job): string | undefined {
   const payload = job.payload ?? {}
   const parts = [
@@ -94,7 +105,7 @@ export function JobsIndicator() {
 
   const indicatorLabel =
     active.length === 1
-      ? runningLabel(t, active[0].kind)
+      ? indicatorLabelFor(t, active[0])
       : t('indicatorMany', { count: active.length })
 
   return (

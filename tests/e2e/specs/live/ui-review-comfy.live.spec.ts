@@ -1,9 +1,11 @@
 /**
- * Real-Comfy UX review: Story → Generate → Adopt continuous flow.
+ * Real-Comfy UX review: Story → Wardrobe → Try-On → Shot → Generate → Review → CSP → Release.
  * Opt-in: SCENEWEAVER_UI_REVIEW_LIVE=1
  *
- * CX-F0 focus: Project Context Bar stays stable across screens while real
- * Comfy pixels are shown (no asset-content substitution).
+ * CX-F0 focus (9 Human Review states):
+ * Story / Wardrobe / Try-On queued / Try-On running / Shot /
+ * Generating / Review / CSP / Release
+ * No asset-content substitution.
  */
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
@@ -26,7 +28,7 @@ const output = resolve(root, 'docs/validation/ui-review-live-comfy/desktop')
 test.describe('live Comfy UX review', () => {
   test.setTimeout(LIVE_TIMEOUT_MS * 2)
 
-  test('Story→Generate→Adopt context continuity with real Comfy', async ({ page }, testInfo) => {
+  test('CX-F0 nine-state continuity with real Comfy', async ({ page }, testInfo) => {
     test.skip(!enabled, 'Set SCENEWEAVER_UI_REVIEW_LIVE=1 to capture live Comfy UX artifacts')
 
     let caps
@@ -49,29 +51,35 @@ test.describe('live Comfy UX review', () => {
     page.on('pageerror', (error) => pageErrors.push(error.message))
 
     const captures: Record<string, unknown>[] = []
-    const capture = async (name: string, state: string, element?: ReturnType<Page['locator']>) => {
+    const capture = async (
+      name: string,
+      state: string,
+      opts?: { waitImages?: boolean; element?: ReturnType<Page['locator']> },
+    ) => {
       await page.evaluate(() => document.fonts.ready)
-      await page.evaluate(() => {
-        for (const img of document.querySelectorAll('img')) {
-          img.loading = 'eager'
-        }
-      })
-      await expect
-        .poll(
-          () =>
-            page.locator('img').evaluateAll((nodes) =>
-              nodes.every(
-                (n) =>
-                  !n.getClientRects().length ||
-                  (n.complete && n.naturalWidth > 0) ||
-                  (n.complete && n.naturalWidth === 0),
+      if (opts?.waitImages !== false) {
+        await page.evaluate(() => {
+          for (const img of document.querySelectorAll('img')) {
+            img.loading = 'eager'
+          }
+        })
+        await expect
+          .poll(
+            () =>
+              page.locator('img').evaluateAll((nodes) =>
+                nodes.every(
+                  (n) =>
+                    !n.getClientRects().length ||
+                    (n.complete && n.naturalWidth > 0) ||
+                    (n.complete && n.naturalWidth === 0),
+                ),
               ),
-            ),
-          { timeout: 60_000 },
-        )
-        .toBe(true)
+            { timeout: 60_000 },
+          )
+          .toBe(true)
+      }
       const path = resolve(output, `${name}.png`)
-      if (element) await element.screenshot({ path, animations: 'disabled' })
+      if (opts?.element) await opts.element.screenshot({ path, animations: 'disabled' })
       else {
         await page.evaluate(() => window.scrollTo(0, 0))
         await page.screenshot({ path, fullPage: true, animations: 'disabled' })
@@ -80,7 +88,6 @@ test.describe('live Comfy UX review', () => {
         () => document.documentElement.scrollWidth > innerWidth,
       )
       expect(horizontalOverflow).toBe(false)
-      // Do not use locator.textContent() for optional nodes — it waits until test timeout.
       const context = await page.evaluate(() => {
         const text = (id: string) =>
           document.querySelector(`[data-testid="${id}"]`)?.textContent?.trim() ?? null
@@ -90,12 +97,24 @@ test.describe('live Comfy UX review', () => {
           shot: text('context-shot'),
         }
       })
+      const jobsLabel = await page.evaluate(
+        () =>
+          document.querySelector('[data-testid="jobs-indicator-label"]')?.textContent?.trim() ??
+          null,
+      )
+      const bodyStatus = await page.evaluate(() => {
+        const tryon = document.querySelector('[data-testid="tryon-status-label"]')?.textContent?.trim()
+        const shot = document.querySelector('[data-testid="shot-status-label"]')?.textContent?.trim()
+        return tryon || shot || null
+      })
       captures.push({
         file: `${name}.png`,
         state,
         path: new URL(page.url()).pathname,
         headings: await page.locator('h1,h2').allTextContents(),
         context,
+        jobsLabel,
+        bodyStatus,
         horizontalOverflow,
       })
     }
@@ -106,10 +125,30 @@ test.describe('live Comfy UX review', () => {
     const dialogue = await api.generateDialogue(seeded.beat_id!, seeded.character_id!)
     await api.lockScript(dialogue.candidates[0].id, 'えへへ、まだ帰らなくてもいいですよ？')
 
+    // Persist studio context so Wardrobe Context Bar keeps Beat across navigation.
     await page.goto('/')
-    await expect(page.getByTestId('home-intent-visual-library')).toBeVisible()
-    await expect(page.getByTestId('jobs-indicator')).toHaveCount(0)
-    await capture('01_home', 'idle header: no jobs indicator')
+    await page.evaluate(
+      ({ projectId, sceneId, beatId, characterId }) => {
+        const cur = JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}')
+        sessionStorage.setItem(
+          'sceneweaver.studio',
+          JSON.stringify({
+            ...cur,
+            projectId,
+            sceneId,
+            beatId,
+            characterId,
+            characterName: 'リゼヘル',
+          }),
+        )
+      },
+      {
+        projectId: seeded.project_id!,
+        sceneId: seeded.scene_id!,
+        beatId: seeded.beat_id!,
+        characterId: seeded.character_id!,
+      },
+    )
 
     await page.goto(
       `${project}/story?sceneId=${seeded.scene_id}&beatId=${seeded.beat_id}`,
@@ -119,36 +158,45 @@ test.describe('live Comfy UX review', () => {
     await expect(page.getByTestId('context-beat')).toBeVisible()
     const projectTitle = (await page.getByTestId('context-project').textContent())!.trim()
     const beatTitle = (await page.getByTestId('context-beat').textContent())!.trim()
-    await capture('02_story_context', 'CX-F0 context bar on Story')
+    await capture('01_story_context', 'Story context')
 
-    // Wardrobe + Try-On via UI (real Qwen) — outfit feeds later context chips
     await page.goto(`${project}/wardrobe`)
     await expect(page.getByTestId('wardrobe-page')).toBeVisible()
     await expect(page.getByTestId('project-context-bar')).toBeVisible()
+    await expect(page.getByTestId('context-project')).toHaveText(projectTitle)
+    await expect(page.getByTestId('context-beat')).toHaveText(beatTitle)
     const market = page.getByTestId('wardrobe-market-panel')
     await market.getByLabel('キャラクター').selectOption(seeded.character_id!)
     await market.getByLabel('シーン').selectOption(seeded.scene_id!)
     await market.getByTestId('market-list').getByRole('button', { name: /Cardigan/ }).click()
     await expect(page.getByTestId('outfit-detail')).toBeVisible()
-    await capture('03_wardrobe_market', 'outfit selected before try-on')
+    await capture('02_wardrobe_context', 'Wardrobe keeps Project + Beat')
 
     await page.getByTestId('tryon-generate').click()
     await page.getByTestId('wardrobe-tab-tryon').click()
-    await expect(page.getByTestId('tryon-status-label')).toHaveText(/待機中|処理中|完了/, {
+    await expect(page.getByTestId('tryon-status-label')).toHaveText('待機中', { timeout: 3_000 })
+    await expect(page.getByTestId('jobs-indicator-label')).toContainText(/待機中|waiting/i)
+    await capture('03_tryon_queued', 'Try-On queued: Header and body both 待機中', {
+      waitImages: false,
+    })
+
+    await expect(page.getByTestId('tryon-status-label')).toHaveText(/処理中|完了/, {
       timeout: 60_000,
     })
-    const tryonPhase = await page.getByTestId('tryon-status-label').textContent()
-    if (tryonPhase && /待機中|処理中/.test(tryonPhase)) {
-      await capture('04_tryon_generating', `try-on ${tryonPhase}; jobs/indicator may show`)
+    const tryonRunning = await page.getByTestId('tryon-status-label').textContent()
+    if (tryonRunning === '処理中') {
+      await expect(page.getByTestId('jobs-indicator-label')).toContainText(/実行中|Running/i)
+      await capture('04_tryon_running', 'Try-On running: Header and body agree', {
+        waitImages: false,
+      })
     }
+
     await expect(page.getByTestId('tryon-candidate-list').locator('img')).toHaveCount(4, {
       timeout: LIVE_TIMEOUT_MS,
     })
     await expect(page.getByTestId('tryon-status-label')).toHaveText('完了')
-    await capture('05_tryon_review', 'real Comfy try-on candidates')
     await page.getByTestId('tryon-adopt-0').click()
     await expect(page.getByTestId('tryon-adopted-banner')).toBeVisible()
-    await capture('06_tryon_adopted', 'adopted try-on look')
 
     const shot = await api.planShot(seeded.beat_id!)
     const studio = `${project}/shots/${shot.id}`
@@ -160,28 +208,14 @@ test.describe('live Comfy UX review', () => {
     await expect(page.getByTestId('context-shot')).toHaveText(/Shot 0?1/)
     const shotLabel = (await page.getByTestId('context-shot').textContent())!.trim()
     await expect(page.getByTestId('jobs-indicator')).toHaveCount(0)
-    await capture('07_shot_studio', 'same Project/Beat/Shot context; idle jobs')
+    await capture('05_shot_context', 'Shot context: Project / Beat / Shot 01')
 
     await page.getByTestId('shot-generate').click()
-    const jobsVisible = await page
-      .getByTestId('jobs-indicator')
-      .waitFor({ state: 'visible', timeout: 8_000 })
-      .then(() => true)
-      .catch(() => false)
-    if (jobsVisible) {
-      await capture('08_generating_jobs', 'JobsIndicator while real Comfy render runs')
-    } else {
-      const statusVisible = await page
-        .getByTestId('shot-status-label')
-        .isVisible()
-        .catch(() => false)
-      if (statusVisible) {
-        const shotPhase = await page.getByTestId('shot-status-label').textContent()
-        if (shotPhase === '処理中') {
-          await capture('08_generating_jobs', 'render in progress (jobs indicator raced past)')
-        }
-      }
-    }
+    await expect(page.getByTestId('jobs-indicator')).toBeVisible({ timeout: 8_000 })
+    // May briefly be queued then running — accept either, prefer running for this frame.
+    await expect(page.getByTestId('jobs-indicator-label')).toContainText(/生成|Generating|待機|Waiting/i)
+    const generatingLabel = await page.getByTestId('jobs-indicator-label').textContent()
+    await capture('06_generating', `Generating: ${generatingLabel}`, { waitImages: false })
 
     await expect(page.getByTestId('generation-review')).toBeVisible({ timeout: LIVE_TIMEOUT_MS })
     await expect(page.getByTestId('generation-candidate-list').locator('img')).toHaveCount(4, {
@@ -190,11 +224,10 @@ test.describe('live Comfy UX review', () => {
     await expect(page.getByTestId('context-project')).toHaveText(projectTitle)
     await expect(page.getByTestId('context-beat')).toHaveText(beatTitle)
     await expect(page.getByTestId('context-shot')).toHaveText(shotLabel)
-    await capture('09_generation_review', 'Review keeps Story→Shot context; real Comfy pixels')
+    await capture('07_review', 'Review keeps Story→Shot context; real Comfy pixels')
 
     await page.getByTestId('generation-adopt').click()
     await expect(page.getByTestId('generation-adopted-banner')).toBeVisible()
-    await capture('10_adopted_candidate', 'adopted real generation asset')
 
     await page.getByTestId('review-next-csp-action').click()
     await expect(page).toHaveURL(new RegExp(`${project}/csp`))
@@ -205,21 +238,38 @@ test.describe('live Comfy UX review', () => {
     await expect(page.getByTestId('csp-page-plan').locator('img')).toHaveCount(1)
     await page.getByTestId('csp-build-handoff').click()
     await expect(page.getByTestId('csp-revision')).toHaveText('r001')
-    await capture('11_csp', 'CSP with continuous context from Story')
+    await capture('08_csp', 'CSP with continuous Project / Beat / Shot')
 
     await page.goto(`${project}/release`)
     await expect(page.getByTestId('project-context-bar')).toBeVisible()
+    await expect(page.getByTestId('context-project')).toHaveText(projectTitle)
+    await expect(page.getByTestId('context-beat')).toHaveText(beatTitle)
+    await expect(page.getByTestId('context-shot')).toHaveText(shotLabel)
     await page.getByTestId('release-title').fill('リゼ・ヘルエスタ：CX-F0 ライブ確認')
     await page.getByTestId('release-summary').fill('Context Bar連続遷移の実Comfyレビューです。')
     await page.getByTestId('release-preview-button').click()
     await page.getByTestId('release-tab-patreon').click()
     await expect(page.getByTestId('release-edition-patreon')).toBeVisible()
-    await capture('12_release', 'release after continuous Story→Adopt path')
+    await capture('09_release', 'Release keeps continuous context')
 
     expect(pageErrors).toEqual([])
+    const capturedFiles = captures.map((c) => c.file)
+    for (const required of [
+      '01_story_context.png',
+      '02_wardrobe_context.png',
+      '03_tryon_queued.png',
+      '05_shot_context.png',
+      '06_generating.png',
+      '07_review.png',
+      '08_csp.png',
+      '09_release.png',
+    ]) {
+      expect(capturedFiles).toContain(required)
+    }
+
     const manifest = {
       viewport: { name: 'desktop', width: 1280, height: 800 },
-      focus: 'CX-F0 Story→Generate→Adopt context continuity',
+      focus: 'CX-F0 nine-state Story→Wardrobe→Try-On→Shot→Generate→Review→CSP→Release',
       appCodeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
       captureSpecSha256: createHash('sha256')
         .update(await readFile(resolve(root, 'tests/e2e/specs/live/ui-review-comfy.live.spec.ts')))

@@ -45,7 +45,10 @@ test.describe('CX-F0 Context / Job / Error UX', () => {
 
     const generateClick = shots.generate()
     await expect(page.getByTestId('jobs-indicator')).toBeVisible({ timeout: 5_000 })
-    await expect(page.getByTestId('jobs-indicator-label')).toContainText(/生成|Generating/i)
+    // Single-job indicator must mirror queued vs running (not always "実行中").
+    await expect(page.getByTestId('jobs-indicator-label')).toContainText(
+      /生成|Generating|待機|Waiting/i,
+    )
     await generateClick
 
     await expect(page.getByTestId('generation-review')).toBeVisible()
