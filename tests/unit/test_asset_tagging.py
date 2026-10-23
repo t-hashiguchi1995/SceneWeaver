@@ -6,6 +6,7 @@ from creator_studio.adapters.vision import StubImageTagger
 from creator_studio.application.assets.store_asset import StoreBytesCommand
 from creator_studio.application.assets.tag_asset import (
     STUB_MODEL_VERSION,
+    STUB_SOURCE_MODEL,
     TagAsset,
     tagging_idempotency_key,
 )
@@ -38,13 +39,20 @@ def test_store_asset_enqueues_tag_job_without_blocking(container: Container) -> 
             filename="shot.png",
         )
     )
-    key = tagging_idempotency_key(dto.id, image_tagger="stub", model_version=STUB_MODEL_VERSION)
+    key = tagging_idempotency_key(
+        dto.id,
+        image_tagger="stub",
+        source_model=STUB_SOURCE_MODEL,
+        model_version=STUB_MODEL_VERSION,
+    )
     with container.uow() as uow:
         job = uow.jobs.get_by_idempotency_key(key)
         assert job is not None
         assert job.kind == JobKind.TAG_ASSET
         assert job.status == JobStatus.QUEUED
         assert job.payload.get("asset_id") == dto.id
+        assert job.payload.get("image_tagger") == "stub"
+        assert job.payload.get("source_model") == STUB_SOURCE_MODEL
         assert job.payload.get("model_version") == STUB_MODEL_VERSION
 
 
@@ -120,6 +128,41 @@ def test_replace_for_source_drops_removed_tags(container: Container) -> None:
     with container.uow() as uow:
         names = {t.tag for t in uow.asset_tags.list_for_asset(dto.id)}
         assert names == {"keep_me"}
+
+
+def test_tag_job_uses_enqueue_snapshot_after_settings_off(
+    container: Container, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """stub enqueue → global off → still succeeds via payload snapshot."""
+    dto = container.store_asset().execute(
+        StoreBytesCommand(
+            data=b"snapshot-tag-path",
+            kind=AssetKind.GENERATED,
+            mime="image/png",
+            relative_dir="generated",
+            filename="snap.png",
+        )
+    )
+    runner = ClaimAndRunStubJob(
+        container.uow(),
+        worker_id=container.settings.worker_id,
+        lease_seconds=30,
+    )
+    claimed = runner.claim()
+    assert claimed is not None
+    assert claimed.kind == JobKind.TAG_ASSET.value
+    assert claimed.payload.get("image_tagger") == "stub"
+
+    monkeypatch.setenv("SCENEWEAVER_IMAGE_TAGGER", "off")
+    clear_settings_cache()
+    # Live settings path must refuse tagging when off.
+    with pytest.raises(RuntimeError, match="off"):
+        container.image_tagger()
+
+    tags = container.tag_asset(claimed.payload).execute(dto.id)
+    done = runner.succeed(claimed.id, progress={"percent": 100, "tag_count": len(tags)})
+    assert done.status == JobStatus.SUCCEEDED.value
+    assert any(t.tag == "stub_auto" for t in tags)
 
 
 def test_tag_job_worker_path_succeeds(container: Container) -> None:

@@ -21,8 +21,9 @@ from creator_studio.ports.unit_of_work import UnitOfWork
 logger = logging.getLogger("sceneweaver.assets.tag")
 
 _TAGGER_OFF = frozenset({"", "off", "none"})
-# Keep in sync with StubImageTagger.MODEL_VERSION (adapters/vision/stub_tagger.py).
+# Keep in sync with StubImageTagger.MODEL_VERSION / SOURCE_MODEL.
 STUB_MODEL_VERSION = "stub-1"
+STUB_SOURCE_MODEL = "stub"
 
 
 @dataclass
@@ -61,6 +62,19 @@ def tagging_is_enabled(image_tagger: str | None = None) -> bool:
     return backend not in _TAGGER_OFF
 
 
+def tagger_source_model(image_tagger: str | None = None) -> str:
+    """Model id / source_model snapshotted into TAG_ASSET jobs."""
+    settings = get_settings()
+    backend = normalize_image_tagger(
+        image_tagger if image_tagger is not None else settings.image_tagger
+    )
+    if backend == "stub":
+        return STUB_SOURCE_MODEL
+    if backend == "pixai":
+        return settings.pixai_tagger_model.strip()
+    return backend
+
+
 def tagger_model_version(image_tagger: str | None = None) -> str:
     """Version string used in job idempotency keys and asset_tags.model_version."""
     settings = get_settings()
@@ -78,27 +92,36 @@ def tagging_idempotency_key(
     asset_id: str,
     *,
     image_tagger: str | None = None,
+    source_model: str | None = None,
     model_version: str | None = None,
 ) -> str:
     backend = normalize_image_tagger(
         image_tagger if image_tagger is not None else get_settings().image_tagger
     )
+    model = source_model if source_model is not None else tagger_source_model(backend)
     version = model_version if model_version is not None else tagger_model_version(backend)
-    return f"tag-asset:{asset_id}:{backend}:{version}"
+    return f"tag-asset:{asset_id}:{backend}:{model}:{version}"
 
 
 def schedule_asset_tagging(uow: UnitOfWork, asset_id: str) -> None:
     """Enqueue TAG_ASSET inside the caller's transaction. Never raises.
 
     No-op when ``SCENEWEAVER_IMAGE_TAGGER=off`` (development default).
+    Payload snapshots backend + model id + revision for worker reproducibility.
     """
     try:
         settings = get_settings()
         backend = normalize_image_tagger(settings.image_tagger)
         if backend in _TAGGER_OFF:
             return
+        source_model = tagger_source_model(backend)
         version = tagger_model_version(backend)
-        key = tagging_idempotency_key(asset_id, image_tagger=backend, model_version=version)
+        key = tagging_idempotency_key(
+            asset_id,
+            image_tagger=backend,
+            source_model=source_model,
+            model_version=version,
+        )
         existing = uow.jobs.get_by_idempotency_key(key)
         if existing is not None:
             return
@@ -107,6 +130,7 @@ def schedule_asset_tagging(uow: UnitOfWork, asset_id: str) -> None:
             {
                 "asset_id": asset_id,
                 "image_tagger": backend,
+                "source_model": source_model,
                 "model_version": version,
             },
             idempotency_key=key,

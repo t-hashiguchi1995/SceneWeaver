@@ -7,7 +7,7 @@ from creator_studio.adapters.llm import OpenAICompatibleProvider, StubLLMProvide
 from creator_studio.adapters.runtime import ComfyRuntimeProbe, FakeRuntimeProbe
 from creator_studio.adapters.secrets.store import SecretStore
 from creator_studio.adapters.settings.file_store import FileUserSettingsStore
-from creator_studio.adapters.vision import StubImageTagger
+from creator_studio.adapters.vision import build_image_tagger
 from creator_studio.application.assets.decisions import SetAssetDecision
 from creator_studio.application.assets.store_asset import StoreAssetBytes
 from creator_studio.application.assets.tag_asset import ListAssetTags, TagAsset
@@ -157,33 +157,55 @@ class Container:
     def store_asset(self) -> StoreAssetBytes:
         return StoreAssetBytes(self.uow(), self.asset_store)
 
-    def image_tagger(self) -> ImageTagger:
-        key = self.settings.image_tagger.strip().lower()
+    def image_tagger(
+        self,
+        *,
+        image_tagger: str | None = None,
+        source_model: str | None = None,
+        model_version: str | None = None,
+    ) -> ImageTagger:
+        """Build tagger from live settings or an explicit job snapshot."""
+        live = get_settings()
+        key = (image_tagger if image_tagger is not None else live.image_tagger).strip().lower()
         if key in {"", "off", "none"}:
             raise RuntimeError(
                 "SCENEWEAVER_IMAGE_TAGGER=off; tagging is disabled "
                 "(set stub for E2E/CI or pixai for live)"
             )
-        cache_key = f"{key}:{self.settings.pixai_tagger_revision}"
-        if self._image_tagger is None or self._image_tagger_key != cache_key:
-            if key == "pixai":
-                from creator_studio.adapters.vision.pixai_tagger import PixAITaggerAdapter
-
-                self._image_tagger = PixAITaggerAdapter(
-                    model_id=self.settings.pixai_tagger_model,
-                    revision=self.settings.pixai_tagger_revision,
-                    threshold=self.settings.pixai_tagger_threshold,
+        if image_tagger is None:
+            # Live settings path — always re-read get_settings(); cacheable.
+            model_id = live.pixai_tagger_model if key == "pixai" else "stub"
+            revision = live.pixai_tagger_revision if key == "pixai" else "stub-1"
+            cache_key = f"{key}:{model_id}:{revision}"
+            if self._image_tagger is None or self._image_tagger_key != cache_key:
+                self._image_tagger = build_image_tagger(
+                    image_tagger=key,
+                    model_id=model_id,
+                    model_version=revision,
+                    threshold=live.pixai_tagger_threshold,
                 )
-            elif key == "stub":
-                self._image_tagger = StubImageTagger()
-            else:
-                raise RuntimeError(
-                    f"unknown SCENEWEAVER_IMAGE_TAGGER={key!r}; use off|stub|pixai"
-                )
-            self._image_tagger_key = cache_key
-        return self._image_tagger
+                self._image_tagger_key = cache_key
+            return self._image_tagger
+        # Snapshot path — never use cached live settings.
+        return build_image_tagger(
+            image_tagger=key,
+            model_id=source_model,
+            model_version=model_version,
+            threshold=live.pixai_tagger_threshold,
+        )
 
-    def tag_asset(self) -> TagAsset:
+    def tag_asset(self, payload: dict | None = None) -> TagAsset:
+        """If payload is given, honor enqueue-time tagger snapshot."""
+        if payload:
+            return TagAsset(
+                self.uow(),
+                self.asset_store,
+                self.image_tagger(
+                    image_tagger=str(payload.get("image_tagger") or ""),
+                    source_model=str(payload.get("source_model") or "") or None,
+                    model_version=str(payload.get("model_version") or "") or None,
+                ),
+            )
         return TagAsset(self.uow(), self.asset_store, self.image_tagger())
 
     def list_asset_tags(self) -> ListAssetTags:

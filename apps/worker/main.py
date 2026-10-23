@@ -43,19 +43,24 @@ def run() -> None:
                 logger.info("completed job=%s status=%s", done.id, done.status)
             elif claimed.kind == JobKind.TAG_ASSET.value:
                 runner.heartbeat(claimed.id)
-                asset_id = str((claimed.payload or {}).get("asset_id") or "")
+                payload = claimed.payload or {}
+                asset_id = str(payload.get("asset_id") or "")
                 try:
                     if not asset_id:
                         raise ValueError("tag_asset payload missing asset_id")
-                    tags = container.tag_asset().execute(asset_id)
+                    # Honor enqueue-time snapshot (image_tagger / source_model / model_version),
+                    # not the worker's current SCENEWEAVER_IMAGE_TAGGER settings.
+                    tags = container.tag_asset(payload).execute(asset_id)
                     done = runner.succeed(
                         claimed.id,
                         progress={"percent": 100, "message": "tagged", "tag_count": len(tags)},
                     )
                     logger.info(
-                        "completed tag_asset job=%s asset=%s tags=%s",
+                        "completed tag_asset job=%s asset=%s backend=%s revision=%s tags=%s",
                         done.id,
                         asset_id,
+                        payload.get("image_tagger"),
+                        payload.get("model_version"),
                         len(tags),
                     )
                 except Exception as tag_exc:  # noqa: BLE001 — asset itself stays valid
