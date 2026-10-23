@@ -30,6 +30,11 @@ dev = [
     "httpx>=0.28.0",
     "ruff>=0.8.0",
 ]
+vision = [
+    "torch>=2.2.0",
+    "transformers>=4.44.0",
+    "Pillow>=10.0.0",
+]
 
 [project.scripts]
 sceneweaver = "creator_studio.cli:main"

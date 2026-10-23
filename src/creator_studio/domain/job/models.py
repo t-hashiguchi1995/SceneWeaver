@@ -25,6 +25,7 @@ class JobKind(StrEnum):
     RENDER = "render"
     CSP_HANDOFF = "csp_handoff"
     RELEASE_BUILD = "release_build"
+    TAG_ASSET = "tag_asset"
 
 
 @dataclass

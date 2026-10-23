@@ -135,6 +135,12 @@ export class ApiClient {
     return this.base
   }
 
+  async getAssetTags(assetId: string): Promise<Array<{ tag: string; category: string; score: number }>> {
+    const res = await fetch(`${this.base}/api/v1/assets/${encodeURIComponent(assetId)}/tags`)
+    if (!res.ok) throw new Error(`asset tags failed: ${res.status} ${await res.text()}`)
+    return res.json()
+  }
+
   async cspHandoff(body: Record<string, unknown>) {
     const res = await fetch(`${this.base}/api/v1/csp/handoffs`, {
       method: 'POST',

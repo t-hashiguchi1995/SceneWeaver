@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from creator_studio.application.visual_library.classify import classify_visual_kind
@@ -61,8 +62,40 @@ class VisualLibraryQuery:
                         meta_map.get(("marketplace_item", market.id)),
                     )
                 )
+            items = self._merge_auto_tags(uow, items)
             items.sort(key=lambda item: (item.kind, (item.label_ja or item.label).lower(), item.ref))
             return items
+
+    def _merge_auto_tags(
+        self,
+        uow: UnitOfWork,
+        items: list[VisualLibraryItem],
+    ) -> list[VisualLibraryItem]:
+        """Append ImageTagger tags from thumbnail assets into display/search tags."""
+        thumb_ids = [i.thumbnail_asset_id for i in items if i.thumbnail_asset_id]
+        if not thumb_ids:
+            return items
+        auto_by_asset: dict[str, list[str]] = {}
+        for row in uow.asset_tags.list_for_assets(thumb_ids):
+            auto_by_asset.setdefault(row.asset_id, []).append(row.tag)
+        if not auto_by_asset:
+            return items
+        merged: list[VisualLibraryItem] = []
+        for item in items:
+            auto = auto_by_asset.get(item.thumbnail_asset_id or "")
+            if not auto:
+                merged.append(item)
+                continue
+            seen: set[str] = set()
+            tags: list[str] = []
+            for tag in list(item.tags) + auto:
+                key = tag.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                tags.append(tag)
+            merged.append(replace(item, tags=tags))
+        return merged
 
     def _from_preset(
         self,

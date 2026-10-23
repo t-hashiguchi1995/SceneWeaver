@@ -149,6 +149,22 @@ class ClaimAndRunStubJob:
             uow.commit()
             return to_dto(job)
 
+    def succeed(self, job_id: str, *, progress: dict[str, Any] | None = None) -> JobDTO:
+        now = utc_now()
+        with self._uow as uow:
+            job = uow.jobs.get(JobId(job_id))
+            if job is None:
+                raise ValueError("job not found")
+            job.progress = progress or {"percent": 100}
+            job.status = JobStatus.SUCCEEDED
+            job.lease_owner = None
+            job.leased_until = None
+            job.error_message = None
+            job.updated_at = now
+            uow.jobs.save(job)
+            uow.commit()
+            return to_dto(job)
+
     def fail(self, job_id: str, message: str) -> JobDTO:
         now = utc_now()
         with self._uow as uow:

@@ -41,6 +41,31 @@ def run() -> None:
                 time.sleep(delay)
                 done = runner.complete_stub(claimed.id)
                 logger.info("completed job=%s status=%s", done.id, done.status)
+            elif claimed.kind == JobKind.TAG_ASSET.value:
+                runner.heartbeat(claimed.id)
+                asset_id = str((claimed.payload or {}).get("asset_id") or "")
+                try:
+                    if not asset_id:
+                        raise ValueError("tag_asset payload missing asset_id")
+                    tags = container.tag_asset().execute(asset_id)
+                    done = runner.succeed(
+                        claimed.id,
+                        progress={"percent": 100, "message": "tagged", "tag_count": len(tags)},
+                    )
+                    logger.info(
+                        "completed tag_asset job=%s asset=%s tags=%s",
+                        done.id,
+                        asset_id,
+                        len(tags),
+                    )
+                except Exception as tag_exc:  # noqa: BLE001 — asset itself stays valid
+                    done = runner.fail(claimed.id, str(tag_exc))
+                    logger.warning(
+                        "tag_asset failed job=%s asset=%s: %s",
+                        claimed.id,
+                        asset_id,
+                        tag_exc,
+                    )
             else:
                 runner.fail(claimed.id, f"no handler for kind={claimed.kind}")
                 logger.warning("unhandled kind=%s", claimed.kind)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from creator_studio.ports.asset_repository import AssetRepository
+from creator_studio.ports.asset_tag_repository import AssetTagRepository
 from creator_studio.ports.job_repository import JobRepository
 from creator_studio.ports.project_repository import ProjectRepository
 
@@ -95,6 +96,7 @@ class UnitOfWork(Protocol):
     projects: ProjectRepository
     jobs: JobRepository
     assets: AssetRepository
+    asset_tags: AssetTagRepository
     characters: CharacterRepository
     scenes: SceneRepository
     beats: BeatRepository

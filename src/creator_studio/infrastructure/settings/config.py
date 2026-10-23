@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     comfy_url: str = "http://127.0.0.1:8188"
     image_backend: str = "fake"
+    # stub (CI/E2E default) | pixai (live / optional vision extra)
+    image_tagger: str = "stub"
+    pixai_tagger_model: str = "pixai-labs/pixai-tagger-v1.0"
+    pixai_tagger_threshold: float = 0.3
     config_dir: str = "config"
     fake_image_delay_ms: int = 200
     comfy_poll_timeout_seconds: float = 300.0

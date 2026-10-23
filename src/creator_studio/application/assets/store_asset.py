@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from creator_studio.application.assets.tag_asset import schedule_asset_tagging
 from creator_studio.domain.asset import Asset, AssetKind
 from creator_studio.ports.asset_store import AssetStore
 from creator_studio.ports.unit_of_work import UnitOfWork
@@ -69,5 +70,7 @@ class StoreAssetBytes:
                 provenance=cmd.provenance,
             )
             uow.assets.add(asset)
+            # Best-effort async tagging — never fails asset persistence.
+            schedule_asset_tagging(uow, str(asset.id))
             uow.commit()
             return to_dto(asset)

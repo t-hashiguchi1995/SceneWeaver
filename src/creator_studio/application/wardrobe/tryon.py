@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from creator_studio.application.assets.tag_asset import schedule_asset_tagging
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
 from creator_studio.domain.asset import Asset, AssetKind
 from creator_studio.domain.ids import AssetId, CharacterId, SceneId
@@ -185,6 +186,7 @@ class RunTryOn:
                     provenance=provenance,
                 )
                 uow.assets.add(asset)
+                schedule_asset_tagging(uow, str(asset.id))
                 candidates.append(str(asset.id))
 
             session.candidate_asset_ids = candidates

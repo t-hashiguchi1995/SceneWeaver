@@ -7,8 +7,10 @@ from creator_studio.adapters.llm import OpenAICompatibleProvider, StubLLMProvide
 from creator_studio.adapters.runtime import ComfyRuntimeProbe, FakeRuntimeProbe
 from creator_studio.adapters.secrets.store import SecretStore
 from creator_studio.adapters.settings.file_store import FileUserSettingsStore
+from creator_studio.adapters.vision import StubImageTagger
 from creator_studio.application.assets.decisions import SetAssetDecision
 from creator_studio.application.assets.store_asset import StoreAssetBytes
+from creator_studio.application.assets.tag_asset import ListAssetTags, TagAsset
 from creator_studio.application.capabilities.resolve import CapabilityService
 from creator_studio.application.characters.manage import (
     CreateCharacter,
@@ -43,6 +45,7 @@ from creator_studio.infrastructure.filesystem.asset_store import FilesystemAsset
 from creator_studio.infrastructure.prompts import PromptRegistry
 from creator_studio.infrastructure.settings import Settings, get_settings
 from creator_studio.ports.image_backend import ImageBackend
+from creator_studio.ports.image_tagger import ImageTagger
 from creator_studio.ports.llm import LLMGateway
 from creator_studio.ports.runtime_probe import RuntimeCapabilityProbe
 
@@ -59,6 +62,8 @@ class Container:
         self.prompts = PromptRegistry()
         self._image: ImageBackend | None = None
         self._image_config: tuple[str, str] | None = None
+        self._image_tagger: ImageTagger | None = None
+        self._image_tagger_key: str | None = None
         self._settings_service: SettingsService | None = None
 
     def uow(self) -> SqlAlchemyUnitOfWork:
@@ -151,6 +156,27 @@ class Container:
 
     def store_asset(self) -> StoreAssetBytes:
         return StoreAssetBytes(self.uow(), self.asset_store)
+
+    def image_tagger(self) -> ImageTagger:
+        key = self.settings.image_tagger.strip().lower()
+        if self._image_tagger is None or self._image_tagger_key != key:
+            if key == "pixai":
+                from creator_studio.adapters.vision.pixai_tagger import PixAITaggerAdapter
+
+                self._image_tagger = PixAITaggerAdapter(
+                    model_id=self.settings.pixai_tagger_model,
+                    threshold=self.settings.pixai_tagger_threshold,
+                )
+            else:
+                self._image_tagger = StubImageTagger()
+            self._image_tagger_key = key
+        return self._image_tagger
+
+    def tag_asset(self) -> TagAsset:
+        return TagAsset(self.uow(), self.asset_store, self.image_tagger())
+
+    def list_asset_tags(self) -> ListAssetTags:
+        return ListAssetTags(self.uow())
 
     def set_asset_decision(self) -> SetAssetDecision:
         return SetAssetDecision(self.uow())
