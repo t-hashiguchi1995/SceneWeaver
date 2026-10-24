@@ -990,3 +990,47 @@ dialog::backdrop { background: #0009; }
   .app-shell.is-expanded .brand-name, .app-shell.is-expanded .nav-group, .app-shell.is-expanded nav a span { display: inline; }
   .app-shell.is-expanded nav a { justify-content: flex-start; }
 }
+
+/* Capability-based generation engine selector. */
+.generation-engine-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, auto);
+  gap: 10px 18px;
+  align-items: end;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+.generation-engine-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.generation-engine-card select {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+}
+.generation-engine-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.generation-engine-card > p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+@media (max-width: 799px) {
+  .generation-engine-card {
+    grid-template-columns: 1fr;
+  }
+  .generation-engine-card > p {
+    grid-column: auto;
+  }
+}

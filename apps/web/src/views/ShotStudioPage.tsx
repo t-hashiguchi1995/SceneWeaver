@@ -33,6 +33,7 @@ export function ShotStudioPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const library = useQuery({ queryKey: ['prompt-library'], queryFn: api.promptLibrary })
+  const capabilities = useQuery({ queryKey: ['capabilities'], queryFn: api.capabilities })
   const { shotId, projectId } = useParams({ strict: false })
   if (!shotId) throw new Error('Shot is required')
   const { sourceAttemptId } = useSearch({ strict: false })
@@ -143,6 +144,16 @@ export function ShotStudioPage() {
     },
   })
 
+  const selectGenerationEngine = useMutation({
+    mutationFn: (capability: string) => api.updateShot(shotId, { capability }),
+    onSuccess: async (shot) => {
+      setSpecSummary(shot.render_spec)
+      setDraft(await api.ensurePromptDraft(shotId))
+      setStaleDismissed(false)
+    },
+    onError: (err) => setError((err as Error).message),
+  })
+
   const saveSpec = useMutation({
     mutationFn: async () => {
       await autosave.flush()
@@ -156,6 +167,8 @@ export function ShotStudioPage() {
     onError: (err) => setError((err as Error).message),
   })
 
+  const generationCapability = String(specSummary.capability ?? 'BaseRender')
+  const activeCapability = capabilities.data?.[generationCapability]
   const expression = (specSummary.expression as { id?: string } | undefined)?.id
   const characterName = useMemo(() => {
     const speakerId = dashboard.data?.beats.find((b) => b.id === beatId)?.speaker_id
@@ -221,6 +234,41 @@ export function ShotStudioPage() {
           {t('generation:character')}:{' '}
           <span data-testid="shot-character-name">{characterName || '—'}</span>
         </p>
+        <div className="generation-engine-card" data-testid="generation-engine-card">
+          <label>
+            {t('generation:generationEngine')}
+            <select
+              data-testid="shot-generation-engine"
+              value={generationCapability}
+              disabled={selectGenerationEngine.isPending}
+              onChange={(e) => selectGenerationEngine.mutate(e.target.value)}
+            >
+              <option
+                value="BaseRender"
+                disabled={capabilities.data?.BaseRender?.configured === false}
+              >
+                {t('generation:engineAnima')}
+              </option>
+              <option
+                value="LayoutGuidedRender"
+                disabled={capabilities.data?.LayoutGuidedRender?.configured === false}
+              >
+                {t('generation:engineMoss')}
+              </option>
+            </select>
+          </label>
+          <div className="generation-engine-status">
+            <span className="meta">
+              {t('generation:engineModel')}: {activeCapability?.model_id ?? '—'}
+            </span>
+            <span className="meta">
+              {activeCapability?.runtime_available
+                ? t('generation:engineReady')
+                : t('generation:engineUnavailable')}
+            </span>
+          </div>
+          <p className="meta">{t('generation:engineCompareHint')}</p>
+        </div>
         <div className="semantic-grid">
           <label>
             {t('generation:expression')}
@@ -304,6 +352,7 @@ export function ShotStudioPage() {
             generateDisabled={
               render.isPending ||
               saveSpec.isPending ||
+              selectGenerationEngine.isPending ||
               (usePose && !poseUri && !sourceAttemptId) ||
               (draft.stale && !staleDismissed)
             }

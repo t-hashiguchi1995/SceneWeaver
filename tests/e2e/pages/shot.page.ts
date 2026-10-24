@@ -42,6 +42,14 @@ export class ShotPage {
     }
   }
 
+  async selectGenerationEngine(capability: 'BaseRender' | 'LayoutGuidedRender') {
+    await this.page.getByTestId('shot-generation-engine').selectOption(capability)
+  }
+
+  generationEngine() {
+    return this.page.getByTestId('shot-generation-engine')
+  }
+
   async appendPositive(fragment: string) {
     const box = this.page.getByTestId('prompt-positive')
     const current = await box.inputValue()

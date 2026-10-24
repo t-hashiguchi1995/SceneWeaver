@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SceneWeaver Use-case Service Design R3</title>
+<style>
+body{font-family:"Noto Sans JP","Segoe UI",sans-serif;max-width:1120px;margin:0 auto;padding:40px 24px;background:#111318;color:#edf0f7;line-height:1.7}
+h1,h2,h3{line-height:1.3} h2{margin-top:44px;border-bottom:1px solid #343a4a;padding-bottom:8px}
+table{width:100%;border-collapse:collapse;margin:16px 0 28px} th,td{border-bottom:1px solid #343a4a;padding:9px;text-align:left;vertical-align:top}
+th{background:#1b1e25} code,pre{font-family:Consolas,monospace} pre{background:#0b0d12;border:1px solid #343a4a;padding:14px;border-radius:10px;overflow:auto}
+.callout{background:#1b1e25;border-left:4px solid #b9b1ff;padding:14px 16px}.ok{color:#7bd7a8}.part{color:#ffd27a}.no{color:#ff8e9b}
+</style>
+</head>
+<body>
+<h1>SceneWeaver ユースケース駆動サービス設計・UI/検証方針 R3</h1>
+<p>SceneWeaverの完成判定を「Port/APIがある」から「ユーザーが画面から入力し、実モデルを動かし、結果を確認し、採用・保存・再利用できる」へ変更する。Anima / Qwen / MOSS / 将来のAnime・Adult LoRAはCapability Routerの下で切替・比較する。</p>
+
+<h2>1. 完成判定</h2>
+<table><tr><th>Gate</th><th>判定</th></tr>
+<tr><td>Domain/API</td><td>処理・永続化・Capabilityが存在</td></tr>
+<tr><td>UI Input</td><td>ID/URI手入力ではなく画面から入力可能</td></tr>
+<tr><td>Real Execution</td><td>FakeではなくReal Comfy/実モデルを実行</td></tr>
+<tr><td>UI Output</td><td>生成結果を画面上で確認・比較可能</td></tr>
+<tr><td>Continuation</td><td>Adopt / Save / Replay / 次工程へ進める</td></tr></table>
+<div class="callout">5 Gateすべてを満たして初めて「機能実現済み」とする。</div>
+
+<h2>2. 現状</h2>
+<table><tr><th>機能</th><th>期待する体験</th><th>現状</th></tr>
+<tr><td>画像生成</td><td>Prompt → Engine → Generate → Preview</td><td class="part">Shot経由は部分実現。Quick Testはstub。MOSS real未確認</td></tr>
+<tr><td>Virtual Try-On</td><td>人物画像Upload + 衣装画像Upload → 試着</td><td class="part">登録済Character + Marketなら可。任意Uploadなし</td></tr>
+<tr><td>Pose</td><td>Upload/Library選択 → 強度 → Generate</td><td class="part">backendあり。URI手入力</td></tr>
+<tr><td>Character</td><td>画像Upload + Persona/Identity</td><td class="part">画像はAsset ID入力</td></tr>
+<tr><td>Generation Review</td><td>候補比較・採否・再生成・履歴</td><td class="ok">実現度高</td></tr>
+<tr><td>Visual Library</td><td>検索 + Import + 再利用</td><td class="part">検索/tagあり、直接Import弱い</td></tr>
+<tr><td>R-18</td><td>Adult Project → profile → Real生成 → Review</td><td class="no">今後の必須検証</td></tr></table>
+
+<h2>3. モデル切替</h2>
+<table><tr><th>表示</th><th>Capability</th><th>用途</th></tr>
+<tr><td>Anima</td><td>BaseRender</td><td>既存通常生成</td></tr>
+<tr><td>Anima Pose</td><td>PoseControlledRender</td><td>Pose制御</td></tr>
+<tr><td>Qwen Image Edit</td><td>OutfitTryOn / ImageEdit</td><td>試着・編集</td></tr>
+<tr><td>MOSS Stock</td><td>LayoutGuidedRender</td><td>#B</td></tr>
+<tr><td>MOSS Anime</td><td>AnimeRender</td><td>#C</td></tr>
+<tr><td>MOSS Adult</td><td>AdultRender</td><td>#C</td></tr></table>
+<p>Shot Studio上部に「生成エンジン」を配置し、モデル名ではなくCapabilityをShotへ保存する。今回のUI変更でAnimaとMOSS Stockの選択導線を追加する。</p>
+
+<h3>比較モード</h3>
+<table><tr><th>Mode</th><th>条件</th><th>目的</th></tr>
+<tr><td>Strict Prompt</td><td>同一Positive/Negative/Seed/Resolution、model-specific enhancer OFF</td><td>モデル/Workflow差</td></tr>
+<tr><td>Production Fair</td><td>共通Semantic Specを各モデルcompilerで最適化</td><td>実制作での品質比較</td></tr></table>
+<p>比較Attemptにはcomparison_mode、semantic hash、compiled prompt、model_id、workflow_hash、seedを保存する。</p>
+
+<h2>4. 主要ユースケース</h2>
+<h3>UC-IMG-01 直接画像生成</h3>
+<pre>Image Lab → Engine選択 → Prompt/Negative → Size/Seed
+→ Real Comfy → 候補表示 → Adopt / Visual Library / Compare</pre>
+<p>Quick Testは最終的にImage Labへ置換し、Project/Story/Beatを作らず画像生成できる入口にする。</p>
+
+<h3>UC-VTO-01 Virtual Try-On</h3>
+<pre>人物: Upload / Library / Character
++
+衣装: Upload / Library / Wardrobe
+→ Try-On → 4候補 → Adopt → My Wardrobe</pre>
+<p>1 Character × Outfit A→B→C→Aの実画像検証を必須とし、過去Outfitの混線をFAILとする。</p>
+
+<h3>UC-POSE-01</h3>
+<pre>Shot/Character → Pose Upload / Library → Strength
+→ PoseControlledRender → 元Poseと結果を比較</pre>
+<p>asset:// URIの手入力はユーザー向けUIから排除する。</p>
+
+<h3>UC-CHAR / WARDROBE</h3>
+<pre>Character: 名前 → 顔/全身Upload → Visual Identity → Persona → Save
+Wardrobe: 衣装Upload → 名前/説明/tag → Save → Try-On</pre>
+<p>OutfitProfileのcharacter ownership validationを維持する。</p>
+
+<h3>UC-LIB</h3>
+<p>Visual Libraryは検索画面だけでなく制作素材の入口とする。Upload時にCharacter / Outfit / Pose / Background / Referenceを選択し、PixAI auto-tagを実行する。</p>
+
+<h2>5. 共通AssetPicker</h2>
+<pre>AssetPicker
+├ Upload
+├ Visual Library
+├ Recent
+├ Character refs
+└ Wardrobe</pre>
+<p>Character、Try-On person、Try-On garment、Pose、Visual Library、将来Multi-refで共用する。各機能が独自Uploadを持たない。</p>
+
+<h2>6. R-18</h2>
+<p>R-18 pipelineは必須。成人として定義したtest characterのみを用い、Project content_rating=adultを明示入口にする。PixAI ratingで自動的にAdultへ切り替えない。</p>
+<pre>R0 SFW
+R1 suggestive
+R2 adult nudity
+R3 explicit adult expression</pre>
+<p>Stock MOSSの画質不足は#B FAILにしないが、pipeline failure、General→Adult漏洩、provenance欠落はFAIL。</p>
+
+<h2>7. Realテスト</h2>
+<table><tr><th>層</th><th>証明するもの</th></tr>
+<tr><td>Unit</td><td>Domain / routing / compiler</td></tr>
+<tr><td>Mock E2E</td><td>React/API/Worker/DB/UI導線</td></tr>
+<tr><td>Live Smoke</td><td>Real Comfyからdecode可能画像</td></tr>
+<tr><td>Live Use Case</td><td>UI入力→実モデル→UI結果→Adopt</td></tr>
+<tr><td>Visual Matrix</td><td>複数衣装/Character/R-18/モデル比較</td></tr></table>
+<p>#B/#CではComfy unreachableもFAILにするrequired live gateを別コマンドとして用意する。</p>
+
+<h2>8. 実装優先度</h2>
+<pre>P0 MOSS real 1枚
+P0 Shot Studio Engine selector
+P0 MOSS prompt path分離
+P0 Real service vertical
+P0 共通Asset Upload / AssetPicker
+P0 Quick Test → Image Lab
+P0 Try-On人物/衣装Upload、Pose Upload/Library
+P1 Character画像Upload / Wardrobe登録 / Visual Library import
+P1 Anima ↔ MOSS比較、A→B→C→A、複数Character×Outfit
+P1 R-18 baseline → Anime/Adult LoRA
+P2 Multi-ref / MOSS Edit / Manga / Lettering / Export</pre>
+
+<h2>9. #B Done</h2>
+<pre>[ ] Native Stock MOSS-SFT generation
+[ ] Capability Router経由 / Anima BaseRender非破壊
+[ ] Shot StudioでAnima / MOSS選択
+[ ] MOSS専用Prompt path
+[ ] immutable provenance / replay
+[ ] Real UI → Comfy → UI result → Adopt
+[ ] A→B→C→A
+[ ] Character A/B × outfits
+[ ] wrong-owner Outfit rejection
+[ ] SFW + R-18 R1/R2/R3 baseline
+[ ] GeneralからAdultへ漏れない
+[ ] visual review image + manifest
+[ ] required live gate</pre>
+</body></html>
