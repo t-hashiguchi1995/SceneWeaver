@@ -1,0 +1,19 @@
+# Stock MOSS-Image-SFT (native ComfyUI nodes only — no moss-image plugin).
+# Requires ComfyUI with native MOSS support (e087d8f6 / 0.42.0+).
+# Weights: Comfy-Org/MOSS-Image (diffusion_models / text_encoders / vae).
+id: moss_sft_v1
+backend: comfyui
+capability: LayoutGuidedRender
+workflow_file: workflows/comfy/moss_sft.api.json
+required_model_id: moss_image_sft
+slots:
+  candidate_count: { node: "6", input: "batch_size" }
+  positive_prompt: { node: "4", input: "text" }
+  negative_prompt: { node: "5", input: "text" }
+  seed: { node: "9", input: "seed" }
+  sampling_steps: { node: "9", input: "steps" }
+  sampling_cfg: { node: "9", input: "cfg" }
+  width: { node: "6", input: "width" }
+  height: { node: "6", input: "height" }
+outputs:
+  images: ["11"]

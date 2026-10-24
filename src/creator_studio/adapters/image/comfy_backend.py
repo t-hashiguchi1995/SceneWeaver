@@ -67,6 +67,7 @@ class ComfyImageBackend:
         return {
             "BaseRender",
             "PoseControlledRender",
+            "LayoutGuidedRender",
             "OutfitTryOn",
             "ExpressionEdit",
             "ImageEdit",

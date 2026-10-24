@@ -17,6 +17,18 @@ models:
       - PoseControlledRender
     workflow_template: workflows/comfy/anima_pose.template.yaml
 
+  # Stock MOSS-Image-SFT — LayoutGuidedRender (does NOT replace Anima BaseRender).
+  # Native Comfy loaders only; layout JSON optional (natural language alone is valid).
+  moss_image_sft:
+    provider: comfyui
+    checkpoint: moss_image_sft_int8_convrot.safetensors
+    text_encoder: qwen3.5_9b_w4a8_gptq.safetensors
+    vae: flux2-vae_small.safetensors
+    capabilities:
+      - LayoutGuidedRender
+    workflow_template: workflows/comfy/moss_sft.template.yaml
+    notes: "ComfyUI native MOSS (e087d8f6+). Weights from Comfy-Org/MOSS-Image."
+
   qwen_image_edit_2509:
     provider: comfyui
     checkpoint: qwen_image_edit_2509_fp8_e4m3fn.safetensors
@@ -35,6 +47,7 @@ models:
 approved_models:
   BaseRender: anima_base
   PoseControlledRender: anima_pose
+  LayoutGuidedRender: moss_image_sft
   OutfitTryOn: qwen_image_edit_2509
   ExpressionEdit: qwen_image_edit_2509
   ImageEdit: qwen_image_edit_2509

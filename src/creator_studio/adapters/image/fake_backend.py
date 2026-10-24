@@ -48,6 +48,7 @@ class FakeImageBackend:
         return {
             "BaseRender",
             "PoseControlledRender",
+            "LayoutGuidedRender",
             "OutfitTryOn",
             "ExpressionEdit",
             "ImageEdit",

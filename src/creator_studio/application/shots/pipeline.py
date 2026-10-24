@@ -146,14 +146,22 @@ class ShotPipeline:
             seed = secrets.randbelow(2**31) if seed is None else seed
             if not 0 <= seed <= 2147483647:
                 raise ValueError("seed is out of range")
-            capability = "PoseControlledRender" if use_pose else "BaseRender"
-            workflow_template_id = "anima_pose_v1" if use_pose else "anima_base_v1"
+            # Capability Router: never hardcode model names. Default Anima BaseRender;
+            # Stock MOSS uses LayoutGuidedRender via render_spec.capability.
             if _replay is not None:
-                capability = _replay["capability"]
-                workflow_template_id = _replay["workflow_template_id"]
+                capability = str(_replay["capability"])
                 use_pose = capability == "PoseControlledRender"
+            elif use_pose:
+                capability = "PoseControlledRender"
+            else:
+                capability = str(shot.render_spec.get("capability") or "BaseRender")
             model_id, workflow_path = resolve_template_id_for_capability(capability)
             workflow_config = yaml.safe_load((REPO_ROOT / workflow_path).read_text())
+            workflow_template_id = (
+                str(_replay["workflow_template_id"])
+                if _replay is not None
+                else str(workflow_config["id"])
+            )
             config_hash = hashlib.sha256(
                 (REPO_ROOT / "config" / "model_registry.yaml").read_bytes()
                 + (REPO_ROOT / workflow_path).read_bytes()

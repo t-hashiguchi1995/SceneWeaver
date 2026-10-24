@@ -33,6 +33,11 @@ def test_valid_templates_compile() -> None:
             },
         ),
         (
+            "moss_sft_v1",
+            "moss_image_sft",
+            {"positive_prompt": "a cafe scene", "negative_prompt": "bad"},
+        ),
+        (
             "qwen_tryon_v1",
             "qwen_image_edit_2509",
             {
