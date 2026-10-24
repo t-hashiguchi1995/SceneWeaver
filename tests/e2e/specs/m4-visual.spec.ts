@@ -1,6 +1,40 @@
 import { test, expect } from '../fixtures/sceneweaver.fixture'
 
 test.describe('M4 Visual', () => {
+  test('Generation engine switches Anima ↔ MOSS and persists capability', async ({
+    seedScenario,
+    applySeedContext,
+    api,
+    shots,
+  }) => {
+    const seeded = await seedScenario('m4_visual')
+    const dialogue = await api.generateDialogue(seeded.beat_id!, seeded.character_id!)
+    await api.lockScript(dialogue.candidates[0].id)
+    await applySeedContext(seeded)
+
+    await shots.goto()
+    await shots.setBeatId(seeded.beat_id!)
+    await shots.planShot()
+    await expect(shots.generationEngine()).toHaveValue('BaseRender')
+
+    const shotId = new URL(shots.generationEngine().page().url()).pathname.split('/').filter(Boolean).at(-1)
+    expect(shotId).toBeTruthy()
+
+    await shots.selectGenerationEngine('LayoutGuidedRender')
+    await expect(shots.generationEngine()).toHaveValue('LayoutGuidedRender')
+    let res = await fetch(`${api.baseUrl}/api/v1/shots/${shotId}`)
+    expect(res.ok).toBeTruthy()
+    let shot = await res.json()
+    expect(shot.render_spec.capability).toBe('LayoutGuidedRender')
+
+    await shots.selectGenerationEngine('BaseRender')
+    await expect(shots.generationEngine()).toHaveValue('BaseRender')
+    res = await fetch(`${api.baseUrl}/api/v1/shots/${shotId}`)
+    expect(res.ok).toBeTruthy()
+    shot = await res.json()
+    expect(shot.render_spec.capability).toBe('BaseRender')
+  })
+
   test('Locked Beat → ShotSpec → Prompt edit → Render → Attempt snapshot immutable', async ({
     seedScenario,
     applySeedContext,
