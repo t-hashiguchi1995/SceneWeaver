@@ -6,6 +6,7 @@ test.describe('M4 Visual', () => {
     applySeedContext,
     api,
     shots,
+    page,
   }) => {
     const seeded = await seedScenario('m4_visual')
     const dialogue = await api.generateDialogue(seeded.beat_id!, seeded.character_id!)
@@ -17,7 +18,7 @@ test.describe('M4 Visual', () => {
     await shots.planShot()
     await expect(shots.generationEngine()).toHaveValue('BaseRender')
 
-    const shotId = new URL(shots.generationEngine().page().url()).pathname.split('/').filter(Boolean).at(-1)
+    const shotId = new URL(page.url()).pathname.split('/').filter(Boolean).at(-1)
     expect(shotId).toBeTruthy()
 
     await shots.selectGenerationEngine('LayoutGuidedRender')
