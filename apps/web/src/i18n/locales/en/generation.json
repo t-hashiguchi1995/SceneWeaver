@@ -69,5 +69,12 @@
     "lighting": "Lighting",
     "style": "Style",
     "quality": "Quality"
-  }
+  },
+  "generationEngine": "Generation engine",
+  "engineAnima": "Anima (existing)",
+  "engineMoss": "MOSS-Image SFT (Stock)",
+  "engineModel": "Model",
+  "engineReady": "Runtime ready",
+  "engineUnavailable": "Unavailable in the current environment",
+  "engineCompareHint": "Same-prompt / same-seed model comparison will be added here after the MOSS-specific prompt path is separated."
 }
