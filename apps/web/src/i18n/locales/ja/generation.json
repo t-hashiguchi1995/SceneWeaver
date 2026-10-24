@@ -69,5 +69,12 @@
     "lighting": "照明",
     "style": "Style",
     "quality": "Quality"
-  }
+  },
+  "generationEngine": "生成エンジン",
+  "engineAnima": "Anima（既存）",
+  "engineMoss": "MOSS-Image SFT（Stock）",
+  "engineModel": "使用モデル",
+  "engineReady": "実行可能",
+  "engineUnavailable": "現在の環境では利用不可",
+  "engineCompareHint": "同一Prompt / Seedでのモデル比較は、MOSS用Prompt path分離後にこの画面へ比較モードとして追加します。"
 }
