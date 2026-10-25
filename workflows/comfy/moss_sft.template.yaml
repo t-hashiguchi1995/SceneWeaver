@@ -1,6 +1,8 @@
 # Stock MOSS-Image-SFT (native ComfyUI nodes only — no moss-image plugin).
 # Requires ComfyUI with native MOSS support (e087d8f6 / 0.42.0+).
 # Weights: Comfy-Org/MOSS-Image (diffusion_models / text_encoders / vae).
+# Sampling preset (OpenMOSS reference): 50 / CFG 3 / euler / sgm_uniform / shift 5 / SLG 22.
+# Prefer FP32 VAE decode (avoid --bf16-vae) for first smoke — Flux2 BF16 can yield black frames.
 id: moss_sft_v1
 backend: comfyui
 capability: LayoutGuidedRender

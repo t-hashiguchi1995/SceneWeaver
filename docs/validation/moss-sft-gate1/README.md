@@ -1,0 +1,81 @@
+# MOSS-SFT Gate 1 — Real Comfy 1枚
+
+#B 必須ゲート。配線テストではなく、**本物の PNG が1枚出ること**を証明する。
+
+## 合格条件
+
+| 項目 | 基準 |
+|------|------|
+| 経路 | SceneWeaver UseCase → Comfy → Asset |
+| capability | `LayoutGuidedRender` |
+| model_id | `moss_image_sft` |
+| workflow | `moss_sft_v1` + `workflow_hash` + seed |
+| prompt | `moss_caption_v1`（`safe` / `@fuzichoco` / `@rella` なし） |
+| 画像 | PNG decode 可能、width/height ≥ 512、近黒でない |
+| artifact | このディレクトリに `gate1_seed_*.png` + `.manifest.json` |
+| replay | 同一 seed で capability / workflow スナップショット復元 |
+
+## Manifest（成功時）
+
+```json
+{
+  "gate": "moss-sft-gate1",
+  "status": "passed",
+  "capability": "LayoutGuidedRender",
+  "model_id": "moss_image_sft",
+  "workflow_template_id": "moss_sft_v1",
+  "workflow_hash": "...",
+  "seed": 12345,
+  "prompt_hash": "...",
+  "width": 1024,
+  "height": 1024,
+  "mime": "image/png",
+  "sha256": "...",
+  "external_job_ref": "...",
+  "comfy_version": "0.42.x",
+  "image_file": "gate1_seed_12345.png"
+}
+```
+
+`comfy_version` は必須。native MOSS 境界の再現に使う。
+
+## FAIL の分類
+
+| パターン | クラス | 扱い |
+|----------|--------|------|
+| Comfy unreachable | **ENV** | ホスト起動 |
+| LayoutGuidedRender configured だが `moss_image` CLIP なし | **ENV** | Comfy → e087d8f6+ |
+| weights 欠落 | **ENV** | Comfy-Org/MOSS-Image 配置 |
+| node/weights あり → submit 成功 → 画像0枚 / 黒画像 | **SW** | SceneWeaver / workflow 調査 |
+
+期待する現状 FAIL（良い FAIL）:
+
+```text
+Comfy reachable → LayoutGuidedRender configured
+  → native moss_image CLIP type がない → ENV FAIL
+```
+
+## 実行
+
+```bash
+# pytest（artifact をここに書き出す）
+pnpm test:moss:live
+
+# Playwright live（dev: skip 可）
+pnpm test:e2e:live -- moss-sft
+
+# #B merge 判定（unreachable = FAIL）
+pnpm test:e2e:live:required -- moss-sft
+```
+
+## ホスト前提
+
+- ComfyUI **e087d8f6 / 0.42.0+**（`CLIPLoader type=moss_image`）
+- Weights: Comfy-Org/MOSS-Image
+- **FP32 VAE**（`--bf16-vae` なし）
+
+## 現状ステータス
+
+| 日付 | 結果 | メモ |
+|------|------|------|
+| 2026-10-25 | **ENV BLOCKED** | Comfy `0.31.1` — `moss_image` 未搭載。重み未配置。Gate1 PNG 未生成。 |

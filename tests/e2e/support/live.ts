@@ -1,11 +1,15 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { expect, type Page, type TestInfo } from '@playwright/test'
 import { API_BASE } from './env'
 import { ApiClient, type SeedResult } from './api-client'
 
 /** Qwen first-load can exceed 5m; suite timeout is intentionally generous. */
 export const LIVE_TIMEOUT_MS = 10 * 60 * 1000
+
+/** MOSS / #B+ live bar: decodeable raster at least this edge length. */
+export const MIN_LIVE_IMAGE_EDGE = 512
 
 export type CapabilityMap = Record<
   string,
@@ -17,14 +21,42 @@ export type CapabilityMap = Record<
   }
 >
 
+/** #B/#C merge gate: Comfy unreachable must FAIL (not skip). */
+export function isLiveRequired(): boolean {
+  const v = (process.env.SCENEWEAVER_LIVE_REQUIRED || '').toLowerCase()
+  return v === '1' || v === 'true' || v === 'yes'
+}
+
 export async function fetchCapabilities(): Promise<CapabilityMap> {
   const res = await fetch(`${API_BASE}/api/v1/capabilities`)
   if (!res.ok) throw new Error(`capabilities failed: ${res.status}`)
   return res.json()
 }
 
-/** Skip when Comfy URL unset / health unavailable. Fail after connect on model/workflow errors. */
-export async function requireComfyCapability(capability: string): Promise<CapabilityMap> {
+/** ComfyUI version string for Gate manifests (native MOSS boundary). */
+export async function fetchComfyVersion(
+  comfyUrl = process.env.COMFY_BASE_URL || process.env.SCENEWEAVER_COMFY_URL || 'http://127.0.0.1:8188',
+): Promise<string> {
+  try {
+    const res = await fetch(`${comfyUrl.replace(/\/$/, '')}/system_stats`)
+    if (!res.ok) return `unreachable:${res.status}`
+    const data = (await res.json()) as { system?: { comfyui_version?: string } }
+    return String(data.system?.comfyui_version || 'unknown')
+  } catch (err) {
+    return `unreachable:${err instanceof Error ? err.message : String(err)}`
+  }
+}
+
+/**
+ * Dev live (`pnpm test:e2e:live`): Comfy unreachable → skip.
+ * Required live (`pnpm test:e2e:live:required` / SCENEWEAVER_LIVE_REQUIRED=1): FAIL.
+ * Model/workflow errors after connect always fail.
+ */
+export async function requireComfyCapability(
+  capability: string,
+  opts?: { required?: boolean },
+): Promise<CapabilityMap> {
+  const required = opts?.required ?? isLiveRequired()
   const caps = await fetchCapabilities()
   const entry = caps[capability]
   if (!entry) {
@@ -34,8 +66,12 @@ export async function requireComfyCapability(capability: string): Promise<Capabi
     throw new Error(`${capability} not configured in model registry`)
   }
   if (!entry.runtime_available) {
+    const detail = entry.detail || 'runtime unavailable'
+    if (required) {
+      throw new Error(`COMFY_RUNTIME_UNAVAILABLE (${capability}): ${detail}`)
+    }
     return Promise.reject(
-      Object.assign(new Error(`SKIP_COMFY_UNREACHABLE: ${entry.detail}`), {
+      Object.assign(new Error(`SKIP_COMFY_UNREACHABLE: ${detail}`), {
         skip: true,
       }),
     )
@@ -94,6 +130,8 @@ export function assertLiveProvenance(
   expected: {
     provider?: string
     workflow_template_id?: string
+    model_id?: string
+    capability?: string
     requireSeed?: boolean
     requireWorkflowHash?: boolean
     requireExternalJobRef?: boolean
@@ -110,6 +148,12 @@ export function assertLiveProvenance(
     throw new Error(
       `workflow_template_id want ${expected.workflow_template_id} got ${provenance.workflow_template_id}`,
     )
+  }
+  if (expected.model_id && provenance.model_id !== expected.model_id) {
+    throw new Error(`model_id want ${expected.model_id} got ${provenance.model_id}`)
+  }
+  if (expected.capability && provenance.capability !== expected.capability) {
+    throw new Error(`capability want ${expected.capability} got ${provenance.capability}`)
   }
   if (expected.requireSeed && (provenance.seed === null || provenance.seed === undefined)) {
     throw new Error('seed missing in provenance')
@@ -131,4 +175,71 @@ export function assertLiveProvenance(
       throw new Error('control_strength missing in provenance')
     }
   }
+}
+
+/** Read width/height from PNG IHDR (no native image deps). */
+export function readPngSize(buf: Buffer): { width: number; height: number } {
+  if (buf.length < 24 || buf[0] !== 0x89 || buf[1] !== 0x50) {
+    throw new Error('asset content is not a PNG')
+  }
+  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }
+}
+
+/**
+ * Fetch Asset bytes, require PNG IHDR ≥ minEdge, and confirm the browser can decode
+ * via data-URL &lt;img&gt; (avoids about:blank ↔ API CORS on setContent).
+ */
+export async function assertAssetImageDecoded(
+  page: Page,
+  assetId: string,
+  opts?: { minEdge?: number; apiBase?: string },
+): Promise<{ width: number; height: number; bytes: Buffer }> {
+  const minEdge = opts?.minEdge ?? MIN_LIVE_IMAGE_EDGE
+  const base = opts?.apiBase ?? API_BASE
+  const url = `${base}/api/v1/assets/${encodeURIComponent(assetId)}/content`
+  const res = await page.request.get(url)
+  if (!res.ok()) {
+    throw new Error(`asset content HTTP ${res.status()} for ${assetId}`)
+  }
+  const bytes = Buffer.from(await res.body())
+  const ihdr = readPngSize(bytes)
+  if (Math.min(ihdr.width, ihdr.height) < minEdge) {
+    throw new Error(
+      `PNG too small: ${ihdr.width}x${ihdr.height} (need >= ${minEdge})`,
+    )
+  }
+  const b64 = bytes.toString('base64')
+  await page.setContent(
+    `<!doctype html><img id="live-asset" alt="live-asset" src="data:image/png;base64,${b64}" />`,
+  )
+  const img = page.locator('#live-asset')
+  await expect
+    .poll(async () => {
+      const dims = await img.evaluate((el: HTMLImageElement) => ({
+        w: el.naturalWidth,
+        h: el.naturalHeight,
+        complete: el.complete,
+      }))
+      return dims.complete ? Math.min(dims.w, dims.h) : 0
+    })
+    .toBeGreaterThanOrEqual(minEdge)
+  const decoded = await img.evaluate((el: HTMLImageElement) => ({
+    width: el.naturalWidth,
+    height: el.naturalHeight,
+  }))
+  return { ...decoded, bytes }
+}
+
+/** Attach PNG bytes + JSON manifest for human Gate review. */
+export async function attachLiveImageArtifact(
+  testInfo: TestInfo,
+  name: string,
+  bytes: Buffer,
+  manifest: Record<string, unknown>,
+): Promise<void> {
+  await testInfo.attach(`${name}.png`, { body: bytes, contentType: 'image/png' })
+  await testInfo.attach(`${name}.manifest.json`, {
+    body: Buffer.from(JSON.stringify(manifest, null, 2)),
+    contentType: 'application/json',
+  })
 }

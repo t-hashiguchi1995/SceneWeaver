@@ -16,6 +16,12 @@ ANIMA_COMPILER_VERSION = "v1"
 ANIMA_COMPILER_SOURCE_REF = "anima_compiler_v1"
 ANIMA_COMPILER_LABEL = "生成ルール: Anima Compiler v1"
 
+# Stock MOSS-Image-SFT caption path (LayoutGuidedRender). No Anima artist/quality tokens.
+MOSS_COMPILER_ID = "moss_caption"
+MOSS_COMPILER_VERSION = "v1"
+MOSS_COMPILER_SOURCE_REF = "moss_caption_v1"
+MOSS_COMPILER_LABEL = "生成ルール: MOSS Caption v1"
+
 
 def compute_prompt_hash(positive: str, negative: str) -> str:
     """ADR 0010: hash finals byte-for-byte as submitted to ImageBackend.

@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 import { ApiClient } from '../../support/api-client'
 import {
   LIVE_TIMEOUT_MS,
+  MIN_LIVE_IMAGE_EDGE,
+  assertAssetImageDecoded,
   assertLiveProvenance,
   getAsset,
   requireComfyCapability,
@@ -11,7 +13,7 @@ import {
 test.describe('live Anima Base', () => {
   test.setTimeout(LIVE_TIMEOUT_MS)
 
-  test('UseCase → Comfy BaseRender → Asset + provenance', async ({}, testInfo) => {
+  test('UseCase → Comfy BaseRender → Asset + provenance', async ({ page }, testInfo) => {
     let caps
     try {
       caps = await requireComfyCapability('BaseRender')
@@ -48,7 +50,14 @@ test.describe('live Anima Base', () => {
       requireExternalJobRef: true,
     })
     expect(asset.provenance.prompt_version).toBe('v1')
-    await testInfo.attach('real-comfy-result', { body: JSON.stringify({ result: rendered, asset }, null, 2), contentType: 'application/json' })
     expect(asset.provenance.model_id).toBe(caps.BaseRender.model_id)
+
+    const dims = await assertAssetImageDecoded(page, rendered.output_asset_ids[0], {
+      minEdge: MIN_LIVE_IMAGE_EDGE,
+    })
+    await testInfo.attach('real-comfy-result', {
+      body: JSON.stringify({ result: rendered, asset, dims }, null, 2),
+      contentType: 'application/json',
+    })
   })
 })

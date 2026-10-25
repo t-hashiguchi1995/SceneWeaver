@@ -116,7 +116,33 @@ export class ApiClient {
     return res.json()
   }
 
-  async renderShot(shotId: string, usePose = false, poseAssetUri?: string) {
+  async updateShot(shotId: string, patch: Record<string, unknown>) {
+    const res = await fetch(`${this.base}/api/v1/shots/${shotId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    if (!res.ok) throw new Error(`update shot failed: ${res.status} ${await res.text()}`)
+    return res.json()
+  }
+
+  async ensurePromptDraft(shotId: string) {
+    const res = await fetch(`${this.base}/api/v1/shots/${shotId}/prompt-draft`, { method: 'POST' })
+    if (!res.ok) throw new Error(`prompt draft failed: ${res.status} ${await res.text()}`)
+    return res.json() as Promise<{
+      source_ref: string
+      rendered_base_positive: string
+      rendered_base_negative: string
+      template_id: string
+    }>
+  }
+
+  async renderShot(
+    shotId: string,
+    usePose = false,
+    poseAssetUri?: string,
+    opts?: { seed?: number },
+  ) {
     const res = await fetch(`${this.base}/api/v1/shots/${shotId}/render`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -125,9 +151,20 @@ export class ApiClient {
         pose_asset_uri: usePose
           ? poseAssetUri ?? 'asset://pose/fixture.png'
           : poseAssetUri ?? null,
+        seed: opts?.seed ?? null,
       }),
     })
     if (!res.ok) throw new Error(`render failed: ${res.status} ${await res.text()}`)
+    return res.json()
+  }
+
+  async replayAttempt(attemptId: string, seedMode: 'same' | 'new' = 'same') {
+    const res = await fetch(`${this.base}/api/v1/generations/${attemptId}/replay`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seed_mode: seedMode }),
+    })
+    if (!res.ok) throw new Error(`replay failed: ${res.status} ${await res.text()}`)
     return res.json()
   }
 

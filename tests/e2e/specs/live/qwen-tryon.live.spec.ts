@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 import { ApiClient } from '../../support/api-client'
 import {
   LIVE_TIMEOUT_MS,
+  MIN_LIVE_IMAGE_EDGE,
+  assertAssetImageDecoded,
   assertLiveProvenance,
   getAsset,
   requireComfyCapability,
@@ -11,7 +13,7 @@ import {
 test.describe('live Qwen Try-On', () => {
   test.setTimeout(LIVE_TIMEOUT_MS)
 
-  test('UseCase → Comfy → Asset + provenance', async ({}, testInfo) => {
+  test('UseCase → Comfy → Asset + provenance', async ({ page }, testInfo) => {
     let caps
     try {
       caps = await requireComfyCapability('OutfitTryOn')
@@ -44,7 +46,13 @@ test.describe('live Qwen Try-On', () => {
       requireWorkflowHash: true,
       requireExternalJobRef: true,
     })
-    await testInfo.attach('real-comfy-result', { body: JSON.stringify({ result: result, asset }, null, 2), contentType: 'application/json' })
     expect(asset.provenance.model_id).toBe(caps.OutfitTryOn.model_id)
+    const dims = await assertAssetImageDecoded(page, result.candidate_asset_ids[0], {
+      minEdge: MIN_LIVE_IMAGE_EDGE,
+    })
+    await testInfo.attach('real-comfy-result', {
+      body: JSON.stringify({ result, asset, dims }, null, 2),
+      contentType: 'application/json',
+    })
   })
 })

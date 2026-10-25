@@ -65,7 +65,7 @@
       "steps": 50,
       "cfg": 3.0,
       "sampler_name": "euler",
-      "scheduler": "simple",
+      "scheduler": "sgm_uniform",
       "denoise": 1.0,
       "model": ["8", 0],
       "positive": ["4", 0],

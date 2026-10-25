@@ -54,6 +54,9 @@ def resolve_prompt_context(uow: UnitOfWork, shot: Any) -> dict[str, Any]:
             spec.setdefault("outfit_tags", state["outfit_tags"])
         spec["_effective_scene_state"] = state
         spec["_scene_revision"] = scene.updated_at.isoformat()
+        project = uow.projects.get(scene.project_id)
+        if project is not None:
+            spec.setdefault("content_rating", project.content_rating)
     outfit_id = spec.get("outfit_profile_id") or state.get("outfit_profile_id")
     outfit = uow.outfit_profiles.get(outfit_id) if outfit_id else None
     if outfit:

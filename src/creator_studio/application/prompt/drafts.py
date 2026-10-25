@@ -5,7 +5,15 @@ from typing import Any
 
 from creator_studio.application.prompt.renderer import PromptRenderer
 from creator_studio.application.prompt.context import resolve_prompt_context
-from creator_studio.domain.prompt import PromptDraft, compute_context_hash
+from creator_studio.domain.prompt import (
+    ANIMA_COMPILER_LABEL,
+    ANIMA_COMPILER_SOURCE_REF,
+    MOSS_COMPILER_LABEL,
+    MOSS_COMPILER_SOURCE_REF,
+    PromptDraft,
+    RenderedPrompt,
+    compute_context_hash,
+)
 from creator_studio.ports.unit_of_work import UnitOfWork
 
 
@@ -34,6 +42,10 @@ class PromptDraftView:
         return self.__dict__.copy()
 
 
+def capability_for_shot(shot: Any) -> str:
+    return str((shot.render_spec or {}).get("capability") or "BaseRender")
+
+
 class PromptDraftService:
     def __init__(self, uow: UnitOfWork, renderer: PromptRenderer | None = None) -> None:
         self._uow = uow
@@ -42,7 +54,7 @@ class PromptDraftService:
     def ensure_for_shot(self, shot_id: str) -> PromptDraftView:
         with self._uow as uow:
             shot = self._require_shot(uow, shot_id)
-            rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
+            rendered = self._render_for_shot(uow, shot)
             existing = uow.prompt_drafts.get_for_shot_template(
                 shot.id, rendered.template_id, rendered.template_version
             )
@@ -107,7 +119,7 @@ class PromptDraftService:
                 raise ValueError(
                     "prompt draft has user edits; pass confirm=true to discard and rebuild"
                 )
-            rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
+            rendered = self._render_for_shot(uow, shot)
             if (
                 draft.template_id != rendered.template_id
                 or draft.template_version != rendered.template_version
@@ -132,7 +144,7 @@ class PromptDraftService:
             shot = self._require_shot(uow, shot_id)
             draft = self._current_draft(uow, shot)
             if draft is None:
-                rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
+                rendered = self._render_for_shot(uow, shot)
                 return {
                     "source_kind": rendered.source_kind,
                     "source_ref": rendered.source_ref,
@@ -147,6 +159,12 @@ class PromptDraftService:
                 "label": self._label(draft),
                 "body": self._renderer.describe_source(draft.source_kind, draft.source_ref),
             }
+
+    def _render_for_shot(self, uow: UnitOfWork, shot: Any) -> RenderedPrompt:
+        return self._renderer.render_for_capability(
+            capability_for_shot(shot),
+            resolve_prompt_context(uow, shot),
+        )
 
     def _require_shot(self, uow: UnitOfWork, shot_id: str) -> Any:
         shot = uow.shots.get(shot_id)
@@ -173,7 +191,7 @@ class PromptDraftService:
             draft = uow.prompt_drafts.get(shot.current_prompt_draft_id)
             if draft is not None:
                 return draft
-        rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
+        rendered = self._render_for_shot(uow, shot)
         return uow.prompt_drafts.get_for_shot_template(
             shot.id, rendered.template_id, rendered.template_version
         )
@@ -204,7 +222,8 @@ class PromptDraftService:
     def _label(self, draft: PromptDraft) -> str:
         if draft.source_ref == "default_prompt_builder_v1":
             return "Default Prompt Builder · Anima Story Panel v1"
-        rendered = self._renderer.render_anima({})
-        if draft.source_ref == rendered.source_ref:
-            return rendered.label
+        if draft.source_ref == MOSS_COMPILER_SOURCE_REF:
+            return MOSS_COMPILER_LABEL
+        if draft.source_ref == ANIMA_COMPILER_SOURCE_REF:
+            return ANIMA_COMPILER_LABEL
         return f"{draft.source_kind}: {draft.source_ref}"

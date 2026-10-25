@@ -30,3 +30,19 @@ not `ComfyImageBackend.submit()` alone.
 - `pnpm test:e2e:live` is the only entry that may touch real Comfy.
 - Workflow API JSON under `workflows/comfy/` must be executable on the target Comfy install
   (approved registry models / custom nodes required).
+
+## Amendment (Stock MOSS / #B — 2026-10)
+
+Use-case driven acceptance (see `docs/architecture/sceneweaver_usecase_service_design_r4.html`)
+raises the live bar for merge decisions:
+
+1. **`pnpm test:e2e:live`** — developer convenience; Comfy unreachable may **skip**.
+2. **`pnpm test:e2e:live:required`** (`SCENEWEAVER_LIVE_REQUIRED=1`) — **#B/#C merge gate**;
+   Comfy unreachable / capability runtime missing must **FAIL**.
+3. Real outputs must be **decodeable** images with **width/height ≥ 512** (not only
+   `byte_size > 0`). Attach PNG + provenance manifest as Playwright / pytest artifacts.
+4. Stock MOSS Gate 1 additionally requires `moss_caption_v1` (no Anima `safe` / artist
+   tokens), `model_id=moss_image_sft`, and a saved artifact under
+   `docs/validation/moss-sft-gate1/` when pytest live succeeds.
+5. Visual *quality* (character likeness, aesthetics) remains human review; decode + size +
+   provenance are automated gates.

@@ -3,7 +3,14 @@ import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { ApiClient } from '../../support/api-client'
-import { LIVE_TIMEOUT_MS, getAsset, requireComfyCapability, seedLive } from '../../support/live'
+import {
+  LIVE_TIMEOUT_MS,
+  MIN_LIVE_IMAGE_EDGE,
+  assertAssetImageDecoded,
+  getAsset,
+  requireComfyCapability,
+  seedLive,
+} from '../../support/live'
 
 test('ZIP library → default prompt → real Comfy four images', async ({ page }, testInfo) => {
   test.setTimeout(LIVE_TIMEOUT_MS)
@@ -32,8 +39,10 @@ test('ZIP library → default prompt → real Comfy four images', async ({ page 
   expect(rendered.output_asset_ids).toHaveLength(4)
   await testInfo.attach('prompt-library-generation', { body: JSON.stringify({ chosen, draft, rendered, asset: await getAsset(rendered.output_asset_ids[0]) }, null, 2), contentType: 'application/json' })
   for (const id of rendered.output_asset_ids) {
-    await page.goto(`${api.baseUrl}/api/v1/assets/${id}/content`)
-    await expect.poll(() => page.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(100)
+    await assertAssetImageDecoded(page, id, {
+      minEdge: MIN_LIVE_IMAGE_EDGE,
+      apiBase: api.baseUrl,
+    })
   }
   await page.screenshot({ path: testInfo.outputPath('real-library-image.png') })
 })

@@ -15,6 +15,8 @@
     "e2e:live:stack:stop": "bash scripts/e2e/stop-live-stack.sh",
     "e2e": "pnpm e2e:stack:stop; pnpm e2e:stack:start && SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-e2e SCENEWEAVER_E2E_API=http://127.0.0.1:8010 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5174 pnpm --dir tests/e2e test:mock; status=$?; pnpm e2e:stack:stop; exit $status",
     "test:e2e": "pnpm e2e",
-    "test:e2e:live": "pnpm e2e:live:stack:stop; pnpm e2e:live:stack:start && SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-live-test SCENEWEAVER_E2E_API=http://127.0.0.1:8020 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5175 SCENEWEAVER_ENVIRONMENT=live-test COMFY_BASE_URL=${COMFY_BASE_URL:-http://127.0.0.1:8188} pnpm --dir tests/e2e test:live; status=$?; pnpm e2e:live:stack:stop; exit $status"
+    "test:e2e:live": "pnpm e2e:live:stack:stop; pnpm e2e:live:stack:start && SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-live-test SCENEWEAVER_E2E_API=http://127.0.0.1:8020 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5175 SCENEWEAVER_ENVIRONMENT=live-test COMFY_BASE_URL=${COMFY_BASE_URL:-http://127.0.0.1:8188} pnpm --dir tests/e2e test:live; status=$?; pnpm e2e:live:stack:stop; exit $status",
+    "test:e2e:live:required": "pnpm e2e:live:stack:stop; pnpm e2e:live:stack:start && SCENEWEAVER_LIVE_REQUIRED=1 SCENEWEAVER_RUNTIME_DIR=$PWD/runtime-live-test SCENEWEAVER_E2E_API=http://127.0.0.1:8020 SCENEWEAVER_E2E_WEB=http://127.0.0.1:5175 SCENEWEAVER_ENVIRONMENT=live-test COMFY_BASE_URL=${COMFY_BASE_URL:-http://127.0.0.1:8188} pnpm --dir tests/e2e test:live:required; status=$?; pnpm e2e:live:stack:stop; exit $status",
+    "test:moss:live": "SCENEWEAVER_MOSS_LIVE=1 SCENEWEAVER_COMFY_URL=${SCENEWEAVER_COMFY_URL:-http://127.0.0.1:8188} uv run pytest tests/live/test_moss_sft_live.py -q --tb=short"
   }
 }

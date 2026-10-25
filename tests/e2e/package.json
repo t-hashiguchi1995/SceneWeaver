@@ -6,6 +6,7 @@
     "test": "playwright test",
     "test:mock": "playwright test --project=mock",
     "test:live": "playwright test --project=live",
+    "test:live:required": "SCENEWEAVER_LIVE_REQUIRED=1 playwright test --project=live",
     "report": "playwright show-report"
   },
   "devDependencies": {

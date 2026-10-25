@@ -11,6 +11,7 @@ import yaml
 
 from creator_studio.application.assets.tag_asset import schedule_asset_tagging
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
+from creator_studio.application.prompt.drafts import capability_for_shot
 from creator_studio.application.prompt.renderer import PromptRenderer
 from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.domain.asset import Asset, AssetKind, ReviewDecision
@@ -405,10 +406,15 @@ class ShotPipeline:
         return self.render(shot_id, seed=new_seed, _replay=snapshot)
 
     def _ensure_draft_in_uow(self, uow: UnitOfWork, shot: ShotSpec) -> PromptDraft:
-        rendered = self._renderer.render_anima(resolve_prompt_context(uow, shot))
+        context = resolve_prompt_context(uow, shot)
+        rendered = self._renderer.render_for_capability(capability_for_shot(shot), context)
         if shot.current_prompt_draft_id:
             draft = uow.prompt_drafts.get(shot.current_prompt_draft_id)
-            if draft is not None and draft.template_id == rendered.template_id and draft.template_version == rendered.template_version:
+            if (
+                draft is not None
+                and draft.template_id == rendered.template_id
+                and draft.template_version == rendered.template_version
+            ):
                 return draft
         existing = uow.prompt_drafts.get_for_shot_template(
             shot.id, rendered.template_id, rendered.template_version
@@ -426,7 +432,7 @@ class ShotPipeline:
             source_shot_revision=shot.revision,
             context_hash=compute_context_hash(
                 shot_revision=shot.revision,
-                render_spec=resolve_prompt_context(uow, shot),
+                render_spec=context,
                 template_id=rendered.template_id,
                 template_version=rendered.template_version,
             ),
