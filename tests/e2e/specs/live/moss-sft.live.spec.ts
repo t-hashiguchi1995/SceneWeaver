@@ -5,7 +5,8 @@
  * Playwright artifact attachment. Not “workflow compiled”.
  *
  * Dev: `pnpm test:e2e:live` may skip when Comfy unreachable.
- * Merge (#B): `pnpm test:e2e:live:required` → unreachable = FAIL.
+ * Gate 1 (#B): `pnpm test:moss:e2e:live:required` → unreachable = FAIL
+ * (dedicated script; do not use `test:e2e:live:required -- moss-sft`).
  */
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../../support/api-client'

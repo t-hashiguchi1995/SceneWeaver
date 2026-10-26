@@ -1,7 +1,8 @@
 """Live Stock MOSS-SFT smoke — Gate 1 (#B mandatory).
 
-Requires SCENEWEAVER_MOSS_LIVE=1 + Comfy e087d8f6+ with MOSS weights.
+Requires SCENEWEAVER_MOSS_LIVE=1 + Comfy >= 0.42.1 (min e087d8f+) with MOSS weights.
 When that env is set, missing Comfy / moss_image / weights must FAIL (not skip).
+Entry: ``pnpm test:moss:live``.
 
 Pass criteria:
   - Real PNG decodeable with width/height >= 512
@@ -38,7 +39,7 @@ from creator_studio.infrastructure.settings.config import REPO_ROOT
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("SCENEWEAVER_MOSS_LIVE", "").lower() not in {"1", "true", "yes"},
-    reason="Set SCENEWEAVER_MOSS_LIVE=1 (and Comfy e087d8f6+ with MOSS weights) for live smoke",
+    reason="Set SCENEWEAVER_MOSS_LIVE=1 (Comfy >= 0.42.1 + MOSS weights) or run: pnpm test:moss:live",
 )
 
 _REQUIRED_UNET = "moss_image_sft_int8_convrot.safetensors"
@@ -73,7 +74,7 @@ def _require_moss_runtime(comfy_url: str) -> str:
         # Expected FAIL on pre-native hosts (e.g. 0.31.1) — environment, not SceneWeaver.
         pytest.fail(
             "ENV: ComfyUI lacks CLIPLoader type=moss_image "
-            f"(comfyui_version={version!r}). Upgrade to e087d8f6 / 0.42.0+."
+            f"(comfyui_version={version!r}). Upgrade to ComfyUI >= 0.42.1 (min e087d8f+)."
         )
 
     def _models(kind: str) -> list[str]:

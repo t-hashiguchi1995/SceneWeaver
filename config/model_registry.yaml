@@ -27,7 +27,7 @@ models:
     capabilities:
       - LayoutGuidedRender
     workflow_template: workflows/comfy/moss_sft.template.yaml
-    notes: "ComfyUI native MOSS (e087d8f6+). Weights from Comfy-Org/MOSS-Image."
+    notes: "ComfyUI native MOSS (min e087d8f+; recommended >= 0.42.1). Weights from Comfy-Org/MOSS-Image."
 
   qwen_image_edit_2509:
     provider: comfyui

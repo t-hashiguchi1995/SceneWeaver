@@ -32,7 +32,7 @@
   "mime": "image/png",
   "sha256": "...",
   "external_job_ref": "...",
-  "comfy_version": "0.42.x",
+  "comfy_version": "0.42.1",
   "image_file": "gate1_seed_12345.png"
 }
 ```
@@ -44,7 +44,7 @@
 | パターン | クラス | 扱い |
 |----------|--------|------|
 | Comfy unreachable | **ENV** | ホスト起動 |
-| LayoutGuidedRender configured だが `moss_image` CLIP なし | **ENV** | Comfy → e087d8f6+ |
+| LayoutGuidedRender configured だが `moss_image` CLIP なし | **ENV** | Comfy → **≥ 0.42.1**（最低 e087d8f+） |
 | weights 欠落 | **ENV** | Comfy-Org/MOSS-Image 配置 |
 | node/weights あり → submit 成功 → 画像0枚 / 黒画像 | **SW** | SceneWeaver / workflow 調査 |
 
@@ -55,24 +55,28 @@ Comfy reachable → LayoutGuidedRender configured
   → native moss_image CLIP type がない → ENV FAIL
 ```
 
-## 実行
+## 実行（入口はこれだけ使う）
+
+`pnpm test:e2e:live:required -- moss-sft` は使わない。root script が複合シェルのため、pnpm の余分引数が Playwright に届かないことがある。
 
 ```bash
-# pytest（artifact をここに書き出す）
+# pytest — artifact を docs/validation/moss-sft-gate1/ に書き出す
 pnpm test:moss:live
 
-# Playwright live（dev: skip 可）
-pnpm test:e2e:live -- moss-sft
-
-# #B merge 判定（unreachable = FAIL）
-pnpm test:e2e:live:required -- moss-sft
+# Playwright — MOSS だけ / unreachable=FAIL（専用 script）
+pnpm test:moss:e2e:live:required
 ```
+
+開発用の全 live suite（skip 可）は従来どおり `pnpm test:e2e:live`。
 
 ## ホスト前提
 
-- ComfyUI **e087d8f6 / 0.42.0+**（`CLIPLoader type=moss_image`）
-- Weights: Comfy-Org/MOSS-Image
-- **FP32 VAE**（`--bf16-vae` なし）
+| | 条件 |
+|--|------|
+| 最低 | ComfyUI **e087d8f+**（`CLIPLoader type=moss_image`） |
+| **推奨（Gate 1）** | ComfyUI **≥ 0.42.1**（0.42.0 MOSS support + 0.42.1 template crash fix） |
+| Weights | `moss_image_sft_int8_convrot.safetensors` / `qwen3.5_9b_w4a8_gptq.safetensors` / `flux2-vae_small.safetensors`（Comfy-Org/MOSS-Image） |
+| VAE | **FP32**（`--bf16-vae` なし — Flux2 BF16 黒画像回避） |
 
 ## 現状ステータス
 

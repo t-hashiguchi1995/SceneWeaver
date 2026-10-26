@@ -37,12 +37,15 @@ Use-case driven acceptance (see `docs/architecture/sceneweaver_usecase_service_d
 raises the live bar for merge decisions:
 
 1. **`pnpm test:e2e:live`** — developer convenience; Comfy unreachable may **skip**.
-2. **`pnpm test:e2e:live:required`** (`SCENEWEAVER_LIVE_REQUIRED=1`) — **#B/#C merge gate**;
-   Comfy unreachable / capability runtime missing must **FAIL**.
+2. **`pnpm test:e2e:live:required`** (`SCENEWEAVER_LIVE_REQUIRED=1`) — full live suite
+   fail-closed. For **MOSS Gate 1 only**, use the dedicated entry
+   **`pnpm test:moss:e2e:live:required`** (filters `moss-sft` inside the script — do not
+   append `-- moss-sft` to the composite root script). Pytest path: **`pnpm test:moss:live`**.
 3. Real outputs must be **decodeable** images with **width/height ≥ 512** (not only
    `byte_size > 0`). Attach PNG + provenance manifest as Playwright / pytest artifacts.
 4. Stock MOSS Gate 1 additionally requires `moss_caption_v1` (no Anima `safe` / artist
    tokens), `model_id=moss_image_sft`, and a saved artifact under
-   `docs/validation/moss-sft-gate1/` when pytest live succeeds.
+   `docs/validation/moss-sft-gate1/` when pytest live succeeds. Host: **ComfyUI ≥ 0.42.1**
+   recommended (minimum native MOSS commit e087d8f+).
 5. Visual *quality* (character likeness, aesthetics) remains human review; decode + size +
    provenance are automated gates.
