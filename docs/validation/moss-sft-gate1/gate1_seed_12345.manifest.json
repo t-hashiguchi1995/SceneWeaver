@@ -1,0 +1,22 @@
+{
+  "gate": "moss-sft-gate1",
+  "status": "passed",
+  "provider": "comfyui",
+  "capability": "LayoutGuidedRender",
+  "model_id": "moss_image_sft",
+  "workflow_template_id": "moss_sft_v1",
+  "workflow_hash": "d6593311a06aab11de46cc8ee30646bcff8541423459b88fedaed8e4821b9560",
+  "seed": 12345,
+  "prompt_hash": "7280242d44a43f03d6eef6422066cc81991e1fc860f53cc3f89a33a75a698504",
+  "width": 1024,
+  "height": 1024,
+  "mime": "image/png",
+  "sha256": "2eb479979ec09608422606e9014c02b617b426af3832f7895210758e1e251ec4",
+  "external_job_ref": "d7ca81aa-2509-403e-a779-0dfad227256a",
+  "comfy_version": "0.42.5",
+  "image_file": "gate1_seed_12345.png",
+  "mean_luma": 190.03,
+  "source_ref": "moss_caption_v1",
+  "asset_id": "669ed4a230d14f1391c25d72af",
+  "generation_attempt_id": "d0f7d2f645f241cf96c20dba95"
+}

@@ -150,17 +150,25 @@ def live_container(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Con
     comfy_url = os.environ.get("SCENEWEAVER_COMFY_URL", "http://127.0.0.1:8188")
     monkeypatch.setenv("SCENEWEAVER_RUNTIME_DIR", str(runtime))
     monkeypatch.setenv("SCENEWEAVER_DATABASE_URL", f"sqlite:///{db}")
+    # live-test: effective_image_backend() prefers bootstrap env over user settings store.
+    monkeypatch.setenv("SCENEWEAVER_ENVIRONMENT", "live-test")
     monkeypatch.setenv("SCENEWEAVER_IMAGE_BACKEND", "comfy")
     monkeypatch.setenv("SCENEWEAVER_COMFY_URL", comfy_url)
     monkeypatch.setenv("SCENEWEAVER_IMAGE_TAGGER", "off")
+    # First MOSS load (UNET + Qwen3.5 TE) can exceed the default 300s poll window.
+    monkeypatch.setenv("SCENEWEAVER_COMFY_POLL_TIMEOUT_SECONDS", "1200")
     clear_settings_cache()
     reset_engine()
     reset_container()
     settings = Settings()
+    assert settings.image_backend == "comfy"
+    assert settings.allows_test_control
     upgrade_head(settings.sqlalchemy_url())
     reset_engine()
     version = _require_moss_runtime(comfy_url)
-    return Container(settings), version
+    container = Container(settings)
+    assert container.settings_service().effective_image_backend() == "comfy"
+    return container, version
 
 
 def test_moss_sft_live_smoke_provenance_and_replay(
