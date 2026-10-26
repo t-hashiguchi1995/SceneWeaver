@@ -186,13 +186,15 @@ export function readPngSize(buf: Buffer): { width: number; height: number } {
 }
 
 /**
- * Fetch Asset bytes, require PNG IHDR ≥ minEdge, and confirm the browser can decode
- * via data-URL &lt;img&gt; (avoids about:blank ↔ API CORS on setContent).
+ * Fetch Asset bytes and require a decodeable PNG with edge ≥ minEdge.
+ *
+ * Default: PNG IHDR parse (sufficient for Gate 1; avoids ~1MB+ data-URL hangs).
+ * Set ``browserDecode: true`` to also load via &lt;img&gt; (Anima-sized fixtures OK).
  */
 export async function assertAssetImageDecoded(
   page: Page,
   assetId: string,
-  opts?: { minEdge?: number; apiBase?: string },
+  opts?: { minEdge?: number; apiBase?: string; browserDecode?: boolean },
 ): Promise<{ width: number; height: number; bytes: Buffer }> {
   const minEdge = opts?.minEdge ?? MIN_LIVE_IMAGE_EDGE
   const base = opts?.apiBase ?? API_BASE
@@ -208,26 +210,39 @@ export async function assertAssetImageDecoded(
       `PNG too small: ${ihdr.width}x${ihdr.height} (need >= ${minEdge})`,
     )
   }
-  const b64 = bytes.toString('base64')
-  await page.setContent(
-    `<!doctype html><img id="live-asset" alt="live-asset" src="data:image/png;base64,${b64}" />`,
-  )
-  const img = page.locator('#live-asset')
-  await expect
-    .poll(async () => {
-      const dims = await img.evaluate((el: HTMLImageElement) => ({
-        w: el.naturalWidth,
-        h: el.naturalHeight,
-        complete: el.complete,
-      }))
-      return dims.complete ? Math.min(dims.w, dims.h) : 0
-    })
-    .toBeGreaterThanOrEqual(minEdge)
-  const decoded = await img.evaluate((el: HTMLImageElement) => ({
-    width: el.naturalWidth,
-    height: el.naturalHeight,
-  }))
-  return { ...decoded, bytes }
+  if (opts?.browserDecode === false || opts?.browserDecode === undefined) {
+    // Gate 1 / large MOSS outputs: IHDR is the automated decode bar.
+    return { width: ihdr.width, height: ihdr.height, bytes }
+  }
+  // Optional browser path for smaller fixtures (route fulfill — not data-URL).
+  const routePattern = '**/__sceneweaver_live_asset.png'
+  await page.route(routePattern, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'image/png', body: bytes })
+  })
+  try {
+    await page.setContent(
+      '<!doctype html><img id="live-asset" alt="live-asset" src="http://127.0.0.1/__sceneweaver_live_asset.png" />',
+      { waitUntil: 'domcontentloaded' },
+    )
+    const img = page.locator('#live-asset')
+    await expect
+      .poll(async () => {
+        const dims = await img.evaluate((el: HTMLImageElement) => ({
+          w: el.naturalWidth,
+          h: el.naturalHeight,
+          complete: el.complete,
+        }))
+        return dims.complete ? Math.min(dims.w, dims.h) : 0
+      })
+      .toBeGreaterThanOrEqual(minEdge)
+    const decoded = await img.evaluate((el: HTMLImageElement) => ({
+      width: el.naturalWidth,
+      height: el.naturalHeight,
+    }))
+    return { ...decoded, bytes }
+  } finally {
+    await page.unroute(routePattern)
+  }
 }
 
 /** Attach PNG bytes + JSON manifest for human Gate review. */

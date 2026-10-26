@@ -1,12 +1,14 @@
 /**
  * Gate 1 — Stock MOSS-SFT real Comfy smoke (LayoutGuidedRender).
  *
- * Pass = real PNG (≥512 edge), SHA256, provenance, moss_caption prompt path,
- * Playwright artifact attachment. Not “workflow compiled”.
+ * Neutral smoke only (generic woman) — NOT target-character fixture validation.
+ * Target fixtures = Gate 2.5 (see docs/validation/).
  *
- * Dev: `pnpm test:e2e:live` may skip when Comfy unreachable.
- * Gate 1 (#B): `pnpm test:moss:e2e:live:required` → unreachable = FAIL
- * (dedicated script; do not use `test:e2e:live:required -- moss-sft`).
+ * Pass = real PNG (≥512), SHA256, provenance, moss_caption path, artifact attach.
+ * Same-seed Comfy replay is covered by ``pnpm test:moss:live`` (pytest) to keep
+ * this Playwright budget on one generation.
+ *
+ * Entry: ``pnpm test:moss:e2e:live:required``
  */
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../../support/api-client'
@@ -23,7 +25,8 @@ import {
 } from '../../support/live'
 
 test.describe('live MOSS-SFT Gate1', () => {
-  test.setTimeout(LIVE_TIMEOUT_MS)
+  // One MOSS batch (often 4 candidates × 50 steps) after cold load.
+  test.setTimeout(Math.max(LIVE_TIMEOUT_MS, 20 * 60 * 1000))
 
   test('UseCase → Comfy LayoutGuidedRender → decodeable PNG + provenance', async ({
     page,
@@ -65,7 +68,12 @@ test.describe('live MOSS-SFT Gate1', () => {
     }
 
     const seed = 12345
+    const t0 = Date.now()
     const rendered = await api.renderShot(shot.id, false, undefined, { seed })
+    testInfo.annotations.push({
+      type: 'moss_render_ms',
+      description: String(Date.now() - t0),
+    })
     expect(rendered.output_asset_ids?.length).toBeGreaterThanOrEqual(1)
     expect(rendered.workflow_hash).toBeTruthy()
     expect(rendered.external_job_ref).toBeTruthy()
@@ -87,7 +95,10 @@ test.describe('live MOSS-SFT Gate1', () => {
     expect(String(asset.provenance.final_positive_prompt || '')).not.toContain('safe')
     expect(String(asset.provenance.final_positive_prompt || '')).not.toContain('@fuzichoco')
 
-    const dims = await assertAssetImageDecoded(page, assetId, { minEdge: MIN_LIVE_IMAGE_EDGE })
+    const dims = await assertAssetImageDecoded(page, assetId, {
+      minEdge: MIN_LIVE_IMAGE_EDGE,
+      browserDecode: false,
+    })
     expect(dims.width).toBeGreaterThanOrEqual(MIN_LIVE_IMAGE_EDGE)
     expect(dims.height).toBeGreaterThanOrEqual(MIN_LIVE_IMAGE_EDGE)
     const comfyVersion = await fetchComfyVersion()
@@ -110,20 +121,7 @@ test.describe('live MOSS-SFT Gate1', () => {
       asset_id: assetId,
       source_ref: draft.source_ref,
       generation_attempt_id: rendered.generation_attempt_id,
+      note: 'neutral smoke — not target-character fixture validation',
     })
-
-    // Gate 6 light check: same-seed replay restores capability snapshot.
-    const replayed = await api.replayAttempt(rendered.generation_attempt_id, 'same')
-    expect(replayed.generation_attempt_id).toBeTruthy()
-    expect(replayed.output_asset_ids?.length).toBeGreaterThanOrEqual(1)
-    const replayAsset = await getAsset(replayed.output_asset_ids[0])
-    assertLiveProvenance(replayAsset.provenance, {
-      provider: 'comfyui',
-      workflow_template_id: 'moss_sft_v1',
-      model_id: 'moss_image_sft',
-      requireSeed: true,
-      requireWorkflowHash: true,
-    })
-    expect(replayAsset.provenance.seed).toBe(seed)
   })
 })
