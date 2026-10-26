@@ -83,3 +83,11 @@ pnpm test:moss:e2e:live:required
 | 日付 | 結果 | メモ |
 |------|------|------|
 | 2026-10-25 | **ENV BLOCKED** | Comfy `0.31.1` — `moss_image` 未搭載。重み未配置。Gate1 PNG 未生成。 |
+| 2026-10-26 | **ENV BLOCKED（継続）** | head `2dc367d`+。テスト入口は揃ったが **実 PNG は 0枚**（このディレクトリは README のみ）。Character LoRA / Pose ecosystem は [計画のみ](../character_lora_pose_ecosystem_plan.md) — **実装しない**。 |
+
+### いまやること（コード変更ではない）
+
+```text
+Comfy 0.31.1 → >= 0.42.1 → MOSS 3 weights → pnpm test:moss:live
+  → gate1_seed_*.png 目視 → pnpm test:moss:e2e:live:required → Gate 1 PASS
+```
