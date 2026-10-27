@@ -1,0 +1,28 @@
+--- base
++++ edited
+@@ -8,10 +8,12 @@
+ safe
+ 1girl
+ lize helesta
++lize helesta
+ nijisanji
+ @fuzichoco
+ @rella
+ purple eyes
++detailed eyes
+ white hair
+ blue hair
+ two-tone hair
+@@ -19,7 +21,11 @@
+ long hair
+ blunt bangs
+ crown
+-royal blue and white outfit
++silver crown
++feather hair ornament
++royal blue and white dress
++blue jacket
++white blouse
+ calm expression
+ standing
+ medium full shot

@@ -1,0 +1,13 @@
+{
+  "fixture_id": "C08",
+  "prompt_hash": "4148574fe5322c1c0853c00fd49cbb1bb4be0d3fc9d77a1cb00f88fb04a12f16",
+  "base_prompt_hash": "2c5accf3121cf80ee58c044f93e513e3c8395baeccf192f4e675eb81b125882b",
+  "seed": 26008,
+  "model_id": "anima_base",
+  "workflow_template_id": "anima_base_v1",
+  "capability": "BaseRender",
+  "character_name": "akemi homura",
+  "franchise": "mahou shoujo madoka magica",
+  "adopted_file": "C08_homura.anima.txt",
+  "commit": "a9928dd"
+}

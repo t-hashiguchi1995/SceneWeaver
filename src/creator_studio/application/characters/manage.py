@@ -29,6 +29,10 @@ def to_dto(c: Character) -> CharacterDTO:
             "identity_tags": vi.identity_tags,
             "identity_ref_asset_ids": vi.identity_ref_asset_ids,
             "tryon_base_asset_id": str(vi.tryon_base_asset_id) if vi.tryon_base_asset_id else None,
+            "character_name": vi.character_name,
+            "franchise": vi.franchise,
+            "body_tags": vi.body_tags,
+            "saved_anima_positive": vi.saved_anima_positive,
         },
         persona={
             "first_person": c.persona.first_person,
@@ -106,7 +110,11 @@ class UpdateVisualIdentity:
             c = uow.characters.get(CharacterId(character_id))
             if c is None:
                 raise ValueError("character not found")
-            tryon = visual.get("tryon_base_asset_id")
+            if "tryon_base_asset_id" in visual:
+                tryon = visual.get("tryon_base_asset_id")
+                tryon_base = AssetId(tryon) if tryon else None
+            else:
+                tryon_base = c.visual_identity.tryon_base_asset_id
             c.visual_identity = VisualIdentity(
                 hair=visual.get("hair", c.visual_identity.hair),
                 eyes=visual.get("eyes", c.visual_identity.eyes),
@@ -115,7 +123,15 @@ class UpdateVisualIdentity:
                 identity_ref_asset_ids=visual.get(
                     "identity_ref_asset_ids", c.visual_identity.identity_ref_asset_ids
                 ),
-                tryon_base_asset_id=AssetId(tryon) if tryon else None,
+                tryon_base_asset_id=tryon_base,
+                character_name=visual.get(
+                    "character_name", c.visual_identity.character_name
+                ),
+                franchise=visual.get("franchise", c.visual_identity.franchise),
+                body_tags=visual.get("body_tags", c.visual_identity.body_tags),
+                saved_anima_positive=visual.get(
+                    "saved_anima_positive", c.visual_identity.saved_anima_positive
+                ),
             )
             c.updated_at = utc_now()
             uow.characters.save(c)

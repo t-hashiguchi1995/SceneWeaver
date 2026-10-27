@@ -1,0 +1,29 @@
+--- base
++++ edited
+@@ -8,22 +8,25 @@
+ safe
+ 1girl
+ hoshikawa sara
++hoshikawa sara
+ nijisanji
+ @fuzichoco
+ @rella
+ heterochromia
+ red eyes
+ yellow eyes
++detailed eyes
+ blonde hair
+ long hair
+ very long hair
+ side ponytail
++ahoge
+ x hair ornament
+ hair ribbon
+-ahoge
+ idol costume
+ white dress
+ blue accents
++frills
+ slight smile
+ standing
+ medium full shot

@@ -16,6 +16,12 @@ class VisualIdentity:
     identity_tags: list[str] = field(default_factory=list)
     identity_ref_asset_ids: list[str] = field(default_factory=list)
     tryon_base_asset_id: AssetId | None = None  # nullable; required only at Try-On start
+    # Character Semantic Spec (Anima tag path + MOSS caption share these)
+    character_name: str = ""  # tag form, e.g. "lize helesta"
+    franchise: str = ""  # e.g. "nijisanji", "mahou shoujo madoka magica"
+    body_tags: list[str] = field(default_factory=list)
+    # Adopted Anima Final Prompt from Gate 2.6 / Prompt Editor (optional)
+    saved_anima_positive: str = ""
 
 
 @dataclass

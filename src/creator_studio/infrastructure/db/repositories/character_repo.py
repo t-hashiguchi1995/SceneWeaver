@@ -20,6 +20,10 @@ def _to_row(c: Character) -> CharacterRow:
             "identity_tags": vi.identity_tags,
             "identity_ref_asset_ids": vi.identity_ref_asset_ids,
             "tryon_base_asset_id": str(vi.tryon_base_asset_id) if vi.tryon_base_asset_id else None,
+            "character_name": vi.character_name,
+            "franchise": vi.franchise,
+            "body_tags": vi.body_tags,
+            "saved_anima_positive": vi.saved_anima_positive,
         },
         persona_json={
             "first_person": c.persona.first_person,
@@ -49,6 +53,10 @@ def _from_row(row: CharacterRow) -> Character:
             identity_tags=list(vi.get("identity_tags") or []),
             identity_ref_asset_ids=list(vi.get("identity_ref_asset_ids") or []),
             tryon_base_asset_id=AssetId(tryon) if tryon else None,
+            character_name=str(vi.get("character_name") or ""),
+            franchise=str(vi.get("franchise") or ""),
+            body_tags=list(vi.get("body_tags") or []),
+            saved_anima_positive=str(vi.get("saved_anima_positive") or ""),
         ),
         persona=Persona(
             first_person=pe.get("first_person", "私"),

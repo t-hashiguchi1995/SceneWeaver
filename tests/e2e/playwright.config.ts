@@ -23,9 +23,9 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     // bundled ffmpeg unsupported on ubuntu20.04; keep screenshots+trace instead
     video: 'off',
-    extraHTTPHeaders: {
-      Accept: 'application/json',
-    },
+    // Do NOT set Accept: application/json globally — document navigations to SPA
+    // routes (e.g. /shots) then 404 and page.goto hangs / never reaches DOMContentLoaded.
+    // ApiClient sets Accept on API requests explicitly.
   },
   projects: [
     {

@@ -44,6 +44,16 @@ def resolve_prompt_context(uow: UnitOfWork, shot: Any) -> dict[str, Any]:
             "character_traits",
             ", ".join(filter(None, [visual.hair, visual.eyes, visual.body])),
         )
+        if visual.character_name:
+            spec.setdefault("character_name", visual.character_name)
+        if visual.franchise:
+            spec.setdefault("franchise", visual.franchise)
+        if visual.body_tags:
+            spec.setdefault("body_tags", list(visual.body_tags))
+        # Gate 2.6 adopted Anima prompt — optional override when present and
+        # shot has not already set a custom base via render_spec.
+        if visual.saved_anima_positive and not spec.get("_ignore_saved_anima_positive"):
+            spec.setdefault("_saved_anima_positive", visual.saved_anima_positive)
         spec["_character_revision"] = character.updated_at.isoformat()
         spec.setdefault("character_id", str(character.id))
     if scene:

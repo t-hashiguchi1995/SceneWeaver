@@ -1,0 +1,21 @@
+--- base
++++ edited
+@@ -8,15 +8,17 @@
+ safe
+ 1girl
+ firefly (honkai: star rail)
++firefly (honkai: star rail)
+ honkai (series)
+ @fuzichoco
+ @rella
+ hair between eyes
+ purple eyes
++detailed eyes
+ grey hair
+ long hair
++hair intakes
+ black hairband
+-hair intakes
+ white shirt
+ black jacket
+ long sleeves

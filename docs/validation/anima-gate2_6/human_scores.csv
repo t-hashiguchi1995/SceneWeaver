@@ -1,0 +1,11 @@
+fixture_id,fixture_name,seed,variant,identity,outfit,color,accessories,overall,total,delta_total,notes
+C01,リゼ・ヘルエスタ,26001,base,3,3,3,3,3,15,,GT: purple eyes + two-tone white/blue + crown readable
+C01,リゼ・ヘルエスタ,26001,edited,4,4,4,4,4,20,5,GT stronger: crown/frills/inner blue; trigger nijisanji path
+C04,星川サラ,26004,base,2,3,2,2,2,11,,blonde idol-ish; hetero/X weak
+C04,星川サラ,26004,edited,4,4,4,4,4,20,9,GT: side ponytail + hetero red/yellow + X ornament
+C05,イレイナ,26005,base,4,4,3,4,4,19,,already strong witch hat/robe/ash hair
+C05,イレイナ,26005,edited,4,4,4,4,4,20,1,hat/brooch refinement; high-base small Δ
+C08,暁美ほむら,26008,base,4,3,3,3,3,16,,MG readable; ribbon/soul gem partial
+C08,暁美ほむら,26008,edited,4,4,4,4,4,20,4,white jacket MG + red ribbon + soul gem clearer
+C10,ホタル（Firefly）,26010,base,3,3,3,3,3,15,,ANIMADEX Firefly: grey long + purple + hairband + white/black present
+C10,ホタル（Firefly）,26010,edited,4,4,4,4,4,19,4,butterfly motifs richer; still white shirt + black jacket GT

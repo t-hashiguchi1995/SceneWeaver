@@ -5,8 +5,10 @@ export type PromptEditorProps = {
   templateLabel: string
   sourceKind: string
   templateSource?: string
+  /** Compiler output (Anima tag sequence or MOSS caption) — read-only Base. */
   renderedBasePositive: string
   renderedBaseNegative: string
+  /** User-editable Final Prompt. */
   editedPositive: string
   editedNegative: string
   modifiedPositive: boolean
@@ -16,12 +18,16 @@ export type PromptEditorProps = {
   warnings?: string[]
   saveStatus?: string
   generateDisabled?: boolean
+  /** When set, show "Save as character prompt" (Gate 2.6 adopt). */
+  canSaveCharacterPrompt?: boolean
+  saveCharacterPromptStatus?: string
   onPositiveChange: (value: string) => void
   onNegativeChange: (value: string) => void
   onResetEdits: () => void
   onRebuild: () => void
   onGenerate: () => void
   onDismissStale?: () => void
+  onSaveCharacterPrompt?: () => void
 }
 
 function tokenDiff(base: string, edited: string): string[] {
@@ -29,8 +35,10 @@ function tokenDiff(base: string, edited: string): string[] {
   const b = edited.split(/[,\n]/).map((x) => x.trim()).filter(Boolean)
   const before = new Set(a)
   const after = new Set(b)
-  return [...a.filter((x) => !after.has(x)).map((x) => `- ${x}`),
-    ...b.filter((x) => !before.has(x)).map((x) => `+ ${x}`)]
+  return [
+    ...a.filter((x) => !after.has(x)).map((x) => `- ${x}`),
+    ...b.filter((x) => !before.has(x)).map((x) => `+ ${x}`),
+  ]
 }
 
 export function PromptEditor(props: PromptEditorProps) {
@@ -60,7 +68,9 @@ export function PromptEditor(props: PromptEditorProps) {
         </span>
       </div>
 
-      <p role="status" aria-live="polite" data-testid="prompt-save-status">{props.saveStatus}</p>
+      <p role="status" aria-live="polite" data-testid="prompt-save-status">
+        {props.saveStatus}
+      </p>
       {props.stale && (
         <div className="banner" data-testid="prompt-stale-banner">
           <p>{t('staleBanner')}</p>
@@ -97,19 +107,47 @@ export function PromptEditor(props: PromptEditorProps) {
         >
           {t('tabSource')}
         </button>
+        <button
+          type="button"
+          className={tab === 'components' ? 'btn primary' : 'btn'}
+          data-testid="prompt-tab-components"
+          onClick={() => setTab('components')}
+        >
+          {t('tabComponents')}
+        </button>
       </div>
+      {props.warnings?.map((warning) => (
+        <p className="hint" key={warning}>
+          {warning}
+        </p>
+      ))}
 
-      <button type="button" className="btn" data-testid="prompt-tab-components" onClick={() => setTab('components')}>{t('tabComponents')}</button>
-      {props.warnings?.map((warning) => <p className="hint" key={warning}>{warning}</p>)}
-
-      {tab === 'components' ? <ul className="list">{props.components?.map((component) => <li key={component.ref}><code>{component.ref}</code><span>{component.text}</span></li>)}</ul> : tab === 'source' ? (
+      {tab === 'components' ? (
+        <ul className="list">
+          {props.components?.map((component) => (
+            <li key={component.ref}>
+              <code>{component.ref}</code>
+              <span>{component.text}</span>
+            </li>
+          ))}
+        </ul>
+      ) : tab === 'source' ? (
         <pre className="lede" data-testid="prompt-source-body">
           {props.templateSource || props.sourceKind}
         </pre>
       ) : (
         <div className="stack">
           <label>
-            {t('positive')}
+            {t('basePositive')}
+            <textarea
+              data-testid="prompt-base-positive"
+              rows={5}
+              readOnly
+              value={props.renderedBasePositive}
+            />
+          </label>
+          <label>
+            {t('finalPositive')}
             <textarea
               data-testid="prompt-positive"
               rows={8}
@@ -118,7 +156,16 @@ export function PromptEditor(props: PromptEditorProps) {
             />
           </label>
           <label>
-            {t('negative')}
+            {t('baseNegative')}
+            <textarea
+              data-testid="prompt-base-negative"
+              rows={3}
+              readOnly
+              value={props.renderedBaseNegative}
+            />
+          </label>
+          <label>
+            {t('finalNegative')}
             <textarea
               data-testid="prompt-negative"
               rows={4}
@@ -155,6 +202,16 @@ export function PromptEditor(props: PromptEditorProps) {
             {t('rebuild')}
           </button>
         )}
+        {props.canSaveCharacterPrompt && props.onSaveCharacterPrompt && (
+          <button
+            type="button"
+            className="btn"
+            data-testid="prompt-save-character"
+            onClick={props.onSaveCharacterPrompt}
+          >
+            {t('saveCharacterPrompt')}
+          </button>
+        )}
         <button
           type="button"
           className="btn primary"
@@ -165,6 +222,11 @@ export function PromptEditor(props: PromptEditorProps) {
           {t('generate')}
         </button>
       </div>
+      {props.saveCharacterPromptStatus ? (
+        <p className="meta" data-testid="prompt-save-character-status">
+          {props.saveCharacterPromptStatus}
+        </p>
+      ) : null}
     </section>
   )
 }

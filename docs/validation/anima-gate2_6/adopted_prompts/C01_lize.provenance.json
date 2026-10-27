@@ -1,0 +1,13 @@
+{
+  "fixture_id": "C01",
+  "prompt_hash": "af2cb3dc06ea9c724eef2918ed46289943c074e3d4149f99ac1ce5fc49d0e11a",
+  "base_prompt_hash": "5d6976603dc99a06a25e99dda43cfd3dc40751effe15880d645917bc6184c408",
+  "seed": 26001,
+  "model_id": "anima_base",
+  "workflow_template_id": "anima_base_v1",
+  "capability": "BaseRender",
+  "character_name": "lize helesta",
+  "franchise": "nijisanji",
+  "adopted_file": "C01_lize.anima.txt",
+  "commit": "a9928dd"
+}

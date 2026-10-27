@@ -4,7 +4,7 @@ export class ShotPage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto('/shots')
+    await this.page.goto('/shots', { waitUntil: 'domcontentloaded', timeout: 60_000 })
   }
 
   async setBeatId(beatId: string) {
@@ -25,21 +25,43 @@ export class ShotPage {
   }
 
   async enablePose(enabled = true) {
-    await this.openAdvanced()
-    const box = this.page.getByTestId('shot-use-pose')
-    const checked = await box.isChecked()
-    if (checked !== enabled) await box.click()
-    if (enabled) {
-      const uri = await this.page.evaluate(
-        () =>
-          JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}').poseAssetUri as
-            | string
-            | undefined,
-      )
-      await this.page
-        .getByTestId('shot-pose-uri')
-        .fill(uri ?? 'asset://pose/fixture.png')
+    if (!enabled) {
+      const clear = this.page.getByTestId('pose-clear')
+      if (await clear.count()) await clear.click()
+      return
     }
+    // Gallery-first: open Pose Gallery and apply a reference-image pose.
+    await this.page.getByTestId('pose-choose').or(this.page.getByTestId('pose-change')).click()
+    await this.page.getByTestId('pose-gallery').waitFor({ state: 'visible', timeout: 10_000 })
+    const seededUri = await this.page.evaluate(
+      () =>
+        JSON.parse(sessionStorage.getItem('sceneweaver.studio') ?? '{}').poseAssetUri as
+          | string
+          | undefined,
+    )
+    await this.page.getByTestId('pose-apply-pose_hand_on_hip').click()
+    await this.page.getByTestId('pose-selected').waitFor({ state: 'visible', timeout: 10_000 })
+    if (seededUri) {
+      await this.page.evaluate((uri) => {
+        const key = 'sceneweaver.studio'
+        const ctx = JSON.parse(sessionStorage.getItem(key) ?? '{}')
+        ctx.poseAssetUri = uri
+        sessionStorage.setItem(key, JSON.stringify(ctx))
+        const sel = JSON.parse(localStorage.getItem('sceneweaver.pose.selected') ?? 'null')
+        if (sel?.card) {
+          sel.card.referenceUri = uri
+          localStorage.setItem('sceneweaver.pose.selected', JSON.stringify(sel))
+        }
+      }, seededUri)
+    }
+  }
+
+  async selectGenerationEngine(capability: 'BaseRender' | 'LayoutGuidedRender') {
+    await this.page.getByTestId('shot-generation-engine').selectOption(capability)
+  }
+
+  generationEngine() {
+    return this.page.getByTestId('shot-generation-engine')
   }
 
   async appendPositive(fragment: string) {

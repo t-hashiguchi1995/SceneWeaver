@@ -1,0 +1,16 @@
+--- base
++++ edited
+@@ -8,11 +8,13 @@
+ safe
+ 1girl
+ elaina (majo no tabitabi)
++elaina (majo no tabitabi)
+ majo no tabitabi
+ @fuzichoco
+ @rella
+ hair between eyes
+ blue eyes
++detailed eyes
+ long hair
+ white hair
+ grey hair

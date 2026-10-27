@@ -1,0 +1,17 @@
+fixture_id,fixture_name,turn,outfit_key,seed,outfit_profile_id,auto_status,identity,outfit,leakage,score_total,notes
+C01,リゼ・ヘルエスタ,A1,A,30101,9536b1ca9827420dbf7f1d82a5,passed,2,2,2,6,baseline royal blue-white; crown present
+C01,リゼ・ヘルエスタ,B,B,30101,2f309ff4425347c8a102fe18c0,passed,2,2,2,6,black hoodie+denim clear; multi-panel quirk in one PNG but no A leakage
+C01,リゼ・ヘルエスタ,C,C,30101,b86e4d3918f8464397c8ade903,passed,2,2,2,6,red evening gown; no hoodie/denim
+C01,リゼ・ヘルエスタ,A2,A,30101,9536b1ca9827420dbf7f1d82a5,passed,2,2,2,6,A-return clean; matches A1; no B/C leakage — REQUIRED Leakage=2 OK
+C06,春日未来,A1,A,30106,9c9d4421fea14abca4ac38224c,passed,2,2,2,6,pink idol stage baseline
+C06,春日未来,B,B,30106,eccb27d8b7c1439a8f3a27918a,passed,2,2,2,6,oversized sweat+shorts; no stage dress
+C06,春日未来,C,C,30106,9c807febae5f47d693b7ce8e64,passed,2,2,2,6,dark business suit clear
+C06,春日未来,A2,A,30106,9c9d4421fea14abca4ac38224c,passed,2,2,2,6,A-return to idol; Leakage=2 OK
+C07,伊吹翼,A1,A,30107,df0e7cc48ec34d3b962cebf27c,passed,2,2,2,6,sporty warm idol baseline
+C07,伊吹翼,B,B,30107,941e87817db242c0b35521f7c4,passed,2,2,2,6,navy sailor uniform
+C07,伊吹翼,C,C,30107,5bcd3fdc395d4182b6ecac1640,passed,2,2,2,6,winter coat+scarf+boots
+C07,伊吹翼,A2,A,30107,df0e7cc48ec34d3b962cebf27c,passed,2,2,2,6,A-return sporty; Leakage=2 OK
+C10,ホタル,A1,A,30110,98e43af2158244c193315a6911,passed,2,2,2,6,SF neon tech bodysuit baseline
+C10,ホタル,B,B,30110,16fad332433144a1a04a4f97c4,passed,2,2,2,6,pastel pajamas; no tech
+C10,ホタル,C,C,30110,0c0ddb62fe274ce491a7284051,passed,2,2,2,6,black tuxedo+bow tie
+C10,ホタル,A2,A,30110,98e43af2158244c193315a6911,passed,2,2,2,6,A-return SF suit; Leakage=2 OK

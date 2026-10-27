@@ -1,0 +1,13 @@
+{
+  "fixture_id": "C05",
+  "prompt_hash": "ea0e53a695f29a3b948fe858de33bf2905ad28a54e74ea20b659c271d582b3b4",
+  "base_prompt_hash": "474b0c40b8feeeccc30cf28d41ae176689c279724557e92c7002cc0e473795c8",
+  "seed": 26005,
+  "model_id": "anima_base",
+  "workflow_template_id": "anima_base_v1",
+  "capability": "BaseRender",
+  "character_name": "elaina (majo no tabitabi)",
+  "franchise": "majo no tabitabi",
+  "adopted_file": "C05_elaina.anima.txt",
+  "commit": "a9928dd"
+}

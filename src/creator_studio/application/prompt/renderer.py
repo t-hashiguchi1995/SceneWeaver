@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from creator_studio.application.prompt.anima_tags import (
+    ANIMA_NEGATIVE,
+    compile_anima_positive,
+)
 from creator_studio.application.prompt.assembly import build_default_prompt, components_from_context
 from creator_studio.domain.prompt import (
     ANIMA_COMPILER_ID,
@@ -19,22 +23,27 @@ from creator_studio.domain.prompt.assembly import PromptAssemblyProfile
 # Human-readable description of the compiler rule shown in Template tab.
 # This IS the source of truth for anima_compiler_v1 — not a decorative Jinja file.
 ANIMA_COMPILER_V1_DESCRIPTION = """\
-Anima Compiler v1 (programmatic rule)
+Anima Compiler v1 (programmatic tag sequence)
 
-Assembles positive / negative prompts from ShotSpec.render_spec:
+Danbooru-style ordered slots (NOT natural-language captions — those are MOSS):
 
-  identity_tags  → joined character identity tags (default: 1girl)
-  outfit_tags    → outfit fragment (default: casual clothes)
-  expression.id  → expression token (default: neutral)
-  pose.id        → pose token (default: standing)
-  camera.shot    → framing (default: medium)
-  camera.angle   → angle (default: eye_level)
+  quality → rating → subject → character_name → franchise →
+  artist_style → identity → body → outfit → expression →
+  pose → camera → background → lighting
 
-Positive prefix includes quality / year / artist tags.
-Negative includes common quality and anatomy reject tags.
+Fields (ShotSpec.render_spec / Character Semantic Spec):
 
-Do not invent a separate Jinja template for this path —
-the compiler rule above is what Generate actually uses.
+  subject_tags, character_name, franchise, artist_style_tags,
+  identity_tags, body_tags, outfit_tags,
+  expression.id, pose.id, camera.shot / camera.angle,
+  background, lighting, content_rating / rating_profile
+
+General fixtures use rating ``safe`` only.
+Adult rating tokens (sensitive / nsfw / explicit) belong on the adult
+rating profile for adult-declared original fixtures — never on standard
+character smoke fixtures.
+
+Default artists: @fuzichoco, @rella (overridable via artist_style_tags).
 """
 
 MOSS_CAPTION_V1_DESCRIPTION = """\
@@ -109,32 +118,40 @@ class PromptRenderer:
                     "warnings": built.warnings,
                 },
             )
-        identity = ",".join(render_spec.get("identity_tags", ["1girl"]))
-        outfit = render_spec.get("outfit_tags", "casual clothes")
-        expression = render_spec.get("expression", {}).get("id", "neutral")
-        pose = render_spec.get("pose", {}).get("id", "standing")
-        camera = render_spec.get("camera", {})
-        positive = (
-            "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, "
-            f"safe, @fuzichoco, @rella, {identity}, {outfit}, {expression}, {pose}, "
-            f"{camera.get('shot', 'medium')}, {camera.get('angle', 'eye_level')}"
-        )
-        for field in ("background", "lighting"):
-            if render_spec.get(field):
-                positive += f", {render_spec[field]}"
-        negative = (
-            "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, "
-            "sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, "
-            "fewer digits, cropped, signature, watermark, username, artist name"
-        )
+        # Gate 2.6 adopted Character Prompt — prefer over auto-compile when present.
+        saved = str(render_spec.get("_saved_anima_positive") or "").strip()
+        if saved:
+            return RenderedPrompt(
+                positive=saved,
+                negative=ANIMA_NEGATIVE,
+                template_id=ANIMA_COMPILER_ID,
+                template_version=ANIMA_COMPILER_VERSION,
+                source_kind="compiler_rule",
+                source_ref=ANIMA_COMPILER_SOURCE_REF,
+                label=f"{ANIMA_COMPILER_LABEL} · saved character prompt",
+                assembly_metadata={
+                    "compiler": "anima_saved_character_prompt",
+                    "content_rating": str(render_spec.get("content_rating") or "general"),
+                    "character_name": str(render_spec.get("character_name") or ""),
+                    "franchise": str(render_spec.get("franchise") or ""),
+                    "saved_anima_positive": True,
+                },
+            )
+        positive = compile_anima_positive(render_spec)
         return RenderedPrompt(
             positive=positive,
-            negative=negative,
+            negative=ANIMA_NEGATIVE,
             template_id=ANIMA_COMPILER_ID,
             template_version=ANIMA_COMPILER_VERSION,
             source_kind="compiler_rule",
             source_ref=ANIMA_COMPILER_SOURCE_REF,
             label=ANIMA_COMPILER_LABEL,
+            assembly_metadata={
+                "compiler": "anima_tag_sequence",
+                "content_rating": str(render_spec.get("content_rating") or "general"),
+                "character_name": str(render_spec.get("character_name") or ""),
+                "franchise": str(render_spec.get("franchise") or ""),
+            },
         )
 
     def render_moss(self, render_spec: dict[str, Any]) -> RenderedPrompt:

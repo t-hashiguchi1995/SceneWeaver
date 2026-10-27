@@ -474,6 +474,9 @@ export type StudioContext = {
   adoptedRenderSha256?: string
   handoffRevision?: string
   handoffPath?: string
+  /** Pose Gallery apply — asset:// URI for LLLite / OpenPose when present. */
+  poseAssetUri?: string
+  poseId?: string
 }
 
 export function loadStudioContext(): StudioContext {

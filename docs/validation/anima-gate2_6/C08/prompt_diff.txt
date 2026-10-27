@@ -1,0 +1,27 @@
+--- base
++++ edited
+@@ -8,18 +8,23 @@
+ safe
+ 1girl
+ akemi homura
++akemi homura
+ mahou shoujo madoka magica
+ @fuzichoco
+ @rella
+ purple eyes
++detailed eyes
+ long hair
+ black hair
++straight hair
+ hairband
+ hair ribbon
++red ribbon
+ magical girl
+ white jacket
+ black skirt
+-purple accents
++purple bow
++soul gem
+ stoic expression
+ standing
+ medium full shot

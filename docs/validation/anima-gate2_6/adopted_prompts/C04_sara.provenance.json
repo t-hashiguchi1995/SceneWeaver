@@ -1,0 +1,13 @@
+{
+  "fixture_id": "C04",
+  "prompt_hash": "ab5442d4bca5dcbc2801d3457d7497cd63bd2827ed0152d86c038bcf2e9450fc",
+  "base_prompt_hash": "fba3150a7896195ba7b8688dde50cb360083c23016b235e3c9cb11d94947b8f9",
+  "seed": 26004,
+  "model_id": "anima_base",
+  "workflow_template_id": "anima_base_v1",
+  "capability": "BaseRender",
+  "character_name": "hoshikawa sara",
+  "franchise": "nijisanji",
+  "adopted_file": "C04_sara.anima.txt",
+  "commit": "a9928dd"
+}

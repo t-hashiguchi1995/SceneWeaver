@@ -1,5 +1,8 @@
 # Character LoRA / Pose Ecosystem — 検証計画（実装前）
 
+**UI 方針:** Pose のユーザー入口は **Gallery-first**（[`../ux/pose-gallery-first.md`](../ux/pose-gallery-first.md)）。  
+URI 手入力は廃止。Prompt Pose / Reference Image / OpenPose / Pose LoRA は同じ Gallery に統合する。
+
 **実装着手禁止条件:** [`moss-sft-gate1`](moss-sft-gate1/README.md) が PASS し、実 PNG を目視確認するまで  
 `LoraLoader` / LoRA registry / strength UI には着手しない。
 

@@ -5,9 +5,13 @@ import { useTranslation } from 'react-i18next'
 
 import { usePromptAutosave } from '../hooks/usePromptAutosave'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { PoseGallery } from '../components/PoseGallery'
+import { PosePicker } from '../components/PosePicker'
 import { PromptEditor } from '../components/PromptEditor'
 import { formatStatus } from '../i18n/format'
-import { api, saveStudioContext, type PromptDraft } from '../lib/api'
+import { api, loadStudioContext, saveStudioContext, type PromptDraft } from '../lib/api'
+import { loadSelectedPose, saveSelectedPose } from '../pose/storage'
+import type { SelectedPose } from '../pose/types'
 
 function withLocalEdits(
   draft: PromptDraft,
@@ -33,15 +37,16 @@ export function ShotStudioPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const library = useQuery({ queryKey: ['prompt-library'], queryFn: api.promptLibrary })
+  const capabilities = useQuery({ queryKey: ['capabilities'], queryFn: api.capabilities })
   const { shotId, projectId } = useParams({ strict: false })
   if (!shotId) throw new Error('Shot is required')
   const { sourceAttemptId } = useSearch({ strict: false })
   const [librarySearch, setLibrarySearch] = useState('')
   const [libraryCategory, setLibraryCategory] = useState<(typeof LIBRARY_CATEGORIES)[number]>('all')
-  const [usePose, setUsePose] = useState(false)
   const [seedMode, setSeedMode] = useState('random')
   const [seed, setSeed] = useState(1234)
-  const [poseUri, setPoseUri] = useState('')
+  const [selectedPose, setSelectedPose] = useState<SelectedPose | null>(() => loadSelectedPose())
+  const [poseGalleryOpen, setPoseGalleryOpen] = useState(false)
   const [phase, setPhase] = useState<'idle' | 'queued' | 'running' | 'succeeded' | 'failed'>('idle')
   const [error, setError] = useState('')
   const [draft, setDraft] = useState<PromptDraft | null>(null)
@@ -49,6 +54,7 @@ export function ShotStudioPage() {
   const [staleDismissed, setStaleDismissed] = useState(false)
   const [specSummary, setSpecSummary] = useState<Record<string, unknown>>({})
   const [beatId, setBeatId] = useState('')
+  const [characterPromptStatus, setCharacterPromptStatus] = useState('')
 
   const autosave = usePromptAutosave(shotId, draft)
   const dashboard = useQuery({
@@ -111,11 +117,16 @@ export function ShotStudioPage() {
       setPhase('queued')
       await new Promise((r) => setTimeout(r, 120))
       setPhase('running')
+      // Prefer studio context URI (e2e seed / live asset) over catalog placeholder.
+      const ctxUri = loadStudioContext().poseAssetUri
+      const catalogUri = selectedPose?.card.referenceUri
+      const poseAssetUri = ctxUri || catalogUri
+      const usePose = Boolean(poseAssetUri)
       return api.renderShot(
         shotId,
         usePose,
         seedMode === 'fixed' ? seed : undefined,
-        usePose ? poseUri : undefined,
+        usePose ? poseAssetUri : undefined,
         sourceAttemptId,
       )
     },
@@ -143,6 +154,16 @@ export function ShotStudioPage() {
     },
   })
 
+  const selectGenerationEngine = useMutation({
+    mutationFn: (capability: string) => api.updateShot(shotId, { capability }),
+    onSuccess: async (shot) => {
+      setSpecSummary(shot.render_spec)
+      setDraft(await api.ensurePromptDraft(shotId))
+      setStaleDismissed(false)
+    },
+    onError: (err) => setError((err as Error).message),
+  })
+
   const saveSpec = useMutation({
     mutationFn: async () => {
       await autosave.flush()
@@ -156,15 +177,45 @@ export function ShotStudioPage() {
     onError: (err) => setError((err as Error).message),
   })
 
+  const generationCapability = String(specSummary.capability ?? 'BaseRender')
+  const activeCapability = capabilities.data?.[generationCapability]
   const expression = (specSummary.expression as { id?: string } | undefined)?.id
+  const speakerCharacterId = useMemo(() => {
+    const fromBeat = dashboard.data?.beats.find((b) => b.id === beatId)?.speaker_id
+    if (fromBeat) return String(fromBeat)
+    const fromSpec = specSummary.character_id
+    return fromSpec ? String(fromSpec) : ''
+  }, [beatId, dashboard.data?.beats, specSummary.character_id])
   const characterName = useMemo(() => {
-    const speakerId = dashboard.data?.beats.find((b) => b.id === beatId)?.speaker_id
-    const fromBeat = characters.data?.find((c) => c.id === speakerId)?.display_name
+    const fromBeat = characters.data?.find((c) => c.id === speakerCharacterId)?.display_name
     if (fromBeat) return fromBeat
     const fromSpec = (specSummary.character as { name?: string } | undefined)?.name
     if (fromSpec) return fromSpec
     return ''
-  }, [beatId, characters.data, dashboard.data?.beats, specSummary.character])
+  }, [characters.data, speakerCharacterId, specSummary.character])
+
+  const saveCharacterPrompt = useMutation({
+    mutationFn: async () => {
+      if (!speakerCharacterId || !draft) {
+        throw new Error('character or draft missing')
+      }
+      await autosave.flush()
+      const current = characters.data?.find((c) => c.id === speakerCharacterId)
+      const visual = {
+        ...(current?.visual_identity ?? {}),
+        saved_anima_positive: draft.edited_positive,
+      }
+      return api.updateVisualIdentity(speakerCharacterId, visual)
+    },
+    onSuccess: async () => {
+      setCharacterPromptStatus(t('prompt:saveCharacterPromptSaved'))
+      await qc.invalidateQueries({ queryKey: ['characters'] })
+    },
+    onError: (err) => {
+      setCharacterPromptStatus(t('prompt:saveCharacterPromptError'))
+      setError((err as Error).message)
+    },
+  })
   const selectedPresetIds = (specSummary.prompt_preset_ids as string[] | undefined) ?? []
   const selectedPresets = useMemo(
     () => (library.data ?? []).filter((p) => selectedPresetIds.includes(p.id)),
@@ -221,6 +272,57 @@ export function ShotStudioPage() {
           {t('generation:character')}:{' '}
           <span data-testid="shot-character-name">{characterName || '—'}</span>
         </p>
+        <div className="generation-engine-card" data-testid="generation-engine-card">
+          <label>
+            {t('generation:generationEngine')}
+            <select
+              data-testid="shot-generation-engine"
+              value={generationCapability}
+              disabled={selectGenerationEngine.isPending}
+              onChange={(e) => selectGenerationEngine.mutate(e.target.value)}
+            >
+              <option
+                value="BaseRender"
+                disabled={capabilities.data?.BaseRender?.configured === false}
+              >
+                {t('generation:engineAnima')}
+              </option>
+              <option
+                value="LayoutGuidedRender"
+                disabled={capabilities.data?.LayoutGuidedRender?.configured === false}
+              >
+                {t('generation:engineMoss')}
+              </option>
+            </select>
+          </label>
+          <div className="generation-engine-status">
+            <span className="meta">
+              {t('generation:engineModel')}: {activeCapability?.model_id ?? '—'}
+            </span>
+            <span className="meta">
+              {activeCapability?.runtime_available
+                ? t('generation:engineReady')
+                : t('generation:engineUnavailable')}
+            </span>
+          </div>
+          <p className="meta">{t('generation:engineCompareHint')}</p>
+        </div>
+        <PosePicker
+          selected={selectedPose}
+          onChoose={() => setPoseGalleryOpen(true)}
+          onClear={() => {
+            setSelectedPose(null)
+            saveSelectedPose(null)
+            saveStudioContext({ poseAssetUri: undefined, poseId: undefined })
+            setSpecSummary((prev) => {
+              const next = { ...prev }
+              delete next.pose_id
+              delete next.pose_prompt
+              delete next.pose_flip
+              return next
+            })
+          }}
+        />
         <div className="semantic-grid">
           <label>
             {t('generation:expression')}
@@ -304,7 +406,7 @@ export function ShotStudioPage() {
             generateDisabled={
               render.isPending ||
               saveSpec.isPending ||
-              (usePose && !poseUri && !sourceAttemptId) ||
+              selectGenerationEngine.isPending ||
               (draft.stale && !staleDismissed)
             }
             onPositiveChange={(value) =>
@@ -320,6 +422,12 @@ export function ShotStudioPage() {
             }}
             onDismissStale={() => setStaleDismissed(true)}
             onGenerate={() => render.mutate()}
+            canSaveCharacterPrompt={Boolean(speakerCharacterId) && generationCapability !== 'LayoutGuidedRender'}
+            saveCharacterPromptStatus={characterPromptStatus}
+            onSaveCharacterPrompt={() => {
+              setCharacterPromptStatus('')
+              saveCharacterPrompt.mutate()
+            }}
           />
         )}
       </div>
@@ -425,27 +533,6 @@ export function ShotStudioPage() {
               />
             </label>
           )}
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              data-testid="shot-use-pose"
-              checked={usePose}
-              onChange={(e) => setUsePose(e.target.checked)}
-            />
-            {t('generation:poseCamera')}
-          </label>
-          {usePose && (
-            <label>
-              {t('generation:poseReference')}
-              <input
-                data-testid="shot-pose-uri"
-                value={poseUri}
-                onChange={(e) => setPoseUri(e.target.value)}
-                placeholder={t('generation:poseReferenceHint')}
-              />
-            </label>
-          )}
-
           <div className="stack" data-testid="shot-prompt-library">
             <h3>{t('prompt:library')}</h3>
             <p className="meta">{t('prompt:libraryHelp')}</p>
@@ -525,6 +612,31 @@ export function ShotStudioPage() {
         <p data-testid="shot-id">{t('generation:shotId', { id: shotId })}</p>
       </details>
       {(error || autosave.error) && <ErrorBanner message={error || autosave.error} />}
+
+      <PoseGallery
+        open={poseGalleryOpen}
+        onClose={() => setPoseGalleryOpen(false)}
+        initialSelectedId={selectedPose?.card.id}
+        onApply={(sel) => {
+          setSelectedPose(sel)
+          saveSelectedPose(sel)
+          saveStudioContext({
+            poseAssetUri: sel.card.referenceUri,
+            poseId: sel.card.id,
+          })
+          setSpecSummary((prev) => ({
+            ...prev,
+            control_strength: sel.strength,
+            pose_id: sel.card.id,
+            pose_prompt: sel.card.posePrompt,
+            pose_flip: sel.flipHorizontal,
+            pose: {
+              ...((prev.pose as object) || {}),
+              id: sel.card.posePrompt.split(',')[0]?.trim() || sel.card.title,
+            },
+          }))
+        }}
+      />
     </section>
   )
 }

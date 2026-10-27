@@ -1,0 +1,12 @@
+fixture_id,fixture_name,seed,auto_status,valid_image,hair,eyes,outfit,pose_framing,anatomy,identity_impression,score_total,human_pass,notes
+C01,リゼ・ヘルエスタ,20101,passed,1,1,0,1,1,1,2,7,yes,"light-blue hair+crown+gothic-lolita OK; eye color drifted purple vs clear blue"
+C02,栞葉るり,20102,passed,1,1,1,1,1,1,2,8,yes,"lavender hair + pastel cardigan clear; quiet scholarly vibe"
+C03,夜見れな,20103,passed,1,1,1,1,1,1,2,8,yes,"dark hair + crimson eyes + black/red gothic distinct"
+C04,星川サラ,20104,passed,1,1,1,1,1,1,2,8,yes,"blonde + bright idol costume; energetic silhouette"
+C05,イレイナ,20105,passed,1,1,1,1,1,1,2,8,yes,"witch hat + ash-blonde + cloak/satchel silhouette strong"
+C06,春日未来,20106,passed,1,1,1,1,1,1,2,8,yes,"pink twin-tails + pink idol costume"
+C07,伊吹翼,20107,passed,1,1,1,1,1,1,2,8,yes,"short blonde + warm eyes + sporty idol outfit"
+C08,暁美ほむら,20108,passed,1,1,1,1,1,1,2,8,yes,"long black + purple eyes + dark MG uniform; stoic"
+C09,鹿目まどか,20109,passed,1,1,1,1,1,1,2,8,yes,"pink twins + pink-white MG; clear contrast vs C08"
+C10,ホタル,20110,passed,1,1,1,1,1,1,2,8,yes,"silver/pale hair + cyan eyes + tech suit SF silhouette"
+C11,実写系の成人女性コスプレイヤー（オリジナル）,20111,passed,1,1,1,1,1,1,2,8,yes,"photoreal adult retained; no anime face bleed; casual blouse OK"
