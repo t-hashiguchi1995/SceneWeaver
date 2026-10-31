@@ -1,8 +1,8 @@
 # Gate 2.7 — Anima Full Character Coverage
 
 - status_auto: `PASS`
-- status_human: `FAIL — remediation required`
-- human_identifiable: `8/11`
+- status_human: `FAIL — remediation rematch generated; awaiting human rematch`
+- human_identifiable: `8/11` (pre-rematch)
 - commit_auto: `053800f6`
 - comfy: `0.42.5`
 - recorded_at: `2026-10-31T15:40:28.740514+00:00`
@@ -48,3 +48,39 @@ Do not advance the quality claim to A3 as if A2 passed; first remediate/re-run C
 ## Next after A2 Human PASS
 
 - A3 Pose Live P01–P05
+
+## Remediation rematch
+
+- status: `GENERATED — awaiting human rematch`
+- commit: `6e6b3dc`
+- comfy: `0.42.5`
+- recorded_at: `2026-10-31T16:47:11.675838+00:00`
+- entry: `pnpm test:anima:gate2_7:remediation`
+- seeds unchanged: C02=27002, C04=27004, C06=27006, C11=27011
+
+| ID | W×H | SHA256 (short) |
+|----|-----|----------------|
+| C02 | 768×1024 | `a398f574a4dd` |
+| C04 | 768×1024 | `2dd47d0bac47` |
+| C06 | 768×1024 | `ac0edad917e9` |
+| C11 | 768×1024 | `17a066a58517` |
+
+Pre-remediation PNGs kept as `image_pre_remediation.png` for side-by-side.
+
+Local visual spot-check (not a substitute for human GT rematch):
+
+- **C02**: police hat + blue flower, capelet, blue shorts, dog tail present (prior miss). Eye color still drifts toward amber/yellow vs GT green.
+- **C04**: heterochromia (red / yellow-amber) and x-ornament clearer; outfit still stylized idol.
+- **C06**: side ponytail + star clips + pink sailor idol cues stronger vs generic pink idol.
+- **C11**: photoreal / live-action look achieved on this rematch seed (prior was anime). Confirm against C11 criterion on rematch.
+
+### C11 policy note
+
+Anima Base (`anima_baseV10`) is anime-tuned. Photoreal tags without a photoreal model/profile may still fail the C11 criterion. If rematch remains illustrated, exclude C11 from Anima identity PASS and track photoreal coverage under a separate model profile (Phase 2.1+).
+
+### Next
+
+1. Human rematch of C02 / C04 / C06 / C11 on updated `contact_sheet.png`
+2. Fill `gt_checklist.md` per 8 GT items + update `human_scores.csv`
+3. Require ≥9/11 identifiable and C11 photoreal criterion (or policy carve-out)
+4. Only then proceed to A3 Pose Live

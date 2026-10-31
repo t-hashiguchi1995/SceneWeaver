@@ -76,7 +76,9 @@ GATE26_PRIMARY: list[CharacterSemantic] = [
             "hair ribbon",
             "ahoge",
         ],
-        "outfit_tags": "idol costume, white dress, blue accents",
+        "outfit_tags": (
+            "idol costume, white dress, blue accents, red accents, black accents, frills"
+        ),
         "expression": "slight smile",
         "pose": "standing",
         "camera_shot": "medium full shot",
@@ -173,14 +175,21 @@ GATE27_PRIMARY: list[CharacterSemantic] = [
         "franchise": "nijisanji",
         "subject_tags": ["1girl"],
         "identity_tags": [
-            "purple eyes",
-            "lavender hair",
-            "light purple hair",
+            "green eyes",
+            "silver hair",
+            "grey hair",
             "long hair",
             "soft waves",
-            "hair ribbon",
+            "dog girl",
+            "dog ears",
+            "dog tail",
+            "police hat",
+            "blue flower",
         ],
-        "outfit_tags": "white blouse, pastel cardigan, long skirt",
+        "outfit_tags": (
+            "police uniform, white capelet, white shirt, blue high-waist shorts, "
+            "blue pantyhose, white gloves"
+        ),
         "expression": "calm expression",
         "pose": "standing",
         "camera_shot": "medium full shot",
@@ -223,12 +232,19 @@ GATE27_PRIMARY: list[CharacterSemantic] = [
         "subject_tags": ["1girl"],
         "identity_tags": [
             "pink eyes",
+            "magenta eyes",
             "pink hair",
             "long hair",
-            "twintails",
-            "hair ribbon",
+            "side ponytail",
+            "hair over one shoulder",
+            "star hair ornament",
+            "hairclip",
+            "pink ribbon",
         ],
-        "outfit_tags": "pink idol costume, frills, ribbons",
+        "outfit_tags": (
+            "pink and white idol stage costume, sailor collar, "
+            "large pink ribbon, shorts, frills"
+        ),
         "expression": "bright smile",
         "pose": "standing",
         "camera_shot": "medium full shot",
@@ -291,14 +307,16 @@ GATE27_PRIMARY: list[CharacterSemantic] = [
         "franchise": "original",
         "subject_tags": ["1girl"],
         "identity_tags": [
+            "raw photo",
             "photorealistic",
-            "realistic",
+            "realistic photograph",
             "adult",
             "japanese",
             "dark brown eyes",
             "dark brown hair",
             "shoulder-length hair",
             "soft waves",
+            "natural skin texture",
         ],
         "outfit_tags": "white blouse, dark skirt, casual modern clothes",
         "expression": "soft smile",

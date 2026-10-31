@@ -95,17 +95,23 @@ docs/validation/anima-gate2_7/
 
 ---
 
-## 実行（予定）
+## 実行
 
 ```bash
 pnpm test:anima:gate2_7
 ```
 
-実装後に package.json へ追加する。
+Human FAIL 後の固定 seed rematch（C02 / C04 / C06 / C11）:
+
+```bash
+pnpm test:anima:gate2_7:remediation
+```
 
 ---
 
 ## Next
 
-Gate 2.7 PASS → **A3 Pose Gallery Live P01–P05**  
+Gate 2.7 Human PASS → **A3 Pose Gallery Live P01–P05**  
 → A4 Gate 3（リゼ / 未来 / 翼 / Firefly）
+
+UI/UX（Phase 2.1 Quick Studio 3-pane 等）は画像品質 Gate とは分離して進める。
