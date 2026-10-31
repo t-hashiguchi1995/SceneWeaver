@@ -1,12 +1,12 @@
 fixture_id,fixture_name,seed,gt_score_0_8,identifiable,catastrophic,notes
-C01,リゼ・ヘルエスタ,27001,,,,
-C02,栞葉るり,27002,,,,
-C03,夜見れな,27003,,,,
-C04,星川サラ,27004,,,,
-C05,イレイナ,27005,,,,
-C06,春日未来,27006,,,,
-C07,伊吹翼,27007,,,,
-C08,暁美ほむら,27008,,,,
-C09,鹿目まどか,27009,,,,
-C10,ホタル（Firefly）,27010,,,,
-C11,オリジナル成人実写系,27011,,,,
+C01,リゼ・ヘルエスタ,27001,6,true,false,"Recognizable white/aqua two-tone hair, purple eyes and blue/white palette; crown/royal gown drift from official default bird/uniform."
+C02,栞葉るり,27002,3,false,false,"Hair/eyes/palette partially match, but police cap/poncho/canine tail and canonical silhouette are missing; reads as a generic pale-haired girl."
+C03,夜見れな,27003,7,true,false,"Black/white/pink hair split, red eyes, gothic palette and silhouette are strong; signature accessory/outfit details are simplified."
+C04,星川サラ,27004,5,true,false,"Blonde side ponytail, heterochromia and x-hairpin cues are recognizable; eye colors and default red/black outfit drift substantially."
+C05,イレイナ,27005,8,true,false,"Silver hair, blue eyes, witch hat/robe, palette and silhouette strongly match."
+C06,春日未来,27006,4,false,false,"Side ponytail and cheerful idol presentation are present, but eye/outfit details and character-specific cues are too generic for confident standalone identification."
+C07,伊吹翼,27007,7,true,false,"Short blonde hair, ahoge/headband, pink eyes and warm idol silhouette are recognizable; outfit is generalized."
+C08,暁美ほむら,27008,7,true,false,"Long black hair, purple eyes, headband/ribbon and white/black/purple magical-girl silhouette are recognizable; ribbon/accessory details drift."
+C09,鹿目まどか,27009,8,true,false,"Pink twintails, ribbons, magical-girl dress, main colors and silhouette strongly match."
+C10,ホタル（Firefly）,27010,8,true,false,"Grey long hair, purple eyes, black headband and Firefly outfit/palette strongly match the ANIMADEX/official visual identity."
+C11,オリジナル成人実写系,27011,4,false,false,"Coherent adult-woman composition, but output is strongly anime/illustrated and fails the photorealistic/realistic C11 criterion."
