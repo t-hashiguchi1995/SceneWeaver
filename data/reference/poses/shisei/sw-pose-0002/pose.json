@@ -1,0 +1,68 @@
+{
+  "id": "sw-pose-0002",
+  "label": "Standing pose 002",
+  "categories": [
+    "standing"
+  ],
+  "tags": [
+    "standing",
+    "line-art"
+  ],
+  "people_count": 1,
+  "content_rating": "general",
+  "default_view": "front",
+  "views": {
+    "front": {
+      "id": "sw-pose-0002-front",
+      "angle": "front",
+      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0002/front.webp",
+          "sha256": "d53d52679b19ae7a599cc564351b302fe9dc74df956d3515b33efeb58be4440f",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "diag": {
+      "id": "sw-pose-0002-diag",
+      "angle": "diag",
+      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0002/diag.webp",
+          "sha256": "9b94e43a5db4280f464786fb71e965d8fad87e026af648af465be1ce2b4f066d",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "side": {
+      "id": "sw-pose-0002-side",
+      "angle": "side",
+      "prompt": "standing in profile, upright posture, arms at sides",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0002/side.webp",
+          "sha256": "fe8e088dc8843fbc07227ec84094a36d1267d9605635476a9176d6b5ab6135f0",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    }
+  },
+  "source": {
+    "provider": "shisei",
+    "version": "0.3.0",
+    "license": "CC0-1.0",
+    "source_url": "https://github.com/wquguru/shisei/releases/tag/v0.3.0",
+    "pack": "shisei-std-v0.3.0",
+    "modality": "line",
+    "original_asset_sha256": {
+      "front": "d53d52679b19ae7a599cc564351b302fe9dc74df956d3515b33efeb58be4440f",
+      "diag": "9b94e43a5db4280f464786fb71e965d8fad87e026af648af465be1ce2b4f066d",
+      "side": "fe8e088dc8843fbc07227ec84094a36d1267d9605635476a9176d6b5ab6135f0"
+    }
+  }
+}

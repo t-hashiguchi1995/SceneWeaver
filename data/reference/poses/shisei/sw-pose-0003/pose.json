@@ -1,0 +1,68 @@
+{
+  "id": "sw-pose-0003",
+  "label": "Standing pose 003",
+  "categories": [
+    "standing"
+  ],
+  "tags": [
+    "standing",
+    "line-art"
+  ],
+  "people_count": 1,
+  "content_rating": "general",
+  "default_view": "front",
+  "views": {
+    "front": {
+      "id": "sw-pose-0003-front",
+      "angle": "front",
+      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0003/front.webp",
+          "sha256": "671013232841b77f33596f76cd90e15ab613ede0c67a0fb11b8a638780bd1fa9",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "diag": {
+      "id": "sw-pose-0003-diag",
+      "angle": "diag",
+      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0003/diag.webp",
+          "sha256": "14ff2aa4125fc92922cc5a9c201f01bffde76ca70859cc3f505923657efead83",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "side": {
+      "id": "sw-pose-0003-side",
+      "angle": "side",
+      "prompt": "standing in profile, upright posture, arms at sides",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0003/side.webp",
+          "sha256": "8b8e639e8e0a5a941488a2aba36096159604b02b66da2454dab464ef7df68606",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    }
+  },
+  "source": {
+    "provider": "shisei",
+    "version": "0.3.0",
+    "license": "CC0-1.0",
+    "source_url": "https://github.com/wquguru/shisei/releases/tag/v0.3.0",
+    "pack": "shisei-std-v0.3.0",
+    "modality": "line",
+    "original_asset_sha256": {
+      "front": "671013232841b77f33596f76cd90e15ab613ede0c67a0fb11b8a638780bd1fa9",
+      "diag": "14ff2aa4125fc92922cc5a9c201f01bffde76ca70859cc3f505923657efead83",
+      "side": "8b8e639e8e0a5a941488a2aba36096159604b02b66da2454dab464ef7df68606"
+    }
+  }
+}

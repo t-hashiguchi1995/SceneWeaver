@@ -10,9 +10,11 @@ from apps.api.routes import (
     csp,
     jobs,
     projects,
+    references,
     settings as settings_routes,
     shots,
     story,
+    studio,
     visual_library,
     wardrobe,
 )
@@ -37,6 +39,8 @@ def create_app() -> FastAPI:
     app.include_router(capabilities.router)
     app.include_router(settings_routes.router)
     app.include_router(characters.router)
+    app.include_router(references.router)
+    app.include_router(studio.router)
     app.include_router(story.router)
     app.include_router(wardrobe.router)
     app.include_router(visual_library.router)

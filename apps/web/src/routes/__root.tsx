@@ -78,7 +78,7 @@ function AppShell() {
         <span>{t('nav.projects')}</span>
       </Link>
       <Link
-        to="/quick-test"
+        to="/studio"
         activeOptions={{ exact: true }}
         data-testid="nav-quick-test"
         aria-label={t('nav.quickTest')}

@@ -21,7 +21,7 @@
   "quickTestTitle": "かんたん検証",
   "quickTestHint": "衣装・ポーズ・Promptを、作品を作らずに一度だけ試します。",
   "quickTestLede": "衣装・ポーズ・Promptなどを、作品を作らずに一度だけ試せる機能です。",
-  "quickTestComing": "CE-5で実装予定です。",
+  "quickTestComing": "Character → Outfit → Pose → Generate → Adopt。",
   "quickTestFallback": "ProjectからShotを作る",
   "visualLibraryTitle": "素材を見る",
   "visualLibraryHint": "衣装・ポーズ・表情・構図を画像から探します。",

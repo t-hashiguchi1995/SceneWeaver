@@ -1,0 +1,68 @@
+{
+  "id": "sw-pose-0004",
+  "label": "Standing pose 004",
+  "categories": [
+    "standing"
+  ],
+  "tags": [
+    "standing",
+    "line-art"
+  ],
+  "people_count": 1,
+  "content_rating": "general",
+  "default_view": "front",
+  "views": {
+    "front": {
+      "id": "sw-pose-0004-front",
+      "angle": "front",
+      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0004/front.webp",
+          "sha256": "70824ba2e05468a1ed922620618c2474bd9aa4e9237d9b0b90ba19d826b08ec1",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "diag": {
+      "id": "sw-pose-0004-diag",
+      "angle": "diag",
+      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0004/diag.webp",
+          "sha256": "df146a8a4d83fab0a83286212ed2bfd46149042d43d4929713106b101f862d14",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "side": {
+      "id": "sw-pose-0004-side",
+      "angle": "side",
+      "prompt": "standing in profile, upright posture, arms at sides",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0004/side.webp",
+          "sha256": "2434af0a26b1ffe903347ac949e3501c3769ae3563507012b2502d35394b8750",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    }
+  },
+  "source": {
+    "provider": "shisei",
+    "version": "0.3.0",
+    "license": "CC0-1.0",
+    "source_url": "https://github.com/wquguru/shisei/releases/tag/v0.3.0",
+    "pack": "shisei-std-v0.3.0",
+    "modality": "line",
+    "original_asset_sha256": {
+      "front": "70824ba2e05468a1ed922620618c2474bd9aa4e9237d9b0b90ba19d826b08ec1",
+      "diag": "df146a8a4d83fab0a83286212ed2bfd46149042d43d4929713106b101f862d14",
+      "side": "2434af0a26b1ffe903347ac949e3501c3769ae3563507012b2502d35394b8750"
+    }
+  }
+}

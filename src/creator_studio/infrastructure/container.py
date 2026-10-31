@@ -34,6 +34,7 @@ from creator_studio.application.projects.create_project import (
 )
 from creator_studio.application.prompt.drafts import PromptDraftService
 from creator_studio.application.prompt.renderer import PromptRenderer
+from creator_studio.application.reference.poses import ReferencePoseService
 from creator_studio.application.settings.service import SettingsService
 from creator_studio.application.story.manage import CreateBeat, CreateScene
 from creator_studio.application.csp.handoff import CspHandoffService, ReleasePreviewService
@@ -65,6 +66,12 @@ class Container:
         self._image_tagger: ImageTagger | None = None
         self._image_tagger_key: str | None = None
         self._settings_service: SettingsService | None = None
+        self._reference_pose_service: ReferencePoseService | None = None
+
+    def reference_pose_service(self) -> ReferencePoseService:
+        if self._reference_pose_service is None:
+            self._reference_pose_service = ReferencePoseService.default()
+        return self._reference_pose_service
 
     def uow(self) -> SqlAlchemyUnitOfWork:
         return SqlAlchemyUnitOfWork(self._session_factory)

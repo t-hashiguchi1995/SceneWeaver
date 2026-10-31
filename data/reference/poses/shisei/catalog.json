@@ -1,0 +1,27 @@
+{
+  "provider": "shisei",
+  "version": "0.3.0",
+  "license": "CC0-1.0",
+  "poses": [
+    {
+      "id": "sw-pose-0001",
+      "path": "sw-pose-0001"
+    },
+    {
+      "id": "sw-pose-0002",
+      "path": "sw-pose-0002"
+    },
+    {
+      "id": "sw-pose-0003",
+      "path": "sw-pose-0003"
+    },
+    {
+      "id": "sw-pose-0004",
+      "path": "sw-pose-0004"
+    },
+    {
+      "id": "sw-pose-0005",
+      "path": "sw-pose-0005"
+    }
+  ]
+}

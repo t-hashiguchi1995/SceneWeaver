@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuickTestRouteImport } from './routes/quick-test'
+import { Route as StudioRouteImport } from './routes/studio'
 import { Route as VisualLibraryRouteImport } from './routes/visual-library'
 import { Route as CapabilitiesIndexRouteImport } from './routes/capabilities/index'
 import { Route as CharactersIndexRouteImport } from './routes/characters/index'
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
 const QuickTestRoute = QuickTestRouteImport.update({
   id: '/quick-test',
   path: '/quick-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VisualLibraryRoute = VisualLibraryRouteImport.update({
@@ -195,6 +201,7 @@ const ProjectsProjectIdShotsShotIdGenerationsAttemptIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/quick-test': typeof QuickTestRoute
+  '/studio': typeof StudioRoute
   '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/quick-test': typeof QuickTestRoute
+  '/studio': typeof StudioRoute
   '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/quick-test': typeof QuickTestRoute
+  '/studio': typeof StudioRoute
   '/visual-library': typeof VisualLibraryRoute
   '/characters/$characterId': typeof CharactersCharacterIdRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/quick-test'
+    | '/studio'
     | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/quick-test'
+    | '/studio'
     | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/quick-test'
+    | '/studio'
     | '/visual-library'
     | '/characters/$characterId'
     | '/projects/$projectId'
@@ -385,6 +397,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   QuickTestRoute: typeof QuickTestRoute
+  StudioRoute: typeof StudioRoute
   VisualLibraryRoute: typeof VisualLibraryRoute
   CharactersCharacterIdRoute: typeof CharactersCharacterIdRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
@@ -425,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/quick-test'
       fullPath: '/quick-test'
       preLoaderRoute: typeof QuickTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/visual-library': {
@@ -667,6 +687,7 @@ const ProjectsProjectIdShotsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   QuickTestRoute: QuickTestRoute,
+  StudioRoute: StudioRoute,
   VisualLibraryRoute: VisualLibraryRoute,
   CharactersCharacterIdRoute: CharactersCharacterIdRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,

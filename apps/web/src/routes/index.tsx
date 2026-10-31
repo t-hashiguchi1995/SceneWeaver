@@ -71,7 +71,7 @@ function HomePage() {
             <p>{t('home:createProjectHint')}</p>
           </Link>
         )}
-        <Link className="panel-card intent-card" to="/quick-test" data-testid="home-intent-quick-test">
+        <Link className="panel-card intent-card" to="/studio" data-testid="home-intent-quick-test">
           <h3>{t('home:quickTestTitle')}</h3>
           <p>{t('home:quickTestHint')}</p>
         </Link>

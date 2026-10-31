@@ -292,6 +292,9 @@ class ShotPipeline:
                     provenance["pose_asset_uri"] = pose_asset_uri
                     provenance["control_model"] = control_model
                     provenance["control_strength"] = slots.get("control_strength", 1.0)
+                pose_prov = shot.render_spec.get("pose_provenance")
+                if isinstance(pose_prov, dict):
+                    provenance["pose_provenance"] = deepcopy(pose_prov)
                 asset = Asset.create(
                     sha256=blob.sha256,
                     uri=blob.uri,
@@ -306,20 +309,24 @@ class ShotPipeline:
             if not workflow_hash:
                 workflow_hash = self._fallback_workflow_hash(workflow_template_id, slots)
 
+            attempt_payload: dict[str, Any] = {
+                "render_snapshot": render_snapshot,
+                "replay_of": _replay.get("attempt_id") if _replay else None,
+                "compiled": compiled,
+                "capability": capability,
+                "external_job_ref": ref.ref,
+                "provider": ref.provider,
+                "model_id": model_id,
+                **prompt_snapshot,
+            }
+            pose_prov = shot.render_spec.get("pose_provenance")
+            if isinstance(pose_prov, dict):
+                attempt_payload["pose_provenance"] = deepcopy(pose_prov)
             attempt = GenerationAttempt.create(
                 plan.id,
                 based_revision,
                 seed=seed,
-                payload={
-                    "render_snapshot": render_snapshot,
-                    "replay_of": _replay.get("attempt_id") if _replay else None,
-                    "compiled": compiled,
-                    "capability": capability,
-                    "external_job_ref": ref.ref,
-                    "provider": ref.provider,
-                    "model_id": model_id,
-                    **prompt_snapshot,
-                },
+                payload=attempt_payload,
                 workflow_hash=workflow_hash,
                 output_asset_ids=outputs,
             )
@@ -451,6 +458,62 @@ class ShotPipeline:
             if attempt is None:
                 raise ValueError("attempt not found")
             return attempt
+
+    def attach_adopted_outputs(
+        self,
+        shot_id: str,
+        *,
+        source_attempt_id: str,
+        output_asset_ids: list[str],
+        payload_overlay: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Materialize: link existing assets to a formal shot without re-render."""
+        with self._uow as uow:
+            shot = uow.shots.get(shot_id)
+            if shot is None:
+                raise ValueError("shot not found")
+            source = uow.generation_attempts.get(source_attempt_id)
+            if source is None:
+                raise ValueError("source attempt not found")
+            capability = str(
+                shot.render_spec.get("capability")
+                or source.payload.get("capability")
+                or "BaseRender"
+            )
+            model_id, workflow_path = resolve_template_id_for_capability(capability)
+            workflow_config = yaml.safe_load((REPO_ROOT / workflow_path).read_text())
+            plan = RenderPlan.create(
+                shot.id,
+                shot.revision,
+                capability=capability,
+                provider=str(source.payload.get("provider") or "adopted"),
+                template_id=str(workflow_config["id"]),
+                refs={"adopted_from_attempt": source_attempt_id},
+            )
+            uow.render_plans.add(plan)
+            payload = deepcopy(source.payload)
+            payload["materialize"] = "copy_generation_state"
+            payload["source_attempt_id"] = source_attempt_id
+            if payload_overlay:
+                payload.update(payload_overlay)
+            payload["model_id"] = payload.get("model_id") or model_id
+            attempt = GenerationAttempt.create(
+                plan.id,
+                shot.revision,
+                seed=source.seed,
+                payload=payload,
+                workflow_hash=source.workflow_hash,
+                status="succeeded",
+                output_asset_ids=list(output_asset_ids),
+            )
+            uow.generation_attempts.add(attempt)
+            uow.commit()
+            return {
+                "shot_id": str(shot.id),
+                "generation_attempt_id": attempt.id,
+                "output_asset_ids": list(output_asset_ids),
+                "materialize": "copy_generation_state",
+            }
 
     def list_attempts_for_shot(self, shot_id: str) -> list[dict[str, Any]]:
         with self._uow as uow:

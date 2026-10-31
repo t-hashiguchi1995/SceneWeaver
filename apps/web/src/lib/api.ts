@@ -304,6 +304,16 @@ export const api = {
   updateShot: (id: string, patch: Record<string, unknown>) => request<Shot>(`/api/v1/shots/${id}`, { method: "PUT", body: JSON.stringify(patch) }),
   projectDashboard: (id: string) => request<ProjectDashboard>(`/api/v1/projects/${id}/dashboard`),
   listCharacters: () => request<Character[]>('/api/v1/characters'),
+  listOutfitProfiles: (characterId: string) =>
+    request<
+      Array<{
+        id: string
+        character_id: string | null
+        title: string
+        marketplace_item_id: string | null
+        semantic: Record<string, unknown>
+      }>
+    >(`/api/v1/characters/${encodeURIComponent(characterId)}/outfit-profiles`),
   createCharacter: (displayName: string) =>
     request<Character>('/api/v1/characters', {
       method: 'POST',
@@ -437,6 +447,106 @@ export const api = {
         body: JSON.stringify({ decision }),
       },
     ),
+
+  listReferencePoses: () =>
+    request<
+      Array<{
+        id: string
+        label: string
+        categories: string[]
+        tags: string[]
+        people_count: number
+        content_rating: string
+        default_view: string
+        available_views: string[]
+        thumbnail_url: string | null
+      }>
+    >('/api/v1/references/poses'),
+  getReferencePose: (poseId: string) =>
+    request<{
+      id: string
+      label: string
+      categories: string[]
+      tags: string[]
+      people_count: number
+      content_rating: string
+      default_view: string
+      available_views: string[]
+      thumbnail_url: string | null
+      views: Record<
+        string,
+        {
+          id: string
+          angle: string
+          prompt: string
+          references: { line?: { url: string; sha256: string; asset_id?: string | null } }
+          qc_status: string
+        }
+      >
+      source: {
+        provider: string
+        version: string
+        license: string
+        source_url?: string
+        pack?: string
+        modality?: string
+      }
+    }>(`/api/v1/references/poses/${poseId}`),
+
+  createStudioSession: (body: {
+    character_id: string
+    outfit_profile_id?: string | null
+    capability?: string
+  }) =>
+    request<{
+      shot_id: string
+      beat_id: string
+      lifecycle: string
+      render_spec: Record<string, unknown>
+      prompt_draft: Record<string, unknown> | null
+      pose_provenance?: Record<string, unknown> | null
+    }>('/api/v1/studio/sessions', { method: 'POST', body: JSON.stringify(body) }),
+  getStudioSession: (shotId: string) =>
+    request<{
+      shot_id: string
+      lifecycle: string
+      render_spec: Record<string, unknown>
+      prompt_draft: Record<string, unknown> | null
+      pose_provenance?: Record<string, unknown> | null
+      formal_shot_id?: string | null
+      formal_project_id?: string | null
+    }>(`/api/v1/studio/sessions/${shotId}`),
+  applyStudioPose: (
+    shotId: string,
+    body: { pose_id: string; pose_view: string; flipped?: boolean; control_strength?: number },
+  ) =>
+    request<Record<string, unknown>>(`/api/v1/studio/sessions/${shotId}/pose`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  renderStudioSession: (shotId: string, seed?: number) =>
+    request<RenderResult & { session: Record<string, unknown> }>(
+      `/api/v1/studio/sessions/${shotId}/render`,
+      { method: 'POST', body: JSON.stringify({ seed }) },
+    ),
+  materializeStudioSession: (
+    shotId: string,
+    body?: { project_id?: string; generation_attempt_id?: string },
+  ) =>
+    request<{
+      formal_shot_id: string
+      formal_project_id: string
+      output_asset_ids: string[]
+      lifecycle: string
+    }>(`/api/v1/studio/sessions/${shotId}/materialize`, {
+      method: 'POST',
+      body: JSON.stringify(body || {}),
+    }),
+  abandonStudioSession: (shotId: string) =>
+    request<Record<string, unknown>>(`/api/v1/studio/sessions/${shotId}/abandon`, {
+      method: 'POST',
+      body: '{}',
+    }),
 
   cspHandoff: (body: Record<string, unknown>) =>
     request<{ revision: string; path: string; manifest: Record<string, unknown> }>(

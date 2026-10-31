@@ -1,0 +1,68 @@
+{
+  "id": "sw-pose-0001",
+  "label": "Standing pose 001",
+  "categories": [
+    "standing"
+  ],
+  "tags": [
+    "standing",
+    "line-art"
+  ],
+  "people_count": 1,
+  "content_rating": "general",
+  "default_view": "front",
+  "views": {
+    "front": {
+      "id": "sw-pose-0001-front",
+      "angle": "front",
+      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0001/front.webp",
+          "sha256": "441294551540ce41ef16b30d7427148fcc5e454d75f1e6a4ee98625cc4206ba7",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "diag": {
+      "id": "sw-pose-0001-diag",
+      "angle": "diag",
+      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0001/diag.webp",
+          "sha256": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "side": {
+      "id": "sw-pose-0001-side",
+      "angle": "side",
+      "prompt": "standing in profile, upright posture, arms at sides",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0001/side.webp",
+          "sha256": "2551e45cb3a624b531b04c7a858027618c5a78cb4f277e6c68ceff36452338eb",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    }
+  },
+  "source": {
+    "provider": "shisei",
+    "version": "0.3.0",
+    "license": "CC0-1.0",
+    "source_url": "https://github.com/wquguru/shisei/releases/tag/v0.3.0",
+    "pack": "shisei-std-v0.3.0",
+    "modality": "line",
+    "original_asset_sha256": {
+      "front": "441294551540ce41ef16b30d7427148fcc5e454d75f1e6a4ee98625cc4206ba7",
+      "diag": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+      "side": "2551e45cb3a624b531b04c7a858027618c5a78cb4f277e6c68ceff36452338eb"
+    }
+  }
+}

@@ -21,7 +21,7 @@
   "quickTestTitle": "Quick Test",
   "quickTestHint": "Try outfit, pose, or prompt once without a full project.",
   "quickTestLede": "A lightweight mode to try outfit, pose, and prompt once without creating a project.",
-  "quickTestComing": "Planned for CE-5.",
+  "quickTestComing": "Character → Outfit → Pose → Generate → Adopt.",
   "quickTestFallback": "Create a shot from a project",
   "visualLibraryTitle": "Browse materials",
   "visualLibraryHint": "Find costumes, poses, expressions, and framing from images.",

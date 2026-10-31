@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from apps.api.deps import container
 from creator_studio.adapters.image.comfy_errors import ComfyError
+from creator_studio.domain.ids import CharacterId
 from creator_studio.infrastructure.container import Container
 
 router = APIRouter(prefix="/api/v1", tags=["wardrobe"])
@@ -31,6 +32,28 @@ def search_market(
     c: Container = Depends(container),
 ) -> list[dict[str, Any]]:
     return c.search_market().execute(q, category=category)
+
+
+@router.get("/characters/{character_id}/outfit-profiles")
+def list_outfit_profiles(
+    character_id: str, c: Container = Depends(container)
+) -> list[dict[str, Any]]:
+    """Phase 1 Quick Studio: existing OutfitProfiles for a Character only."""
+    with c.uow() as uow:
+        char = uow.characters.get(CharacterId(character_id))
+        if char is None:
+            raise HTTPException(status_code=404, detail="character not found")
+        profiles = uow.outfit_profiles.list_for_character(character_id)
+        return [
+            {
+                "id": p.id,
+                "character_id": str(p.character_id) if p.character_id else None,
+                "title": p.title,
+                "marketplace_item_id": p.marketplace_item_id,
+                "semantic": p.semantic,
+            }
+            for p in profiles
+        ]
 
 
 @router.post("/tryon/sessions")

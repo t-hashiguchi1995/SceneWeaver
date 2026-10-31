@@ -622,17 +622,19 @@ export function ShotStudioPage() {
           saveSelectedPose(sel)
           saveStudioContext({
             poseAssetUri: sel.card.referenceUri,
-            poseId: sel.card.id,
+            poseId: sel.poseId,
           })
           setSpecSummary((prev) => ({
             ...prev,
             control_strength: sel.strength,
-            pose_id: sel.card.id,
+            pose_id: sel.poseId,
+            pose_view: sel.poseView,
             pose_prompt: sel.card.posePrompt,
             pose_flip: sel.flipHorizontal,
             pose: {
               ...((prev.pose as object) || {}),
-              id: sel.card.posePrompt.split(',')[0]?.trim() || sel.card.title,
+              id: sel.poseId,
+              pose_view: sel.poseView,
             },
           }))
         }}

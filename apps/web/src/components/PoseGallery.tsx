@@ -1,14 +1,19 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { api } from '../lib/api'
 import {
-  POSE_CATALOG,
   POSE_CATEGORY_FILTERS,
-  filterPoseCatalog,
+  filterPoseSummaries,
   type PoseCategoryFilter,
 } from '../pose/catalog'
 import { loadFavoritePoseIds, loadRecentPoseIds, toggleFavoritePose } from '../pose/storage'
-import type { PoseCard, SelectedPose } from '../pose/types'
+import {
+  summaryToCard,
+  type PoseDetail,
+  type PoseSummary,
+  type SelectedPose,
+} from '../pose/types'
 
 export type PoseGalleryProps = {
   open: boolean
@@ -19,45 +24,82 @@ export type PoseGalleryProps = {
 
 export function PoseGallery(props: PoseGalleryProps) {
   const { t } = useTranslation('generation')
+  const [items, setItems] = useState<PoseSummary[]>([])
+  const [loadError, setLoadError] = useState('')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<PoseCategoryFilter>('all')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [favoriteIds, setFavoriteIds] = useState(() => loadFavoritePoseIds())
   const [recentIds] = useState(() => loadRecentPoseIds())
-  const [preview, setPreview] = useState<PoseCard | null>(null)
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const [detail, setDetail] = useState<PoseDetail | null>(null)
+  const [angle, setAngle] = useState('front')
   const [strength, setStrength] = useState(1)
   const [flip, setFlip] = useState(false)
 
+  useEffect(() => {
+    if (!props.open) return
+    let cancelled = false
+    setLoadError('')
+    api
+      .listReferencePoses()
+      .then((rows) => {
+        if (!cancelled) setItems(rows)
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setLoadError(err.message || 'failed to load poses')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [props.open])
+
   const filtered = useMemo(
     () =>
-      filterPoseCatalog(POSE_CATALOG, {
+      filterPoseSummaries(items, {
         query,
         category,
         favoritesOnly,
         favoriteIds,
       }),
-    [query, category, favoritesOnly, favoriteIds],
+    [items, query, category, favoritesOnly, favoriteIds],
   )
 
   const recentCards = useMemo(
-    () => recentIds.map((id) => POSE_CATALOG.find((c) => c.id === id)).filter(Boolean) as PoseCard[],
-    [recentIds],
+    () => recentIds.map((id) => items.find((c) => c.id === id)).filter(Boolean) as PoseSummary[],
+    [recentIds, items],
   )
 
-  if (!props.open) return null
-
-  const openPreview = (card: PoseCard) => {
-    setPreview(card)
-    setStrength(card.defaultStrength)
+  const openPreview = async (summary: PoseSummary) => {
+    setPreviewId(summary.id)
+    setStrength(1)
     setFlip(false)
+    setAngle(summary.default_view || summary.available_views[0] || 'front')
+    try {
+      const d = await api.getReferencePose(summary.id)
+      setDetail(d)
+      setAngle(d.default_view || d.available_views[0] || 'front')
+    } catch (err) {
+      setDetail(null)
+      setLoadError((err as Error).message)
+    }
   }
 
-  const apply = (card: PoseCard, nextStrength = strength, nextFlip = flip) => {
+  const apply = (summary: PoseSummary, view: string, nextStrength = strength, nextFlip = flip) => {
+    const card = summaryToCard(summary, detail?.id === summary.id ? detail : null)
+    const viewDetail = detail?.views?.[view]
+    if (viewDetail?.prompt) {
+      card.posePrompt = viewDetail.prompt
+      card.referenceUri = viewDetail.references?.line?.url
+      card.thumbUrl = viewDetail.references?.line?.url || card.thumbUrl
+    }
     props.onApply({
-      card,
+      poseId: summary.id,
+      poseView: view,
       strength: nextStrength,
       flipHorizontal: nextFlip,
       appliedAt: new Date().toISOString(),
+      card,
     })
     props.onClose()
   }
@@ -66,9 +108,16 @@ export function PoseGallery(props: PoseGalleryProps) {
     try {
       await navigator.clipboard.writeText(text)
     } catch {
-      // clipboard may be unavailable in some test envs
+      /* ignore */
     }
   }
+
+  if (!props.open) return null
+
+  const previewSummary = previewId ? items.find((i) => i.id === previewId) : null
+  const previewView = detail?.views?.[angle]
+  const previewUrl =
+    previewView?.references?.line?.url || previewSummary?.thumbnail_url || ''
 
   return (
     <div className="pose-gallery-overlay" data-testid="pose-gallery" role="dialog" aria-modal="true">
@@ -98,9 +147,9 @@ export function PoseGallery(props: PoseGalleryProps) {
               className="btn"
               data-testid="pose-gallery-random"
               onClick={() => {
-                const pool = filtered.length ? filtered : POSE_CATALOG
+                const pool = filtered.length ? filtered : items
                 const card = pool[Math.floor(Math.random() * pool.length)]
-                if (card) openPreview(card)
+                if (card) void openPreview(card)
               }}
             >
               {t('poseGallery.random')}
@@ -110,6 +159,8 @@ export function PoseGallery(props: PoseGalleryProps) {
             </button>
           </div>
         </header>
+
+        {loadError ? <p className="error">{loadError}</p> : null}
 
         <div className="cta-row pose-gallery-cats">
           {POSE_CATEGORY_FILTERS.map((cat) => (
@@ -134,10 +185,10 @@ export function PoseGallery(props: PoseGalleryProps) {
                   key={`recent-${card.id}`}
                   type="button"
                   className="pose-card"
-                  onClick={() => openPreview(card)}
+                  onClick={() => void openPreview(card)}
                 >
-                  <img src={card.thumbUrl} alt="" />
-                  <span>{card.title}</span>
+                  {card.thumbnail_url ? <img src={card.thumbnail_url} alt="" /> : null}
+                  <span>{card.label}</span>
                 </button>
               ))}
             </div>
@@ -150,11 +201,11 @@ export function PoseGallery(props: PoseGalleryProps) {
               const fav = favoriteIds.has(card.id)
               return (
                 <article key={card.id} className="pose-card" data-testid={`pose-card-${card.id}`}>
-                  <button type="button" className="pose-card-thumb" onClick={() => openPreview(card)}>
-                    <img src={card.thumbUrl} alt="" />
+                  <button type="button" className="pose-card-thumb" onClick={() => void openPreview(card)}>
+                    {card.thumbnail_url ? <img src={card.thumbnail_url} alt="" /> : <span>{card.id}</span>}
                   </button>
                   <div className="pose-card-footer">
-                    <strong>{card.title}</strong>
+                    <strong>{card.label}</strong>
                     <div className="cta-row">
                       <button
                         type="button"
@@ -169,7 +220,7 @@ export function PoseGallery(props: PoseGalleryProps) {
                         type="button"
                         className="btn primary"
                         data-testid={`pose-apply-${card.id}`}
-                        onClick={() => apply(card, card.defaultStrength, false)}
+                        onClick={() => apply(card, card.default_view || 'front', 1, false)}
                       >
                         {t('poseGallery.apply')}
                       </button>
@@ -180,28 +231,53 @@ export function PoseGallery(props: PoseGalleryProps) {
             })}
           </div>
 
-          {preview && (
+          {previewSummary && (
             <aside className="pose-gallery-drawer" data-testid="pose-gallery-drawer">
               <div className="row-between">
                 <h3>{t('poseGallery.preview')}</h3>
-                <button type="button" className="btn" onClick={() => setPreview(null)}>
+                <button type="button" className="btn" onClick={() => setPreviewId(null)}>
                   ×
                 </button>
               </div>
-              <img
-                src={preview.thumbUrl}
-                alt=""
-                className="pose-drawer-image"
-                style={{ transform: flip ? 'scaleX(-1)' : undefined }}
-              />
-              <strong>{preview.title}</strong>
-              <p className="meta">{preview.subtitle}</p>
-              <p className="meta">{preview.tags.join(' / ')}</p>
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt=""
+                  className="pose-drawer-image"
+                  style={{ transform: flip ? 'scaleX(-1)' : undefined }}
+                />
+              ) : null}
+              <strong>{previewSummary.label}</strong>
+              <p className="meta">{previewSummary.tags.join(' / ')}</p>
+              <label>
+                Angle
+                <select
+                  data-testid="pose-angle-select"
+                  value={angle}
+                  onChange={(e) => setAngle(e.target.value)}
+                >
+                  {(detail?.available_views || previewSummary.available_views).map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label>
                 {t('poseGallery.posePrompt')}
-                <textarea readOnly rows={4} value={preview.posePrompt} data-testid="pose-drawer-prompt" />
+                <textarea
+                  readOnly
+                  rows={4}
+                  value={previewView?.prompt || ''}
+                  data-testid="pose-drawer-prompt"
+                />
               </label>
-              <button type="button" className="btn" data-testid="pose-copy-prompt" onClick={() => copyPrompt(preview.posePrompt)}>
+              <button
+                type="button"
+                className="btn"
+                data-testid="pose-copy-prompt"
+                onClick={() => copyPrompt(previewView?.prompt || '')}
+              >
                 {t('poseGallery.copyPrompt')}
               </button>
               <label>
@@ -228,8 +304,8 @@ export function PoseGallery(props: PoseGalleryProps) {
               <div className="cta-row">
                 <button
                   type="button"
-                  className={favoriteIds.has(preview.id) ? 'btn primary' : 'btn'}
-                  onClick={() => setFavoriteIds(toggleFavoritePose(preview.id))}
+                  className={favoriteIds.has(previewSummary.id) ? 'btn primary' : 'btn'}
+                  onClick={() => setFavoriteIds(toggleFavoritePose(previewSummary.id))}
                 >
                   ♡ {t('poseGallery.favorite')}
                 </button>
@@ -237,7 +313,7 @@ export function PoseGallery(props: PoseGalleryProps) {
                   type="button"
                   className="btn primary"
                   data-testid="pose-drawer-apply"
-                  onClick={() => apply(preview)}
+                  onClick={() => apply(previewSummary, angle)}
                 >
                   {t('poseGallery.applyToShot')}
                 </button>

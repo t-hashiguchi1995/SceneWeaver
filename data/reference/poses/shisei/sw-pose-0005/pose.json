@@ -1,0 +1,68 @@
+{
+  "id": "sw-pose-0005",
+  "label": "Standing pose 005",
+  "categories": [
+    "standing"
+  ],
+  "tags": [
+    "standing",
+    "line-art"
+  ],
+  "people_count": 1,
+  "content_rating": "general",
+  "default_view": "front",
+  "views": {
+    "front": {
+      "id": "sw-pose-0005-front",
+      "angle": "front",
+      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0005/front.webp",
+          "sha256": "62c115799fb2d8321e2e3e136fe85f374bf7287b2afc234933c506f283b5d587",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "diag": {
+      "id": "sw-pose-0005-diag",
+      "angle": "diag",
+      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0005/diag.webp",
+          "sha256": "9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    },
+    "side": {
+      "id": "sw-pose-0005-side",
+      "angle": "side",
+      "prompt": "standing in profile, upright posture, arms at sides",
+      "references": {
+        "line": {
+          "relative_path": "sw-pose-0005/side.webp",
+          "sha256": "0d6a45d28120e87e0b891979d3797d05cb571a1d341041b40ddc0084640923c6",
+          "mime": "image/webp"
+        }
+      },
+      "qc_status": "pass"
+    }
+  },
+  "source": {
+    "provider": "shisei",
+    "version": "0.3.0",
+    "license": "CC0-1.0",
+    "source_url": "https://github.com/wquguru/shisei/releases/tag/v0.3.0",
+    "pack": "shisei-std-v0.3.0",
+    "modality": "line",
+    "original_asset_sha256": {
+      "front": "62c115799fb2d8321e2e3e136fe85f374bf7287b2afc234933c506f283b5d587",
+      "diag": "9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955",
+      "side": "0d6a45d28120e87e0b891979d3797d05cb571a1d341041b40ddc0084640923c6"
+    }
+  }
+}

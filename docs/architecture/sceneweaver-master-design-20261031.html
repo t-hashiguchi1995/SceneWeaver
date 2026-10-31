@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SceneWeaver 次期設計・UI/UX・Agent/ComfyUI統合計画</title>
+<style>
+:root{--bg:#f6f7f9;--paper:#fff;--ink:#17202a;--muted:#65707c;--line:#dfe4ea;--soft:#eef2f6;--accent:#1f5f99;--ok:#18794e;--warn:#9a6700;--bad:#b42318;--shadow:0 12px 36px rgba(28,39,49,.08)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;line-height:1.65}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.hero{background:linear-gradient(135deg,#17202a,#263f58 58%,#4d3e72);color:#fff;padding:52px 24px 44px}.hero>div{max-width:1260px;margin:auto}.hero h1{font-size:clamp(30px,5vw,58px);line-height:1.08;margin:0 0 14px;letter-spacing:-.03em}.hero p{max-width:980px;color:#e1e8ef;font-size:17px}.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.badge{padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);font-size:12px}.layout{max-width:1460px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;padding:24px}.toc{position:sticky;top:16px;align-self:start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);max-height:calc(100vh - 32px);overflow:auto}.toc h2{font-size:14px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.toc a{display:block;padding:5px 6px;border-radius:8px;color:#34404c;font-size:13px}.toc a:hover{background:var(--soft);text-decoration:none}main{min-width:0}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;margin-bottom:22px;box-shadow:var(--shadow)}h2{font-size:28px;margin:0 0 16px}h3{font-size:21px;margin:28px 0 10px}h4{font-size:16px;margin:22px 0 8px}.lead{font-size:17px;color:#33404c}.note{border-left:4px solid var(--accent);background:#eef6fc;padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0}.note.ok{border-color:var(--ok);background:#eef9f3}.note.warn{border-color:#d49a00;background:#fff8e6}.note.bad{border-color:var(--bad);background:#fff0ee}.grid2,.grid3,.grid4{display:grid;gap:14px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid4{grid-template-columns:repeat(4,minmax(0,1fr))}.kpi{border:1px solid var(--line);background:#fbfcfd;border-radius:14px;padding:16px}.kpi b{display:block;font-size:22px}table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:14px}th,td{border:1px solid var(--line);padding:10px 12px;vertical-align:top;text-align:left}th{background:#f0f3f6}code,pre{font-family:"SFMono-Regular",Consolas,monospace}pre{overflow:auto;background:#12181f;color:#e9eef4;border-radius:12px;padding:16px;font-size:12.5px;line-height:1.55}.small{font-size:12.5px;color:var(--muted)}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eaf2fb;color:#225785;font-size:12px;font-weight:700}.pill.ok{background:#e8f6ee;color:#18794e}.pill.warn{background:#fff3d6;color:#815f00}.pill.bad{background:#ffe8e5;color:#a4261d}.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0}.flow .box{min-width:145px;flex:1;border:1px solid #cfd8e2;background:#f8fafc;border-radius:12px;padding:14px;text-align:center;font-weight:700}.arrow{font-size:22px;color:#7b8794;align-self:center}.wire{border:2px solid #7c8793;border-radius:14px;background:#fbfbfc;padding:10px;margin:12px 0 24px;font-family:"SFMono-Regular",Consolas,monospace;color:#27313a}.wire .topbar{border-bottom:1px solid #aeb7c0;padding:8px 10px;font-weight:700;display:flex;justify-content:space-between;gap:10px}.wire .body{display:grid;gap:10px;padding:10px}.wire.desktop .body{grid-template-columns:260px minmax(320px,1fr) 340px}.panel{border:1px solid #aeb7c0;border-radius:9px;padding:10px;background:#fff;min-height:90px}.panel h5{font-size:12px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:#5e6872}.thumb{height:112px;border:1px dashed #9aa4ae;border-radius:8px;display:grid;place-items:center;background:#f6f7f8;color:#7d8791}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.btn{display:inline-block;border:1px solid #7c8793;border-radius:7px;padding:5px 8px;background:#f7f7f7;font-size:11px}.btn.primary{background:#202a34;color:#fff}.input{border:1px solid #aeb7c0;border-radius:7px;padding:7px 8px;background:#fff;color:#6c7680;font-size:11px}.cardgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.posecard{border:1px solid #aeb7c0;border-radius:8px;padding:5px;background:#fff}.posecard .img{height:80px;border:1px dashed #b2bac2;display:grid;place-items:center;border-radius:5px;background:#f7f8f9;font-size:10px;color:#7a858f}.angles{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:5px}.angles span{height:13px;border-radius:3px;background:#e7ebef}.phone{width:min(390px,100%);margin:12px auto 26px;border:8px solid #212a33;border-radius:28px;background:#fff;overflow:hidden;box-shadow:0 14px 36px rgba(30,40,48,.15)}.phone .screen{padding:10px;font-family:"SFMono-Regular",Consolas,monospace;font-size:10px}.sticky{border-top:1px solid #bdc5cd;margin:10px -10px -10px;padding:8px 10px;background:#fff;display:flex;gap:6px}.seq{display:grid;gap:9px}.step{display:grid;grid-template-columns:38px 1fr;gap:10px}.num{width:32px;height:32px;border-radius:50%;background:#22313f;color:#fff;display:grid;place-items:center;font-weight:700}details{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:#fbfcfd}summary{cursor:pointer;font-weight:700}@media(max-width:1050px){.layout{grid-template-columns:1fr}.toc{position:relative;max-height:none}.wire.desktop .body{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.layout{padding:12px}.card{padding:20px}.grid2,.grid3,.grid4{grid-template-columns:1fr}.cardgrid{grid-template-columns:repeat(2,1fr)}.hero{padding:34px 18px}}@media print{.toc{display:none}.layout{display:block;padding:0}.card{box-shadow:none}a{color:#000}}
+</style>
+</head>
+<body>
+<header class="hero"><div><h1>SceneWeaver<br>次期設計・UI/UX・Agent/ComfyUI統合計画</h1><p>Anima / MOSS / Qwen、Character・Outfit・Pose・Prompt・Review、外部Reference Gallery、Shisei、Muse / Hermes Agent、ComfyUIを統合し、SceneWeaverを継続的なキャラクター制作のための制作OSとして再設計する。</p><div class="meta"><span class="badge">2026-10-31</span><span class="badge">SceneWeaver</span><span class="badge">UI/UX + Architecture + Validation</span><span class="badge">Desktop / Mobile</span></div></div></header>
+<div class="layout">
+<nav class="toc"><h2>Contents</h2><a href="#summary">0. Executive Summary</a><a href="#status">1. 現在地</a><a href="#positioning">2. プロダクト再定義</a><a href="#benchmarks">3. 外部調査</a><a href="#assets">4. 素材再利用</a><a href="#architecture">5. アーキテクチャ</a><a href="#domain">6. Reference Domain</a><a href="#ux">7. UI/UX原則</a><a href="#ia">8. 情報設計</a><a href="#desktop">9. Desktop Wireframes</a><a href="#mobile">10. Mobile Wireframes</a><a href="#flows">11. コアユースケース</a><a href="#agent">12. Muse / Hermes</a><a href="#comfy">13. ComfyUI Registry</a><a href="#api">14. REST / MCP</a><a href="#validation">15. Validation</a><a href="#roadmap">16. Roadmap</a><a href="#repo">17. Repo反映</a><a href="#sources">18. Sources</a></nav>
+<main>
+<section class="card" id="summary"><h2>0. Executive Summary</h2><p class="lead">AnimaのキャラクターPromptはGround Truth導入によりかなり改善した。一方、SceneWeaver全体としては、<b>Pose、衣装切替、MOSS品質、全キャラ網羅、UI/UX、Agent連携</b>が未完である。今後は「Gateを通すこと」ではなく、ユーザーが実画面からCharacter / Outfit / Pose / Modelを選び、実画像を生成・比較・採用・再利用できることを中心に再設計する。</p><div class="grid4"><div class="kpi"><b style="color:var(--ok)">Anima</b>Gate 2.6 GT補正後 5/5 Δ&gt;0</div><div class="kpi"><b style="color:var(--warn)">Pose</b>Gallery-first採用、Live未完</div><div class="kpi"><b style="color:var(--warn)">MOSS</b>実行基盤PASS、品質未確認</div><div class="kpi"><b style="color:var(--bad)">UX</b>コア体験の統合評価が未完</div></div><div class="note ok"><b>最重要方針:</b> SceneWeaverを「ComfyUIの別フロント」ではなく、<b>Character consistency + Outfit state + Pose reference + Prompt refinement + Model routing + immutable provenance + Story/Shot continuity</b>を管理する制作OSとして位置づける。</div><div class="flow"><div class="box">Quick Image Studio</div><div class="arrow">→</div><div class="box">Reference Library</div><div class="arrow">→</div><div class="box">Capability Router</div><div class="arrow">→</div><div class="box">ComfyUI</div><div class="arrow">→</div><div class="box">Review / Adopt / Reuse</div></div><div class="note"><b>Agent方針:</b> Muse / Hermes AgentにComfyUIを直接自由操作させない。AgentはSceneWeaverの狭いREST/MCP APIを呼び、SceneWeaverがDomain、Workflow、provenance、承認を所有する。</div></section>
+<section class="card" id="status"><h2>1. 現在地</h2><table><thead><tr><th>項目</th><th>状態</th><th>解釈</th></tr></thead><tbody><tr><td>MOSS Gate 1</td><td><span class="pill ok">PASS</span></td><td>ComfyUI 0.42.5、MOSS native workflow、1024×1024実PNG、manifest保存。</td></tr><tr><td>MOSS Gate 2</td><td><span class="pill ok">PASS</span></td><td>SceneWeaver → MOSS → ComfyUI → provenance → Adopt。</td></tr><tr><td>MOSS Gate 2.5</td><td><span class="pill warn">再解釈</span></td><td>構造・fixture・prompt adherence smokeとして有効。キャラ品質証明には使わない。</td></tr><tr><td>Anima Gate 2.6</td><td><span class="pill ok">PASS</span></td><td>ANIMADEX GTで旧雰囲気採点を撤回・是正。5/5でEdited改善。</td></tr><tr><td>Anima 全キャラ</td><td><span class="pill bad">未完</span></td><td>Primary全キャラをGT付きで確認する必要。</td></tr><tr><td>Pose Gallery / Quick Studio</td><td><span class="pill ok">Phase1–2実装</span></td><td>Canonical Pose API + Shisei assets + Scratch lifecycle + <code>/studio</code> 縦スライス。Anima全キャラ Liveは次段。</td></tr><tr><td>Outfit切替</td><td><span class="pill bad">未完</span></td><td>A→B→C→A leakage検証が未完。</td></tr><tr><td>MOSS character quality</td><td><span class="pill bad">未完</span></td><td>Ground Truthに基づく品質確認が未完。</td></tr><tr><td>UI/UX</td><td><span class="pill bad">未完</span></td><td>生成・Pose・Wardrobe・Try-On・Reviewがユーザー体験として分断。</td></tr></tbody></table><h3>Gate 2.6 正式結果</h3><table><tr><th>ID</th><th>Base</th><th>Edited</th><th>Δ</th></tr><tr><td>C01 リゼ</td><td>15</td><td>20</td><td>+5</td></tr><tr><td>C04 星川サラ</td><td>11</td><td>20</td><td>+9</td></tr><tr><td>C05 イレイナ</td><td>19</td><td>20</td><td>+1</td></tr><tr><td>C08 暁美ほむら</td><td>16</td><td>20</td><td>+4</td></tr><tr><td>C10 Firefly</td><td>15</td><td>19</td><td>+4</td></tr></table><div class="note warn">今後のキャラクター評価は <b>ANIMADEX → 公式資料 → Danbooru系タグ</b> の順でGTを作り、目色・髪・衣装・固有アクセサリ・シルエット・色・overall likenessを確認する。</div><p>会話時点でこちらから確認できていた <code>feat/moss-sft-stock</code> は <code>a9928dd</code>。最新のPose Gallery / Anima compiler / Gate 2.6周辺はpush後にコード差分レビューする。</p></section>
+<section class="card" id="positioning"><h2>2. SceneWeaverのプロダクト再定義</h2><h3>既存サービスと競争しない部分</h3><div class="grid2"><div class="kpi"><b>Pose Gallery</b>大量ポーズの視覚探索</div><div class="kpi"><b>Costume Gallery</b>衣装カテゴリ・タグ検索</div><div class="kpi"><b>Virtual Try-On</b>人物＋衣装→着せ替え</div><div class="kpi"><b>One-screen Studio</b>Character + Pose + Costume + Generate</div></div><h3>SceneWeaverが保持する差別化</h3><table><tr><th>差別化軸</th><th>価値</th></tr><tr><td>Character Visual Identity</td><td>見た目定義・採用Prompt・GTを長期管理。</td></tr><tr><td>Outfit state</td><td>Scene/Shotを跨いだ衣装継続・切替・leakage防止。</td></tr><tr><td>Model-aware compiler</td><td>Anima=タグ列、MOSS=自然文を同一Semanticから生成。</td></tr><tr><td>Capability routing</td><td>モデル名ではなくPose/Edit/Try-On等の能力で扱う。</td></tr><tr><td>Immutable provenance</td><td>Prompt、seed、workflow hash、model、Pose、Outfitを再現可能にする。</td></tr><tr><td>Review / Adopt / Replay / Fork</td><td>生成結果を制作工程へ戻し、再利用可能にする。</td></tr><tr><td>Story / Shot continuity</td><td>ADV・漫画・連続イラスト制作へ接続。</td></tr><tr><td>Agent orchestration</td><td>Muse/Hermesが同じDomainを操作し、ComfyUIに直接依存しない。</td></tr></table><div class="note ok"><b>プロダクト定義:</b> 「良い画像を1枚作る」ツールではなく、<b>同一キャラクターを、衣装・ポーズ・シーン・モデルを変えながら継続的に制作するCreative Production OS</b>。</div></section>
+<section class="card" id="benchmarks"><h2>3. 外部サービス・リポジトリ調査から取り込むもの</h2><table><tr><th>対象</th><th>強み</th><th>取り込み</th><th>優先度</th></tr><tr><td>ANIMADEX</td><td>Trigger / character tags / visual reference</td><td>キャラGT、Prompt compiler検証</td><td>高</td></tr><tr><td>AI Pose Gallery</td><td>288ポーズ、複数視点、Gallery UX</td><td>Gallery-first、角度切替、検索</td><td>高</td></tr><tr><td>AI Pose Depth Gallery</td><td>同ポーズのdepth</td><td>PoseDefinitionのDepth modality</td><td>高</td></tr><tr><td>AI Costume Gallery</td><td>1,407衣装、タグ検索</td><td>Wardrobe Market、faceted search</td><td>高</td></tr><tr><td>nvzhuang</td><td>Gallery→Try-On、Upload、履歴</td><td>CostumeカードからTry-On</td><td>高</td></tr><tr><td>gen-ai-pose-image</td><td>Character+Pose+Costume+Generate+History</td><td>Quick Studio、3参照プレビュー、Custom、Reuse</td><td>最優先</td></tr><tr><td>Shisei</td><td>自作CC0 Pose、5視点、QC</td><td><b>Built-in Pose Pack</b>、QC、派生Depth/OpenPose</td><td>最優先</td></tr><tr><td>Muse Studio</td><td>Comfy workflow library</td><td>Workflow Registry思想</td><td>高</td></tr><tr><td>Hermes Agent</td><td>MCP / Plugin / ImageGen provider</td><td>SceneWeaver MCP、batch/compare/validation</td><td>高</td></tr></table><h3>最優先の7要素</h3><ol><li>Character / Costume / Pose の3参照を生成前に横並び表示</li><li>Poseを1画像ではなく1Pose×5 angleで扱う</li><li>衣装をColor / Item / Footwear / Accessory / Material / Lengthで絞る</li><li>Upload / Generate / Describe-and-GenerateでCustom Referenceを作る</li><li>HistoryからReuse / Replay / Fork</li><li>衣装カードからTry-Onへ直接遷移</li><li>Line / Depth / Prompt / OpenPose / LoRAを同じPoseDefinitionに束ねる</li></ol></section>
+<section class="card" id="assets"><h2>4. 素材再利用・同梱方針</h2><table><tr><th>対象</th><th>扱い</th><th>SceneWeaver方針</th></tr><tr><td>Shisei images</td><td>CC0 1.0</td><td><span class="pill ok">同梱候補</span> 加工・再配布可能。Built-in Pose Packに最適。</td></tr><tr><td>Shisei code/docs</td><td>Apache-2.0</td><td>条件遵守で参考・移植可能。</td></tr><tr><td>Shisei pose list由来の選定/番号/名称/分類</td><td>CC0対象外とNOTICE記載</td><td><span class="pill warn">保守的</span> 画像を使い、SceneWeaver独自ID/ラベルを付与。</td></tr><tr><td>AI Pose/Costume Gallery images</td><td>作品利用可、画像再配布禁止</td><td>Repo/CDNに同梱せずExternal Reference。</td></tr><tr><td>Pose Depth images</td><td>再配布禁止 + 一括自動取得禁止</td><td>mirrorしない。自前派生を優先。</td></tr><tr><td>Brilliant系 code</td><td>MIT</td><td>検索・Gallery interactionを参考。</td></tr><tr><td>Brilliant系翻訳/構造化</td><td>CC BY 4.0</td><td>出典保持でtaxonomy等を利用。</td></tr><tr><td>gen-ai-pose-image / nvzhuang code</td><td>MIT</td><td>UI interaction、History、Try-Onを参考。</td></tr></table><div class="note bad"><b>禁止方向:</b> Pose/Costume/Depth Galleryの画像群を一括取得してSceneWeaverへ再配布する。ミラーRepoに画像があっても元作者条件を優先する。</div><pre>Reference Library
+├── Built-in
+│   └── Shisei-derived CC0 Pose Pack
+├── External
+│   ├── AI Pose Gallery
+│   ├── AI Costume Gallery
+│   └── other providers
+└── My Library
+    ├── User Upload
+    ├── Generated Pose
+    ├── Generated Costume
+    └── Saved Character References</pre></section>
+<section class="card" id="architecture"><h2>5. 目標アーキテクチャ</h2><pre>                    ┌─────────────────┐
+                    │   SceneWeaver UI │
+                    └────────┬────────┘
+                             │
+Muse (REST) ───────┐         │
+                   ▼         ▼
+             ┌────────────────────────┐
+Hermes(MCP) ─► SceneWeaver Agent API  │
+             │ auth / schema / idemp  │
+             └──────────┬─────────────┘
+                        ▼
+               SceneWeaver Domain
+       Character / Outfit / Pose / Prompt
+                        ▼
+                 Capability Router
+                        ▼
+                 Workflow Registry
+                        ▼
+                     ComfyUI
+                        ▼
+          Generation / Provenance / Review</pre><div class="note ok">Agentは「何を生成・比較・修正するか」を決める。ComfyUIのnode id、raw workflow JSON、checkpoint file path、shell commandはAgentへ直接公開しない。</div><h3>Capability例</h3><table><tr><th>Capability</th><th>用途</th><th>例</th></tr><tr><td>BaseRender</td><td>通常T2I</td><td>Anima</td></tr><tr><td>LayoutGuidedRender</td><td>MOSS自然文生成</td><td>MOSS SFT</td></tr><tr><td>PoseControlledRender</td><td>Reference pose</td><td>Anima + LLLite</td></tr><tr><td>OutfitTryOn</td><td>人物＋服装</td><td>Qwen Image Edit</td></tr><tr><td>ImageEdit / ExpressionEdit</td><td>編集・表情差分</td><td>Qwen</td></tr><tr><td>DetailRepair</td><td>手・顔など部分修正</td><td>Detailer/SAM</td></tr><tr><td>Inpaint / Outpaint / Upscale</td><td>局所修正・画角・最終品質</td><td>Comfy workflow</td></tr></table></section>
+<section class="card" id="domain"><h2>6. Reference Domain再設計</h2><pre>ReferenceAsset
+├── character
+├── outfit
+├── pose
+├── depth
+├── openpose
+├── style
+└── source / license / provenance</pre><h3>PoseDefinition</h3><pre>{
+  "id": "sw-pose-0018",
+  "label": "one_hand_on_hip",
+  "category": "standing",
+  "people_count": 1,
+  "content_rating": "general",
+  "views": {
+    "front": {"prompt":"...","line_asset_id":"...","depth_asset_id":"..."},
+    "diag":  {"prompt":"...","line_asset_id":"...","depth_asset_id":"..."},
+    "side":  {"...":"..."},
+    "above": {"...":"..."},
+    "below": {"...":"..."}
+  },
+  "source": {"provider":"shisei","license":"CC0-1.0"}
+}</pre><h3>OutfitReference</h3><pre>{
+  "id": "outfit-spr-0045",
+  "tags": {
+    "color": ["white", "mint"],
+    "item": ["knit", "skirt"],
+    "footwear": ["sneakers"],
+    "material": ["knit"],
+    "length": ["mini"]
+  },
+  "source": {"provider":"external-costume-gallery","distribution_policy":"reference_only"}
+}</pre><h3>Character VisualIdentity</h3><p><code>character_name</code> / <code>franchise</code> / <code>saved_anima_positive</code> を維持し、GTを別構造で保持する。</p></section>
+<section class="card" id="ux"><h2>7. UI/UX設計原則</h2><div class="grid2"><div class="kpi"><b>Gallery-first</b>URIやasset://をユーザーへ見せない。</div><div class="kpi"><b>Visual-first</b>文字入力よりサムネイル選択を先にする。</div><div class="kpi"><b>Model abstraction</b>通常ユーザーにはCapability/Profileを見せる。</div><div class="kpi"><b>Explain before generate</b>Character / Outfit / Pose / Final Promptを生成前に確認。</div><div class="kpi"><b>Input → Execute → Output → Next</b>全機能で次の行動が明確。</div><div class="kpi"><b>Reuse over recreate</b>Historyから設定復元。</div><div class="kpi"><b>Human Adopt</b>Agentは提案・生成まで、採用は人。</div><div class="kpi"><b>Visible provenance</b>seed/model/prompt/pose/outfitを後から確認。</div></div></section>
+<section class="card" id="ia"><h2>8. 情報設計</h2><pre>SceneWeaver
+├── Home
+├── Studio
+│   ├── Quick Image Studio
+│   ├── Model Compare
+│   └── Recent Generations
+├── Library
+│   ├── Characters
+│   ├── Wardrobe / Costumes
+│   ├── Poses
+│   └── Visual Library
+├── Story
+│   ├── Scenes
+│   └── Shots
+├── Review
+│   ├── Candidates
+│   └── Adopted
+├── CSP / Export
+└── Settings
+    ├── Models
+    ├── ComfyUI
+    ├── Reference Providers
+    └── Agent Integration</pre><div class="note"><b>Quick Image Studio</b>を最上位体験に置く。Story/Shotを必須入口にせず、Quick Studioの結果をAdoptしてStory/Shotへ送る。</div></section>
+<section class="card" id="desktop"><h2>9. Desktop 詳細ワイヤーフレーム</h2><h3>9.1 Quick Image Studio — 主画面</h3><div class="wire desktop"><div class="topbar"><span>SceneWeaver / Image Studio</span><span>[History] [Compare] [Settings]</span></div><div class="body"><div class="panel"><h5>Character & Model</h5><div class="thumb">Character: Rize</div><div class="row" style="margin-top:6px"><span class="btn">Change</span><span class="btn">Edit Character</span></div><hr><div class="input">Outfit: Character Default</div><div class="input" style="margin-top:6px">Model: Anima ▾</div><div class="input" style="margin-top:6px">Profile: General / Safe ▾</div><hr><div class="small">Seed</div><div class="input">12345 🔒</div><div class="small">Aspect</div><div class="input">Portrait 3:4 ▾</div></div><div class="panel"><h5>References</h5><div class="grid3"><div><div class="thumb">Character Ref</div><div class="small">Identity</div></div><div><div class="thumb">Costume Ref</div><div class="small">Outfit B</div></div><div><div class="thumb">Pose Ref</div><div class="small">P018 / diagonal</div></div></div><div class="row" style="margin-top:8px"><span class="btn">Choose Outfit</span><span class="btn">Choose Pose</span><span class="btn">Clear</span></div><hr><h5>Prompt</h5><div class="input">Base Prompt (read only) …</div><div class="input" style="min-height:76px;margin-top:6px">Final Prompt (editable) …</div><div class="row" style="margin-top:6px"><span class="btn">Diff</span><span class="btn">Reset</span><span class="btn">Save as Character Prompt</span></div><hr><h5>Agent Assist</h5><div class="input">「もう少し元キャラに近づけたい」</div><div class="row" style="margin-top:6px"><span class="btn">Suggest</span><span class="btn">Apply suggestion</span></div></div><div class="panel"><h5>Result</h5><div class="thumb" style="height:260px">Generated Image</div><div class="row" style="margin-top:7px"><span class="btn primary">Adopt</span><span class="btn">Regenerate</span><span class="btn">Compare</span></div><hr><div class="small">Model: Anima</div><div class="small">Pose: P018 / diag / reference</div><div class="small">Outfit: B</div><div class="small">Seed: 12345</div><div class="small">Prompt hash: …</div><div class="row" style="margin-top:7px"><span class="btn">Provenance</span><span class="btn">Fork</span><span class="btn">Replay</span></div></div></div><div class="topbar"><span>Ready — 3 references attached</span><span>[ GENERATE ]</span></div></div>
+<h3>9.2 Pose Gallery</h3><div class="wire"><div class="topbar"><span>Choose Pose</span><span>[♡ Favorites] [Recent] [Random] [My Poses]</span></div><div class="body"><div class="panel"><div class="row"><span class="btn primary">All</span><span class="btn">Standing</span><span class="btn">Sitting</span><span class="btn">Action</span><span class="btn">Upper Body</span><span class="btn">Duo</span></div><div class="input" style="margin-top:8px">Search pose name / ID / category...</div><div class="row" style="margin-top:8px"><span class="btn">Front</span><span class="btn">3/4</span><span class="btn">Side</span><span class="btn">Above</span><span class="btn">Below</span><span class="btn">Method: Auto ▾</span></div></div><div class="cardgrid"><div class="posecard"><div class="img">P018</div><b>P018</b><div class="small">Standing / hand on hip</div><div class="angles"><span></span><span></span><span></span><span></span><span></span></div></div><div class="posecard"><div class="img">P021</div><b>P021</b><div class="small">Standing</div><div class="angles"><span></span><span></span><span></span><span></span><span></span></div></div><div class="posecard"><div class="img">P037</div><b>P037</b><div class="small">Kneeling</div><div class="angles"><span></span><span></span><span></span><span></span><span></span></div></div><div class="posecard"><div class="img">My Pose</div><b>Custom</b><div class="small">Uploaded</div><div class="angles"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="panel"><h5>Pose Drawer</h5><div class="grid2"><div><div class="thumb">Large Preview</div></div><div><b>P018 / Diagonal</b><div class="small">Reference person is not the generation target.</div><div class="input" style="margin-top:8px">Pose prompt: standing with one hand...</div><div class="input" style="margin-top:6px">Method: Auto ▾</div><div class="input" style="margin-top:6px">Strength: 1.00 ─────●──</div><div class="row" style="margin-top:8px"><span class="btn">Flip</span><span class="btn">♡</span><span class="btn primary">Apply to Shot</span></div></div></div></div></div></div>
+<h3>9.3 Wardrobe / Costume Browser</h3><div class="wire"><div class="topbar"><span>Wardrobe / Costume Gallery</span><span>[My Outfits] [Upload] [Generate Outfit]</span></div><div class="body"><div class="panel"><div class="input">Search white lace cardigan...</div><div class="grid3" style="margin-top:10px"><div><b>Color</b><div class="row"><span class="btn">White</span><span class="btn">Blue</span><span class="btn">Black</span></div></div><div><b>Item</b><div class="row"><span class="btn">Dress</span><span class="btn">Skirt</span><span class="btn">Jacket</span></div></div><div><b>Material</b><div class="row"><span class="btn">Lace</span><span class="btn">Knit</span><span class="btn">Satin</span></div></div></div></div><div class="cardgrid"><div class="posecard"><div class="img">Outfit 01</div><b>SPR-0001</b><div class="small">ivory / knit / skirt</div><div class="row"><span class="btn">Use</span><span class="btn primary">Try On</span></div></div><div class="posecard"><div class="img">Outfit 02</div><b>SPR-0045</b><div class="small">white / knit / mini</div><div class="row"><span class="btn">Use</span><span class="btn primary">Try On</span></div></div><div class="posecard"><div class="img">Outfit 03</div><b>Custom B</b><div class="small">My Wardrobe</div><div class="row"><span class="btn">Use</span><span class="btn primary">Try On</span></div></div><div class="posecard"><div class="img">Upload</div><b>Add outfit</b><div class="small">Photo / generated</div><div class="row"><span class="btn">Upload</span></div></div></div></div></div>
+<h3>9.4 Virtual Try-On</h3><div class="wire desktop"><div class="topbar"><span>Virtual Try-On</span><span>[History] [Back to Wardrobe]</span></div><div class="body"><div class="panel"><h5>Person</h5><div class="thumb">Character / Upload</div><div class="row"><span class="btn">Character</span><span class="btn">Upload Person</span></div></div><div class="panel"><h5>Garment</h5><div class="thumb">Selected Costume</div><div class="row"><span class="btn">From Wardrobe</span><span class="btn">Upload Clothes</span></div><hr><div class="input">Preserve: face / hair / body / accessories</div></div><div class="panel"><h5>Preview / Result</h5><div class="thumb" style="height:220px">Try-On Result</div><div class="row"><span class="btn primary">Adopt Outfit</span><span class="btn">Retry</span></div></div></div><div class="topbar"><span>Qwen Image Edit / OutfitTryOn</span><span>[ GENERATE TRY-ON ]</span></div></div>
+<h3>9.5 Character Editor</h3><div class="wire"><div class="topbar"><span>Character / Visual Identity</span><span>[GT] [Prompt History] [Generate Test]</span></div><div class="body"><div class="grid3"><div class="panel"><h5>References</h5><div class="thumb">Official / User refs</div><div class="row"><span class="btn">Upload</span><span class="btn">Add URL ref</span></div></div><div class="panel"><h5>Ground Truth</h5><div class="input">Name</div><div class="input">Franchise</div><div class="input">Trigger</div><div class="input">Hair / Eyes / Accessories / Outfit</div></div><div class="panel"><h5>Model Prompts</h5><div class="input">Anima saved positive</div><div class="input">MOSS character caption</div><div class="row"><span class="btn">Test Anima</span><span class="btn">Test MOSS</span></div></div></div></div></div>
+<h3>9.6 Review / History</h3><div class="wire"><div class="topbar"><span>Review</span><span>[Grid] [A/B Compare] [Only failed]</span></div><div class="body"><div class="grid3"><div class="panel"><div class="thumb">Candidate A</div><div class="row"><span class="btn primary">Adopt</span><span class="btn">Reject</span></div></div><div class="panel"><div class="thumb">Candidate B</div><div class="row"><span class="btn primary">Adopt</span><span class="btn">Reject</span></div></div><div class="panel"><h5>Generation Info</h5><div class="small">Character / Outfit / Pose</div><div class="small">Model / Workflow / Seed</div><div class="small">Prompt diff</div><div class="row"><span class="btn">Reuse</span><span class="btn">Replay</span><span class="btn">Fork</span></div></div></div></div></div>
+<h3>9.7 Model Compare / Agent Assist</h3><div class="wire"><div class="topbar"><span>Model Compare / Production Fair</span><span>Semantic hash: 9d…</span></div><div class="body"><div class="grid2"><div class="panel"><h5>Anima</h5><div class="thumb">Result A</div><div class="small">Compiled as tag sequence</div><div class="input">year 2025, newest, masterpiece ...</div></div><div class="panel"><h5>MOSS</h5><div class="thumb">Result B</div><div class="small">Compiled as natural-language caption</div><div class="input">A young woman with ...</div></div></div><div class="panel"><b>Agent proposal:</b> Identity unchanged / Outfit locked / Prompt patch → [View Diff] [Generate Candidate]</div></div></div></section>
+<section class="card" id="mobile"><h2>10. Mobile 詳細ワイヤーフレーム</h2><h3>10.1 Image Studio — 390×844想定</h3><div class="phone"><div class="screen"><b>SceneWeaver · Studio</b><div class="panel" style="margin-top:8px"><b>Character</b><div class="row"><div class="thumb" style="width:72px;height:72px">Rize</div><div>リゼ・ヘルエスタ<br><span class="btn">Change</span></div></div></div><div class="panel" style="margin-top:7px"><b>Outfit</b><div class="row"><span class="btn">Outfit B</span><span class="btn">Choose</span></div></div><div class="panel" style="margin-top:7px"><b>Pose</b><div class="row"><div class="thumb" style="width:62px;height:82px">P018</div><div>P018 / 3/4<br><span class="btn">Change</span></div></div></div><div class="panel" style="margin-top:7px"><b>Model</b><div class="input">Anima ▾</div></div><div class="panel" style="margin-top:7px"><b>Prompt</b><div class="input">Final Prompt...</div><div class="row"><span class="btn">Edit</span><span class="btn">Diff</span></div></div><div class="sticky"><span class="btn" style="flex:1">History</span><span class="btn primary" style="flex:2;text-align:center">Generate</span></div></div></div><h3>10.2 Pose Gallery</h3><div class="phone"><div class="screen"><b>Choose Pose</b><div class="input" style="margin-top:8px">Search...</div><div class="row" style="margin:7px 0"><span class="btn">All</span><span class="btn">Standing</span><span class="btn">Action</span><span class="btn">♡</span></div><div class="cardgrid" style="grid-template-columns:1fr 1fr"><div class="posecard"><div class="img">P018</div><b>P018</b></div><div class="posecard"><div class="img">P021</div><b>P021</b></div><div class="posecard"><div class="img">P037</div><b>P037</b></div><div class="posecard"><div class="img">My Pose</div><b>Custom</b></div></div><div class="sticky"><span class="btn">Random</span><span class="btn">My Poses</span><span class="btn primary">Apply</span></div></div></div><h3>10.3 Review</h3><div class="phone"><div class="screen"><b>Review</b><div class="thumb" style="height:390px;margin-top:8px">Generated Image</div><div class="row" style="margin-top:8px"><span class="btn">←</span><span>2 / 4</span><span class="btn">→</span></div><details><summary>Generation details</summary><div class="small">Model / Seed / Prompt / Pose / Outfit</div></details><div class="sticky"><span class="btn">Reject</span><span class="btn">Fork</span><span class="btn primary" style="flex:1;text-align:center">Adopt</span></div></div></div><div class="note">スマホではCharacter → Outfit → Pose → Prompt → Generate → Resultを縦積みし、Generate / Adoptを下部stickyに固定する。</div></section>
+<section class="card" id="flows"><h2>11. コアユースケースと完了条件</h2><h3>Image Generation</h3><div class="seq"><div class="step"><div class="num">1</div><div>Characterを選ぶ</div></div><div class="step"><div class="num">2</div><div>Outfitを選ぶ</div></div><div class="step"><div class="num">3</div><div>Poseを選ぶ</div></div><div class="step"><div class="num">4</div><div>Final Promptを確認・編集</div></div><div class="step"><div class="num">5</div><div>Model/Profileを選択してGenerate</div></div><div class="step"><div class="num">6</div><div>Resultを見る</div></div><div class="step"><div class="num">7</div><div>Adopt / Regenerate / Fork / Replay</div></div></div><h3>機能完成の5段階</h3><table><tr><th>Stage</th><th>意味</th></tr><tr><td>1. Domain/API</td><td>データと操作が存在</td></tr><tr><td>2. UI Input</td><td>ユーザーが入力可能</td></tr><tr><td>3. Real Execution</td><td>Fakeではなく実モデル実行</td></tr><tr><td>4. UI Output</td><td>結果を画面で確認可能</td></tr><tr><td>5. Continuation</td><td>Adopt/Reuse/次Shotへ進める</td></tr></table><p><b>5段階すべて満たして初めて「完成」と呼ぶ。</b></p></section>
+<section class="card" id="agent"><h2>12. Muse / Hermes Agent連携</h2><table><tr><th>主体</th><th>主用途</th><th>SceneWeaverでの位置</th></tr><tr><td>Muse</td><td>会話しながら創作・Prompt改善・画像相談</td><td>クリエイティブディレクター</td></tr><tr><td>Hermes Agent</td><td>大量生成、比較、seed/LoRA sweep、検証、反復</td><td>制作・検証オペレーター</td></tr><tr><td>SceneWeaver</td><td>Domain / 状態 / provenance / approval</td><td>Single Source of Truth</td></tr><tr><td>ComfyUI</td><td>画像生成・編集Workflow実行</td><td>Execution Engine</td></tr></table><h3>MuseCon型の安全設計</h3><pre>Allowed:
+- character_id
+- outfit_id
+- pose_id / pose_view
+- capability
+- prompt_override / negative_override
+- seed / strength / model profile
+
+Not exposed:
+- arbitrary node id
+- checkpoint filesystem path
+- arbitrary raw workflow JSON
+- shell command
+- unrestricted file access</pre><h3>Agent Prompt refine loop</h3><pre>Ground Truth
+  ↓
+Generated image
+  ↓
+Mismatch detection
+  ↓
+Prompt patch proposal
+  ↓
+Human Diff review
+  ↓
+Same-seed regenerate
+  ↓
+Compare
+  ↓
+Human Adopt</pre><div class="note">Character PromptやOutfit stateはAgent memoryだけに置かず、SceneWeaver DBを唯一の正解にする。</div></section>
+<section class="card" id="comfy"><h2>13. ComfyUI Workflow Registry</h2><p>Muse Studioの考え方を参考に、ComfyUI workflowを生JSONではなくInput/Output slot付き定義として登録する。</p><pre>workflow:
+  id: anima_pose_v2
+  capability: PoseControlledRender
+  inputs:
+    positive_prompt: {node: 17, field: text}
+    pose_image: {node: 32, field: image}
+    control_strength: {node: 48, field: strength}
+    seed: {node: 12, field: seed}
+  outputs:
+    image: {node: 91}
+  requirements:
+    checkpoint: anima_baseV10.safetensors
+    control_model: anima-lllite-pose-1.safetensors</pre><p>万能Workflowを1つ作らず、BaseRender / PoseControlledRender / LayoutGuidedRender / OutfitTryOn / ImageEdit / DetailRepair / Inpaint / Outpaint / Upscale に分ける。</p></section>
+<section class="card" id="api"><h2>14. REST / MCP API案</h2><h3>REST</h3><pre>GET  /agent/health
+GET  /agent/capabilities
+GET  /agent/characters
+GET  /agent/poses
+GET  /agent/outfits
+POST /agent/generations
+GET  /agent/generations/{job_id}
+POST /agent/regenerations
+POST /agent/edits
+POST /agent/adoptions</pre><h3>Hermes MCP</h3><pre>sceneweaver.list_characters
+sceneweaver.search_poses
+sceneweaver.search_outfits
+sceneweaver.prepare_generation
+sceneweaver.generate
+sceneweaver.get_job
+sceneweaver.compare_results
+sceneweaver.regenerate
+sceneweaver.replay
+sceneweaver.fork
+sceneweaver.adopt</pre><h3>Generation Request</h3><pre>{
+  "request_id": "uuid",
+  "character_id": "C01",
+  "outfit_id": "outfit-b",
+  "pose_id": "sw-pose-0018",
+  "pose_view": "diag",
+  "capability": "PoseControlledRender",
+  "prompt_override": null,
+  "negative_override": null,
+  "seed": 12345
+}</pre><p><code>request_id</code>を必須化し、Agent再送時の重複jobを防ぐ。</p></section>
+<section class="card" id="validation"><h2>15. 検証Gate再設計</h2><h3>Anima Full Character Coverage</h3><p>Primary全キャラをGT付きでIdentity / Color / Accessory / Outfit / Silhouette / Overall likeness評価。</p><h3>Pose Gallery Live P01–P05</h3><table><tr><th>ID</th><th>目的</th><th>PASS</th></tr><tr><td>P01</td><td>Prompt Pose</td><td>pose_promptが出力へ反映</td></tr><tr><td>P02</td><td>Reference Pose</td><td>LLLite等で姿勢が寄る</td></tr><tr><td>P03</td><td>Flip</td><td>左右反転が反映</td></tr><tr><td>P04</td><td>Character isolation</td><td>Pose参考人物が生成Characterへ混ざらない</td></tr><tr><td>P05</td><td>Outfit isolation</td><td>Pose固定で衣装だけ変化</td></tr></table><h3>Gate 3 Outfit Isolation</h3><pre>A1 → B → C → A2
+- A2がA1と同じOutfitProfile
+- prompt snapshotにB/C専用語が残らない
+- 画像上でもB/C衣装特徴が残らない
+- provenanceでcharacter/outfit/poseを追える</pre><h3>MOSS Quality / Prompt Refine</h3><p>MOSSも同じSemantic GTで Base caption → Generate → Inspect → Edit → same-seed regenerate → Adopt。基盤PASSと品質PASSを分離する。</p><h3>Production Fair</h3><p>同一SemanticをAnima tags / MOSS natural-languageへコンパイルして比較する。</p></section>
+<section class="card" id="roadmap"><h2>16. 推奨実装ロードマップ</h2><table><tr><th>Phase</th><th>内容</th><th>目的</th></tr><tr><td>0</td><td>現在の変更をpush・差分固定</td><td>レビュー可能化</td></tr><tr><td>1</td><td>Reference Domain + ShiseiProvider</td><td>Pose/Costume/Custom共通化</td></tr><tr><td>2</td><td>Quick Image Studio</td><td>1画面の主要体験</td></tr><tr><td>3</td><td>Pose Browser強化</td><td>5 angle / Prompt / Line / Depth / Custom</td></tr><tr><td>4</td><td>Wardrobe / Costume Browser</td><td>Faceted search / Upload / Try-On</td></tr><tr><td>5</td><td>History / Reuse / Replay / Fork</td><td>継続制作</td></tr><tr><td>6</td><td>Anima Full Character Coverage</td><td>キャラ基盤安定化</td></tr><tr><td>7</td><td>Pose Live P01–P05</td><td>Pose UXと実生成接続</td></tr><tr><td>8</td><td>Gate 3 A→B→C→A</td><td>衣装state/leakage評価</td></tr><tr><td>9</td><td>MOSS Quality / Refine</td><td>MOSS実用品質化</td></tr><tr><td>10</td><td>Agent Gateway + Hermes MCP</td><td>自動比較・反復・検証</td></tr><tr><td>11</td><td>Story / Shot continuity</td><td>長期制作</td></tr><tr><td>12</td><td>Character/Pose LoRA等</td><td>高度化</td></tr></table><div class="note ok"><b>順序の意図:</b> UI/UXを後回しにせず、先に実際に使える入口を完成させ、その画面からGate 3やMOSS比較を実行する。</div></section>
+<section class="card" id="repo"><h2>17. Repoへの反映方針</h2><pre>docs/
+  architecture/sceneweaver-master-design-20261031.html
+  ux/quick-image-studio.md
+  ux/pose-gallery-first.md
+  ux/wardrobe-gallery.md
+  ux/agent-assist.md
+  validation/anima-full-character-coverage.md
+  validation/pose-gallery-live-validation.md
+  validation/moss-character-quality.md
+
+apps/web/src/
+  views/ImageStudioPage.tsx
+  pose/providers/shisei.ts
+  components/PoseGallery.tsx
+  components/PosePicker.tsx
+  components/CostumeGallery.tsx
+  components/ReferenceTriptych.tsx
+  components/GenerationHistory.tsx
+  components/AgentAssistPanel.tsx
+
+src/creator_studio/
+  domain/reference/
+  application/reference/
+  ports/reference_provider.py
+  ports/agent_gateway.py
+  infrastructure/reference/shisei_provider.py
+  infrastructure/comfy/workflow_registry.py
+  interfaces/mcp/</pre><h3>レビュー観点</h3><ul><li>UIだけ存在し、実生成まで繋がっていない機能を完成扱いしていないか。</li><li>Pose reference人物がCharacter identityへ漏れていないか。</li><li>Outfit選択がscene-globalへ逆戻りしていないか。</li><li>Anima/MOSS compiler分離が維持されているか。</li><li>Reference source/license/provenanceが失われていないか。</li><li>Agentがraw Comfy workflowやshellへ過剰アクセスできないか。</li><li>HistoryからReuse/Replayしたとき設定が復元できるか。</li></ul></section>
+<section class="card" id="sources"><h2>18. 参考ソース</h2><ul><li><a href="https://animadex.net/?mode=characters">ANIMADEX</a></li><li><a href="https://ai-pose-gallery.pages.dev/">AI Pose Gallery</a></li><li><a href="https://ai-pose-depth-gallery.pages.dev/">AI Pose Depth Gallery</a></li><li><a href="https://ai-costume-gallery.pages.dev/">AI Costume Gallery</a></li><li><a href="https://github.com/paipiange/nvzhuang">paipiange/nvzhuang</a></li><li><a href="https://github.com/wzc520pyfm/gen-ai-pose-image">wzc520pyfm/gen-ai-pose-image</a></li><li><a href="https://github.com/wquguru/shisei">wquguru/shisei</a></li><li><a href="https://github.com/benjiyaya/Muse-Studio">Muse Studio</a></li><li><a href="https://github.com/NousResearch/hermes-agent">NousResearch/hermes-agent</a></li><li><a href="https://note.com/nemhiyo/n/n832a3e4d8093?sub_rt=share_pb">Muse / ComfyUI連携の参考note</a></li></ul><div class="note warn">素材利用条件は変更され得る。公開・再配布する素材については実装時点のLICENSE/NOTICE/利用規約を再確認する。本書は法的助言ではない。</div></section>
+<section class="card"><h2>付録: 直近の実作業</h2><ol><li><b>最新差分をpushし、Pose Gallery / Anima compiler / Gate 2.6の実装レビューを可能にする。</b></li><li><b>Quick Image Studio + Reference Domain + ShiseiProvider</b> を最初のUX改修単位とする。</li><li>その画面から <b>Anima全キャラ → Pose Live → Outfit A→B→C→A → MOSS</b> の順で実画像検証する。</li></ol></section>
+</main></div></body></html>

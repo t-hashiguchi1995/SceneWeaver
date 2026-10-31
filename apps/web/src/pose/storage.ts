@@ -1,5 +1,4 @@
 import type { SelectedPose } from './types'
-import { findPoseCard } from './catalog'
 
 const FAV_KEY = 'sceneweaver.pose.favorites'
 const RECENT_KEY = 'sceneweaver.pose.recent'
@@ -40,10 +39,15 @@ export function pushRecentPose(id: string): string[] {
 
 export function loadSelectedPose(): SelectedPose | null {
   const raw = readJson<SelectedPose | null>(SELECTED_KEY, null)
-  if (!raw?.card?.id) return null
-  const card = findPoseCard(raw.card.id)
-  if (!card) return raw
-  return { ...raw, card }
+  if (!raw?.poseId && !raw?.card?.id) return null
+  if (!raw.poseId && raw.card?.id) {
+    return {
+      ...raw,
+      poseId: raw.card.id,
+      poseView: raw.poseView || 'front',
+    }
+  }
+  return raw
 }
 
 export function saveSelectedPose(selected: SelectedPose | null): void {
@@ -52,5 +56,5 @@ export function saveSelectedPose(selected: SelectedPose | null): void {
     return
   }
   localStorage.setItem(SELECTED_KEY, JSON.stringify(selected))
-  pushRecentPose(selected.card.id)
+  pushRecentPose(selected.poseId || selected.card.id)
 }

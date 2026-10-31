@@ -31,7 +31,9 @@ export function PosePicker(props: PosePickerProps) {
           <img src={selected.card.thumbUrl} alt="" className="pose-picker-thumb" />
           <div className="pose-picker-meta">
             <strong data-testid="pose-selected-title">{selected.card.title}</strong>
-            <p className="meta">{selected.card.subtitle}</p>
+            <p className="meta" data-testid="pose-selected-view">
+              {selected.poseId} / {selected.poseView}
+            </p>
             <p className="meta" data-testid="pose-selected-strength">
               {t('poseGallery.strength')}: {selected.strength.toFixed(2)}
               {selected.flipHorizontal ? ` · ${t('poseGallery.flipped')}` : ''}

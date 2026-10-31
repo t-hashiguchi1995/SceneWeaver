@@ -144,6 +144,14 @@ class SqlAlchemyOutfitProfileRepository:
         row = self._session.get(OutfitProfileRow, profile_id)
         return self._from_row(row) if row else None
 
+    def list_for_character(self, character_id: str) -> list[OutfitProfile]:
+        rows = self._session.scalars(
+            select(OutfitProfileRow)
+            .where(OutfitProfileRow.character_id == character_id)
+            .order_by(OutfitProfileRow.updated_at.desc())
+        ).all()
+        return [self._from_row(row) for row in rows]
+
     def save(self, profile: OutfitProfile) -> OutfitProfile:
         row = self._session.get(OutfitProfileRow, profile.id)
         if row is None:
