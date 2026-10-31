@@ -188,7 +188,7 @@ export function ImageStudioPage() {
   }, [attempt, provenance, modelProfile])
 
   return (
-    <section className="page" data-testid="image-studio-page">
+    <section className="page image-studio-page" data-testid="image-studio-page">
       <h1 data-testid="image-studio-title">{t('home:quickTestTitle')}</h1>
       <p className="lede">{t('home:quickTestLede')}</p>
       {error && <ErrorBanner message={error} />}
@@ -329,7 +329,7 @@ export function ImageStudioPage() {
               onChange={(e) => setNegative(e.target.value)}
             />
           </label>
-          <div className="cta-row">
+          <div className="studio-actions cta-row">
             <button
               type="button"
               className="btn primary"

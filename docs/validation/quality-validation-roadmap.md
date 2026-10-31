@@ -11,7 +11,7 @@
 
 | 段階 | 目的 | 状態 |
 |------|------|------|
-| **P12** | Phase 1–2 Quick Studio vertical slice | 🟡 CONDITIONAL → close後 ✅ |
+| **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | 🔴 |
 | **A3** | Pose Gallery 実生成（P01–P05） | 🔴 |

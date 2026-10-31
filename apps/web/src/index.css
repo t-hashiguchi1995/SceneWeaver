@@ -1175,3 +1175,59 @@ dialog::backdrop { background: #0009; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Quick Image Studio — Phase 1 form polish (3-pane / Triptych = Phase 2.1) */
+.image-studio-page .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 0.75rem;
+}
+.image-studio-page .field > span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.image-studio-page select,
+.image-studio-page textarea,
+.image-studio-page input[type='text'],
+.image-studio-page input[type='number'] {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+.image-studio-page textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+.image-studio-page .asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0.75rem 0;
+}
+.image-studio-page .studio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .image-studio-page .studio-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    padding: 0.65rem 0.25rem 0.85rem;
+    margin: 0.5rem -0.25rem 0;
+    background: linear-gradient(180deg, transparent, var(--bg) 28%);
+    border-top: 1px solid var(--line);
+  }
+  .image-studio-page .studio-actions .btn {
+    flex: 1 1 auto;
+    min-width: 7.5rem;
+  }
+}
