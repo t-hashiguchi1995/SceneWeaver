@@ -496,12 +496,14 @@ export const api = {
   createStudioSession: (body: {
     character_id: string
     outfit_profile_id?: string | null
-    capability?: string
+    model_profile?: string
+    capability?: string | null
   }) =>
     request<{
       shot_id: string
       beat_id: string
       lifecycle: string
+      model_profile?: string
       render_spec: Record<string, unknown>
       prompt_draft: Record<string, unknown> | null
       pose_provenance?: Record<string, unknown> | null

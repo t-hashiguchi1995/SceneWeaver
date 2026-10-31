@@ -130,9 +130,11 @@ def test_pose_provenance_snapshot(container: Container) -> None:
     client = TestClient(create_app())
     pose = client.get("/api/v1/references/poses").json()[0]
     session = client.post(
-        "/api/v1/studio/sessions", json={"character_id": char_id}
+        "/api/v1/studio/sessions",
+        json={"character_id": char_id, "model_profile": "anima"},
     ).json()
     shot_id = session["shot_id"]
+    assert session.get("model_profile") == "anima"
     client.post(
         f"/api/v1/studio/sessions/{shot_id}/pose",
         json={"pose_id": pose["id"], "pose_view": pose["default_view"]},
@@ -140,9 +142,52 @@ def test_pose_provenance_snapshot(container: Container) -> None:
     snap1 = client.get(f"/api/v1/studio/sessions/{shot_id}").json()["pose_provenance"]
     assert snap1["pose_id"] == pose["id"]
     assert snap1["pose_asset_sha256"]
-    # Re-get is stable (immutable snapshot fields)
     snap2 = client.get(f"/api/v1/studio/sessions/{shot_id}").json()["pose_provenance"]
     assert snap2 == snap1
+
+
+def test_flip_updates_pose_asset_sha256(container: Container) -> None:
+    """Flip must change the asset bytes actually handed to Comfy, not only provenance.flipped."""
+    char_id, _ = _seed_character(container, "FlipHero")
+    client = TestClient(create_app())
+    pose = client.get("/api/v1/references/poses").json()[0]
+    shot_id = client.post(
+        "/api/v1/studio/sessions", json={"character_id": char_id}
+    ).json()["shot_id"]
+
+    normal = client.post(
+        f"/api/v1/studio/sessions/{shot_id}/pose",
+        json={"pose_id": pose["id"], "pose_view": pose["default_view"], "flipped": False},
+    ).json()["pose_provenance"]
+    flipped = client.post(
+        f"/api/v1/studio/sessions/{shot_id}/pose",
+        json={"pose_id": pose["id"], "pose_view": pose["default_view"], "flipped": True},
+    ).json()["pose_provenance"]
+
+    assert normal["flipped"] is False
+    assert flipped["flipped"] is True
+    assert normal["pose_asset_sha256"]
+    assert flipped["pose_asset_sha256"]
+    assert flipped["pose_asset_sha256"] != normal["pose_asset_sha256"]
+
+
+def test_lifecycle_endpoint_removed_and_transitions_gated(container: Container) -> None:
+    char_id, _ = _seed_character(container, "GateHero")
+    client = TestClient(create_app())
+    shot_id = client.post(
+        "/api/v1/studio/sessions", json={"character_id": char_id}
+    ).json()["shot_id"]
+
+    # Free lifecycle setter must not exist
+    free = client.post(
+        f"/api/v1/studio/sessions/{shot_id}/lifecycle",
+        json={"lifecycle": "adopted"},
+    )
+    assert free.status_code == 404
+
+    # Cannot materialize from draft
+    early = client.post(f"/api/v1/studio/sessions/{shot_id}/materialize", json={})
+    assert early.status_code == 400
 
 
 def test_list_outfit_profiles_for_character(container: Container) -> None:

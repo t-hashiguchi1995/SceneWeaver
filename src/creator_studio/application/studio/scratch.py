@@ -5,8 +5,11 @@ materialize = copy generation state, not rerender.
 
 from __future__ import annotations
 
+import io
 from copy import deepcopy
 from typing import Any, Literal
+
+from PIL import Image
 
 from creator_studio.application.assets.store_asset import StoreBytesCommand
 from creator_studio.application.projects.create_project import CreateProjectCommand
@@ -17,6 +20,11 @@ ScratchLifecycle = Literal["draft", "generated", "adopted", "abandoned"]
 
 _STUDIO_KEY = "_studio"
 _SCRATCH_PROJECT_TITLE = "Quick Studio Scratch"
+
+# model_profile → initial capability (Pose apply may upgrade to PoseControlledRender)
+_MODEL_PROFILES: dict[str, str] = {
+    "anima": "BaseRender",
+}
 
 
 def studio_meta(render_spec: dict[str, Any]) -> dict[str, Any]:
@@ -33,8 +41,13 @@ class ScratchStudioService:
         *,
         character_id: str,
         outfit_profile_id: str | None = None,
-        capability: str = "BaseRender",
+        model_profile: str = "anima",
+        capability: str | None = None,
     ) -> dict[str, Any]:
+        profile = (model_profile or "anima").strip().lower()
+        if profile not in _MODEL_PROFILES:
+            raise ValueError(f"unsupported model_profile: {model_profile}")
+        resolved_capability = capability or _MODEL_PROFILES[profile]
         project = self._find_or_create_scratch_project()
         scene = self._c.create_scene().execute(project.id, "Studio Scratch")
         beat = self._c.create_beat().execute(
@@ -43,7 +56,8 @@ class ScratchStudioService:
         pipe = self._c.shot_pipeline()
         shot = pipe.plan_shot(beat.id)
         render_patch: dict[str, Any] = {
-            "capability": capability,
+            "capability": resolved_capability,
+            "model_profile": profile,
             "character_id": character_id,
             "content_rating": "general",
             _STUDIO_KEY: {
@@ -63,23 +77,13 @@ class ScratchStudioService:
     def get_session(self, shot_id: str) -> dict[str, Any]:
         return self._session_view(shot_id)
 
-    def set_lifecycle(self, shot_id: str, lifecycle: ScratchLifecycle) -> dict[str, Any]:
-        pipe = self._c.shot_pipeline()
-        shot = pipe.get_shot(shot_id)
-        meta = studio_meta(shot.render_spec)
-        if meta.get("source") != "quick_studio":
-            raise ValueError("not a quick studio scratch shot")
-        if lifecycle == "abandoned" and meta.get("lifecycle") == "adopted":
-            raise ValueError("cannot abandon adopted scratch; keep for history")
-        meta["lifecycle"] = lifecycle
-        pipe.update_shot(shot_id, {_STUDIO_KEY: meta})
-        return self._session_view(shot_id)
-
     def mark_generated(self, shot_id: str) -> dict[str, Any]:
-        return self.set_lifecycle(shot_id, "generated")
+        """draft|generated → generated (render / regenerate only)."""
+        return self._transition(shot_id, allowed_from=("draft", "generated"), to="generated")
 
     def abandon(self, shot_id: str) -> dict[str, Any]:
-        return self.set_lifecycle(shot_id, "abandoned")
+        """draft|generated → abandoned (Discard). Terminal."""
+        return self._transition(shot_id, allowed_from=("draft", "generated"), to="abandoned")
 
     def materialize_to_story(
         self,
@@ -88,14 +92,18 @@ class ScratchStudioService:
         project_id: str | None = None,
         generation_attempt_id: str | None = None,
     ) -> dict[str, Any]:
-        """Copy generation state onto a Formal Story Shot — do not rerender."""
+        """Copy generation state onto a Formal Story Shot — do not rerender.
+
+        Transition: generated → adopted only.
+        """
         pipe = self._c.shot_pipeline()
         scratch = pipe.get_shot(shot_id)
         meta = studio_meta(scratch.render_spec)
         if meta.get("source") != "quick_studio":
             raise ValueError("not a quick studio scratch shot")
-        if meta.get("lifecycle") == "abandoned":
-            raise ValueError("cannot materialize abandoned scratch")
+        current = str(meta.get("lifecycle") or "draft")
+        if current != "generated":
+            raise ValueError(f"cannot materialize from lifecycle={current}; generate first")
 
         attempt_id = generation_attempt_id or self._latest_attempt_id(shot_id)
         if not attempt_id:
@@ -105,7 +113,6 @@ class ScratchStudioService:
         if not attempt.output_asset_ids:
             raise ValueError("generation has no output assets")
 
-        # Formal project/scene/beat
         if project_id:
             with self._c.uow() as uow:
                 project = uow.projects.get(project_id)
@@ -127,14 +134,12 @@ class ScratchStudioService:
         )
         formal = pipe.plan_shot(beat.id)
 
-        # COPY render_spec (without scratch flags) + link assets via render_from_attempt pattern
         copied_spec = deepcopy(scratch.render_spec)
         copied_spec.pop(_STUDIO_KEY, None)
         copied_spec["_adopted_from_scratch_shot_id"] = shot_id
         copied_spec["_adopted_generation_attempt_id"] = attempt_id
         formal = pipe.update_shot(formal.id, copied_spec)
 
-        # Ensure prompt draft mirrors scratch final prompts
         drafts = self._c.prompt_draft_service()
         drafts.ensure_for_shot(formal.id)
         snap_pos = attempt.payload.get("final_positive_prompt")
@@ -142,7 +147,6 @@ class ScratchStudioService:
         if isinstance(snap_pos, str) and isinstance(snap_neg, str):
             drafts.update_edits(formal.id, snap_pos, snap_neg)
 
-        # Attach outputs by creating a replay-style attempt record pointing at same assets
         pipe.attach_adopted_outputs(
             formal.id,
             source_attempt_id=attempt_id,
@@ -203,41 +207,67 @@ class ScratchStudioService:
             "pose_provenance": snap,
             "control_strength": control_strength,
         }
-        # Prompt-only: keep capability; reference image → PoseControlledRender + asset:// URI
         if use_pose:
             patch["capability"] = "PoseControlledRender"
-            pose_uri = self._ensure_pose_asset_uri(pose_id=pose_id, pose_view=pose_view, line=line)
-            patch["pose_asset_uri"] = pose_uri
-            if line.get("sha256"):
-                patch["pose"]["line_sha256"] = line["sha256"]
+            stored = self._ensure_pose_asset(
+                pose_id=pose_id,
+                pose_view=pose_view,
+                line=line,
+                flipped=flipped,
+            )
+            if stored is None:
+                raise ValueError("pose reference image unavailable")
+            patch["pose_asset_uri"] = stored["uri"]
+            # Provenance must describe the bytes actually sent to Comfy
+            snap["pose_asset_sha256"] = stored["sha256"]
+            snap["pose_asset_id"] = stored["asset_id"]
+            snap["flipped"] = bool(flipped)
+            patch["pose_provenance"] = snap
+            patch["pose"]["line_sha256"] = stored["sha256"]
         else:
             patch["pose_asset_uri"] = None
         pipe = self._c.shot_pipeline()
         pipe.update_shot(shot_id, patch)
-        # Rebuild prompt so pose_prompt compiles into Anima tags when prompt-only
         drafts = self._c.prompt_draft_service()
         drafts.ensure_for_shot(shot_id)
         try:
             drafts.rebuild(shot_id, confirm=True)
         except ValueError:
             pass
-        # If prompt-only, merge pose prompt into edited positive lightly via ensure base
         return self._session_view(shot_id)
 
-    def _ensure_pose_asset_uri(
+    def _transition(
+        self,
+        shot_id: str,
+        *,
+        allowed_from: tuple[str, ...],
+        to: ScratchLifecycle,
+    ) -> dict[str, Any]:
+        pipe = self._c.shot_pipeline()
+        shot = pipe.get_shot(shot_id)
+        meta = studio_meta(shot.render_spec)
+        if meta.get("source") != "quick_studio":
+            raise ValueError("not a quick studio scratch shot")
+        current = str(meta.get("lifecycle") or "draft")
+        if current not in allowed_from:
+            raise ValueError(f"invalid lifecycle transition {current} → {to}")
+        meta["lifecycle"] = to
+        pipe.update_shot(shot_id, {_STUDIO_KEY: meta})
+        return self._session_view(shot_id)
+
+    def _ensure_pose_asset(
         self,
         *,
         pose_id: str,
         pose_view: str,
         line: dict[str, Any],
-    ) -> str | None:
-        """Materialize Shisei line art into AssetStore so Comfy gets asset:// pose_image."""
+        flipped: bool,
+    ) -> dict[str, str] | None:
+        """Store Shisei line art (optionally H-flipped) for Comfy pose_image."""
         url = str(line.get("url") or "")
-        # Detail DTO exposes API path; recover relative pack path after /references/assets/
         marker = "/api/v1/references/assets/"
         rel = url.split(marker, 1)[-1] if marker in url else ""
         if not rel:
-            # Fall back via provider using pose definition
             pose = self._c.reference_pose_service().provider.get_pose(pose_id)
             view_obj = pose.views.get(pose_view) if pose else None
             if view_obj and view_obj.line:
@@ -248,16 +278,26 @@ class ScratchStudioService:
         if resolved is None:
             return None
         data, mime = resolved
+        out_mime = mime or "image/webp"
+        suffix = "webp" if "webp" in out_mime else "png"
+        if flipped:
+            data, out_mime = _horizontal_flip(data)
+            suffix = "png" if out_mime == "image/png" else suffix
+        filename = f"{pose_id}-{pose_view}{'-flip' if flipped else ''}.{suffix}"
         stored = self._c.store_asset().execute(
             StoreBytesCommand(
                 data=data,
                 kind=AssetKind.REFERENCE,
-                mime=mime or "image/webp",
+                mime=out_mime,
                 relative_dir="pose/shisei",
-                filename=f"{pose_id}-{pose_view}.webp",
+                filename=filename,
             )
         )
-        return stored.uri
+        return {
+            "uri": stored.uri,
+            "sha256": stored.sha256,
+            "asset_id": str(stored.id),
+        }
 
     def _find_or_create_scratch_project(self) -> Any:
         projects = self._c.list_projects().execute()
@@ -286,6 +326,7 @@ class ScratchStudioService:
             "source": meta.get("source", "quick_studio"),
             "formal_shot_id": meta.get("formal_shot_id"),
             "formal_project_id": meta.get("formal_project_id"),
+            "model_profile": shot.render_spec.get("model_profile", "anima"),
             "render_spec": shot.render_spec,
             "prompt_draft": draft,
             "pose_provenance": shot.render_spec.get("pose_provenance"),
@@ -294,8 +335,19 @@ class ScratchStudioService:
     def _latest_attempt_id(self, shot_id: str) -> str | None:
         pipe = self._c.shot_pipeline()
         history = pipe.list_attempts_for_shot(shot_id)
-        # list is newest-first
         for item in history:
             if item.get("status") == "succeeded" and item.get("output_asset_ids"):
                 return str(item["id"])
         return None
+
+
+def _horizontal_flip(data: bytes) -> tuple[bytes, str]:
+    """Return PNG bytes of a horizontally flipped image + mime."""
+    img = Image.open(io.BytesIO(data))
+    flipped = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    buf = io.BytesIO()
+    # Prefer PNG for derived assets so hash is deterministic across codecs
+    if flipped.mode not in ("RGB", "RGBA"):
+        flipped = flipped.convert("RGBA")
+    flipped.save(buf, format="PNG")
+    return buf.getvalue(), "image/png"

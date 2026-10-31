@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -16,7 +16,8 @@ router = APIRouter(prefix="/api/v1/studio", tags=["studio"])
 class CreateSessionBody(BaseModel):
     character_id: str = Field(min_length=1)
     outfit_profile_id: str | None = None
-    capability: str = "BaseRender"
+    model_profile: str = "anima"
+    capability: str | None = None
 
 
 class ApplyPoseBody(BaseModel):
@@ -24,10 +25,6 @@ class ApplyPoseBody(BaseModel):
     pose_view: str = "front"
     flipped: bool = False
     control_strength: float = Field(default=1.0, ge=0.0, le=2.0)
-
-
-class LifecycleBody(BaseModel):
-    lifecycle: Literal["draft", "generated", "adopted", "abandoned"]
 
 
 class MaterializeBody(BaseModel):
@@ -49,6 +46,7 @@ def create_session(body: CreateSessionBody, c: Container = Depends(container)) -
         return _scratch(c).create_session(
             character_id=body.character_id,
             outfit_profile_id=body.outfit_profile_id,
+            model_profile=body.model_profile,
             capability=body.capability,
         )
     except ValueError as e:
@@ -105,16 +103,6 @@ def render_session(
             status_code=502,
             detail={"code": e.code.value, "message": str(e)},
         ) from e
-
-
-@router.post("/sessions/{shot_id}/lifecycle")
-def set_lifecycle(
-    shot_id: str, body: LifecycleBody, c: Container = Depends(container)
-) -> dict[str, Any]:
-    try:
-        return _scratch(c).set_lifecycle(shot_id, body.lifecycle)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.post("/sessions/{shot_id}/abandon")

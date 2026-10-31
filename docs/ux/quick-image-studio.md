@@ -13,7 +13,7 @@ CREATE → draft
       ├ Regenerate → generated
       ├ Keep → generated (History)
       ├ Adopt → adopted → materialize to Story Shot (COPY state, no rerender)
-      └ Delete → abandoned (deletable; auto-purge not required in Phase 1)
+      └ Discard → abandoned (terminal; auto-purge not required in Phase 1)
 ```
 
 `render_spec._studio`: `{ source: quick_studio, hidden: true, lifecycle, formal_shot_id? }`

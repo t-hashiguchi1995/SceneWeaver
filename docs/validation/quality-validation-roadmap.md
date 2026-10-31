@@ -11,6 +11,7 @@
 
 | 段階 | 目的 | 状態 |
 |------|------|------|
+| **P12** | Phase 1–2 Quick Studio vertical slice | 🟡 CONDITIONAL → close後 ✅ |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | 🔴 |
 | **A3** | Pose Gallery 実生成（P01–P05） | 🔴 |
@@ -23,7 +24,8 @@
 | Adult / Character LoRA / Pose ecosystem | 後段 | 🔴 |
 
 ```text
-0. push 現在の差分
+0. Phase 1–2 Quick Studio vertical slice
+   (Pose API → /studio → Anima PNG → provenance → Review → Adopt=copy)
 1. A2 Gate 2.7 Full Character Coverage
 2. A3 Pose Gallery Live P01–P05
 3. A4 Gate 3 Outfit isolation

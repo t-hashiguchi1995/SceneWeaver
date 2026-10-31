@@ -1,20 +1,23 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetImage } from '../components/AssetImage'
 import { ErrorBanner } from '../components/ErrorBanner'
 import { PoseGallery } from '../components/PoseGallery'
-import { api } from '../lib/api'
+import { api, type GenerationAttemptSummary } from '../lib/api'
 import type { SelectedPose } from '../pose/types'
 
-type StudioPhase = 'setup' | 'ready' | 'generated' | 'adopted'
+type StudioPhase = 'setup' | 'ready' | 'generated' | 'adopted' | 'discarded'
+type ModelProfile = 'anima'
 
 export function ImageStudioPage() {
   const { t } = useTranslation(['home'])
   const characters = useQuery({ queryKey: ['characters'], queryFn: api.listCharacters })
   const [characterId, setCharacterId] = useState('')
   const [outfitId, setOutfitId] = useState('')
+  const [modelProfile, setModelProfile] = useState<ModelProfile>('anima')
   const [pose, setPose] = useState<SelectedPose | null>(null)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [shotId, setShotId] = useState('')
@@ -23,8 +26,10 @@ export function ImageStudioPage() {
   const [negative, setNegative] = useState('')
   const [assetIds, setAssetIds] = useState<string[]>([])
   const [attemptId, setAttemptId] = useState('')
+  const [attempt, setAttempt] = useState<GenerationAttemptSummary | null>(null)
   const [provenance, setProvenance] = useState<Record<string, unknown> | null>(null)
   const [formalShotId, setFormalShotId] = useState<string | null>(null)
+  const [formalProjectId, setFormalProjectId] = useState<string | null>(null)
   const [phase, setPhase] = useState<StudioPhase>('setup')
   const [error, setError] = useState('')
 
@@ -35,16 +40,31 @@ export function ImageStudioPage() {
   })
 
   const outfitOptions = outfits.data ?? []
-
   const canStart = Boolean(characterId)
-  const canGenerate = Boolean(shotId && pose)
+  const canGenerate = Boolean(shotId && pose && phase !== 'discarded' && phase !== 'adopted')
+
+  const resetSessionLocal = () => {
+    setPose(null)
+    setShotId('')
+    setLifecycle('draft')
+    setPositive('')
+    setNegative('')
+    setAssetIds([])
+    setAttemptId('')
+    setAttempt(null)
+    setProvenance(null)
+    setFormalShotId(null)
+    setFormalProjectId(null)
+    setPhase('setup')
+    setError('')
+  }
 
   const start = useMutation({
     mutationFn: async () => {
       const session = await api.createStudioSession({
         character_id: characterId,
         outfit_profile_id: outfitId || null,
-        capability: 'BaseRender',
+        model_profile: modelProfile,
       })
       return session
     },
@@ -94,11 +114,14 @@ export function ImageStudioPage() {
     mutationFn: async () => {
       if (!shotId) throw new Error('no session')
       await savePrompt.mutateAsync()
-      return api.renderStudioSession(shotId)
+      const result = await api.renderStudioSession(shotId)
+      const summary = await api.getGenerationAttempt(result.generation_attempt_id)
+      return { result, summary }
     },
-    onSuccess: (result) => {
+    onSuccess: ({ result, summary }) => {
       setAssetIds(result.output_asset_ids || [])
       setAttemptId(result.generation_attempt_id)
+      setAttempt(summary)
       const session = result.session as Record<string, unknown>
       setLifecycle(String(session.lifecycle || 'generated'))
       setProvenance((session.pose_provenance as Record<string, unknown>) || provenance)
@@ -118,34 +141,51 @@ export function ImageStudioPage() {
     onSuccess: (result) => {
       setLifecycle(result.lifecycle)
       setFormalShotId(result.formal_shot_id)
+      setFormalProjectId(result.formal_project_id)
       setPhase('adopted')
       setError('')
     },
     onError: (err) => setError((err as Error).message),
   })
 
-  const abandon = useMutation({
+  const discard = useMutation({
     mutationFn: async () => {
       if (!shotId) throw new Error('no session')
       return api.abandonStudioSession(shotId)
     },
     onSuccess: (session) => {
       setLifecycle(String(session.lifecycle || 'abandoned'))
+      setPhase('discarded')
       setError('')
     },
     onError: (err) => setError((err as Error).message),
   })
 
   const provenanceLines = useMemo(() => {
-    if (!provenance) return []
+    const modelId =
+      attempt?.model_id ||
+      (typeof attempt?.payload?.model_id === 'string' ? attempt.payload.model_id : null)
+    const capability =
+      attempt?.capability ||
+      (typeof attempt?.payload?.capability === 'string' ? attempt.payload.capability : null)
+    const workflow =
+      attempt?.workflow_template_id ||
+      (typeof attempt?.payload?.workflow_template_id === 'string'
+        ? attempt.payload.workflow_template_id
+        : null)
+    const seed = attempt?.seed
     return [
-      `pose_id: ${provenance.pose_id ?? '—'}`,
-      `pose_view: ${provenance.pose_view ?? '—'}`,
-      `pose_method: ${provenance.pose_method ?? '—'}`,
-      `pose_source: ${provenance.pose_source ?? '—'} ${provenance.pose_source_version ?? ''}`,
-      `seed: ${attemptId ? '(from attempt)' : '—'}`,
+      `Model: ${modelId ?? modelProfile}`,
+      `Seed: ${seed ?? '—'}`,
+      `Capability: ${capability ?? '—'}`,
+      `Workflow: ${workflow ?? '—'}`,
+      `Pose: ${provenance?.pose_id ?? '—'} / ${provenance?.pose_view ?? '—'}`,
+      `pose_method: ${provenance?.pose_method ?? '—'}`,
+      `pose_source: ${provenance?.pose_source ?? '—'} ${provenance?.pose_source_version ?? ''}`,
+      `flipped: ${String(provenance?.flipped ?? false)}`,
+      `pose_asset_sha256: ${provenance?.pose_asset_sha256 ?? '—'}`,
     ]
-  }, [provenance, attemptId])
+  }, [attempt, provenance, modelProfile])
 
   return (
     <section className="page" data-testid="image-studio-page">
@@ -154,7 +194,7 @@ export function ImageStudioPage() {
       {error && <ErrorBanner message={error} />}
 
       <div className="panel-card" data-testid="studio-setup">
-        <h2>1. Character / Outfit</h2>
+        <h2>1. Character / Outfit / Model</h2>
         <label className="field">
           <span>Character</span>
           <select
@@ -190,6 +230,17 @@ export function ImageStudioPage() {
             ))}
           </select>
         </label>
+        <label className="field">
+          <span>Model</span>
+          <select
+            data-testid="studio-model"
+            value={modelProfile}
+            onChange={(e) => setModelProfile(e.target.value as ModelProfile)}
+            disabled={phase !== 'setup'}
+          >
+            <option value="anima">Anima</option>
+          </select>
+        </label>
         {phase === 'setup' && (
           <button
             type="button"
@@ -201,6 +252,16 @@ export function ImageStudioPage() {
             Start session
           </button>
         )}
+        {(phase === 'adopted' || phase === 'discarded') && (
+          <button
+            type="button"
+            className="btn primary"
+            data-testid="studio-start-new"
+            onClick={resetSessionLocal}
+          >
+            Start New
+          </button>
+        )}
         {shotId && (
           <p className="meta" data-testid="studio-shot-id">
             scratch: {shotId} · lifecycle: <span data-testid="studio-lifecycle">{lifecycle}</span>
@@ -208,7 +269,7 @@ export function ImageStudioPage() {
         )}
       </div>
 
-      {phase !== 'setup' && (
+      {phase !== 'setup' && phase !== 'discarded' && (
         <div className="panel-card" data-testid="studio-pose">
           <h2>2. Pose / Angle</h2>
           {!pose ? (
@@ -226,12 +287,18 @@ export function ImageStudioPage() {
                 <strong data-testid="studio-pose-id">{pose.poseId}</strong>
                 <p className="meta" data-testid="studio-pose-view">
                   view: {pose.poseView}
+                  {pose.flipHorizontal ? ' · flipped' : ''}
                 </p>
                 {pose.card.thumbUrl && (
                   <img src={pose.card.thumbUrl} alt="" className="pose-picker-thumb" />
                 )}
               </div>
-              <button type="button" className="btn" onClick={() => setGalleryOpen(true)}>
+              <button
+                type="button"
+                className="btn"
+                disabled={phase === 'adopted'}
+                onClick={() => setGalleryOpen(true)}
+              >
                 Change
               </button>
             </div>
@@ -239,7 +306,7 @@ export function ImageStudioPage() {
         </div>
       )}
 
-      {phase !== 'setup' && (
+      {phase !== 'setup' && phase !== 'discarded' && (
         <div className="panel-card" data-testid="studio-prompt">
           <h2>3. Prompt</h2>
           <label className="field">
@@ -248,6 +315,7 @@ export function ImageStudioPage() {
               data-testid="studio-positive"
               rows={5}
               value={positive}
+              disabled={phase === 'adopted'}
               onChange={(e) => setPositive(e.target.value)}
             />
           </label>
@@ -257,6 +325,7 @@ export function ImageStudioPage() {
               data-testid="studio-negative"
               rows={3}
               value={negative}
+              disabled={phase === 'adopted'}
               onChange={(e) => setNegative(e.target.value)}
             />
           </label>
@@ -268,10 +337,20 @@ export function ImageStudioPage() {
               disabled={!canGenerate || generate.isPending}
               onClick={() => generate.mutate()}
             >
-              Generate
+              {phase === 'generated' ? 'Regenerate' : 'Generate'}
             </button>
             {phase === 'generated' && (
               <>
+                {attemptId && (
+                  <Link
+                    to="/shots/$shotId/generations/$attemptId"
+                    params={{ shotId, attemptId }}
+                    className="btn"
+                    data-testid="studio-review"
+                  >
+                    Review generation
+                  </Link>
+                )}
                 <button
                   type="button"
                   className="btn primary"
@@ -284,13 +363,24 @@ export function ImageStudioPage() {
                 <button
                   type="button"
                   className="btn"
-                  data-testid="studio-abandon"
-                  disabled={abandon.isPending || lifecycle === 'adopted'}
-                  onClick={() => abandon.mutate()}
+                  data-testid="studio-discard"
+                  disabled={discard.isPending}
+                  onClick={() => discard.mutate()}
                 >
-                  Delete (abandon)
+                  Discard
                 </button>
               </>
+            )}
+            {phase === 'ready' && shotId && (
+              <button
+                type="button"
+                className="btn"
+                data-testid="studio-discard"
+                disabled={discard.isPending}
+                onClick={() => discard.mutate()}
+              >
+                Discard
+              </button>
             )}
           </div>
         </div>
@@ -313,7 +403,23 @@ export function ImageStudioPage() {
           {formalShotId && (
             <p className="meta" data-testid="studio-formal-shot">
               formal shot: {formalShotId} (materialize = copy, not rerender)
+              {formalProjectId ? ` · project ${formalProjectId}` : ''}
             </p>
+          )}
+          {phase === 'adopted' && formalProjectId && formalShotId && (
+            <div className="cta-row">
+              <Link
+                to="/projects/$projectId/shots/$shotId"
+                params={{ projectId: formalProjectId, shotId: formalShotId }}
+                className="btn"
+                data-testid="studio-open-formal"
+              >
+                Open formal shot
+              </Link>
+              <button type="button" className="btn primary" data-testid="studio-start-new" onClick={resetSessionLocal}>
+                Start New
+              </button>
+            </div>
           )}
         </div>
       )}
