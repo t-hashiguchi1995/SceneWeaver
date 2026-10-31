@@ -1,7 +1,9 @@
 # Gate 2.7 — Anima Full Character Coverage
 
 **段階:** A2  
-**ステータス:** 設計固定 / 未実行  
+**ステータス:** Automatic PASS / Human PENDING  
+
+
 **前提:** Gate 2.6 human PASS（ANIMADEX GT）  
 **目的:** 5キャラだけでなく **全 Primary** で「Anima は標準キャラ群について概ねいける」と言えるか確認する。
 
