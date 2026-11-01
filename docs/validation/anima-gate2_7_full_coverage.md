@@ -1,7 +1,7 @@
 # Gate 2.7 — Anima Full Character Coverage
 
 **段階:** A2  
-**ステータス:** Automatic PASS / Human PENDING  
+**ステータス:** Automatic PASS / Human PASS（2026-11-01 fixed-seed rematch 11/11）  
 
 
 **前提:** Gate 2.6 human PASS（ANIMADEX GT）  
@@ -111,7 +111,12 @@ pnpm test:anima:gate2_7:remediation
 
 ## Next
 
-Gate 2.7 Human PASS → **A3 Pose Gallery Live P01–P05**  
+Gate 2.7 Human PASS（2026-11-01）→ **A3 Pose Gallery Live P01–P05**（未実行）  
 → A4 Gate 3（リゼ / 未来 / 翼 / Firefly）
 
 UI/UX（Phase 2.1 Quick Studio 3-pane 等）は画像品質 Gate とは分離して進める。
+
+
+## Human rematch decision (2026-11-01)
+
+After fixed-seed remediation (C02/C04/C06/C11), the effective GT grades are 7/8, 7/8, 7/8, and 6/8 respectively. C11 is photo-like without dominant anime bias. All eleven fixtures meet the gate's identifiable/style conditions, and none is rated catastrophic: **A2 Human PASS (11/11)**. Baseline scores were not overwritten; see dedicated rematch columns in `anima-gate2_7/human_scores.csv` and the per-character `gt_checklist.md` files. C02 retains an amber-eye mismatch and a lower-right copyright-like text artifact requiring separate remediation before any release. A3 may begin; this record does not claim A3 execution or cross-seed robustness.
