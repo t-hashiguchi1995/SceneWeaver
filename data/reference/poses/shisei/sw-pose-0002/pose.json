@@ -1,12 +1,15 @@
 {
   "id": "sw-pose-0002",
-  "label": "Standing pose 002",
+  "label": "Seated pose 002 — side-sit, supporting hand",
   "categories": [
-    "standing"
+    "sitting"
   ],
   "tags": [
-    "standing",
-    "line-art"
+    "sitting",
+    "seated",
+    "side sit",
+    "line-art",
+    "full body"
   ],
   "people_count": 1,
   "content_rating": "general",
@@ -15,7 +18,7 @@
     "front": {
       "id": "sw-pose-0002-front",
       "angle": "front",
-      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "prompt": "sitting on ground facing viewer, legs folded to one side, one knee raised, one hand on floor for support, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0002/front.webp",
@@ -23,12 +26,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "diag": {
       "id": "sw-pose-0002-diag",
       "angle": "diag",
-      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "prompt": "sitting on ground three-quarter view, legs folded to the side, one knee raised, supporting hand on floor behind, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0002/diag.webp",
@@ -36,12 +44,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "side": {
       "id": "sw-pose-0002-side",
       "angle": "side",
-      "prompt": "standing in profile, upright posture, arms at sides",
+      "prompt": "sitting on ground in profile, legs folded, supporting hand on floor, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0002/side.webp",
@@ -49,7 +62,12 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     }
   },
   "source": {
@@ -63,6 +81,7 @@
       "front": "d53d52679b19ae7a599cc564351b302fe9dc74df956d3515b33efeb58be4440f",
       "diag": "9b94e43a5db4280f464786fb71e965d8fad87e026af648af465be1ce2b4f066d",
       "side": "fe8e088dc8843fbc07227ec84094a36d1267d9605635476a9176d6b5ab6135f0"
-    }
+    },
+    "semantic_audit": "2026-11-02-sitting-remediation"
   }
 }

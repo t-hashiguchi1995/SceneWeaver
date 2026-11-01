@@ -14,7 +14,7 @@
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🔴 Auto PASS / Human FAIL（参照ポーズGT不整合、P02/P03/P05） |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 rematch Auto PASS / Human PENDING（pack semantic 修正済） |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |
@@ -99,4 +99,4 @@ Baseline 8/11 identifiable → fixed-seed remediation GT review 11/11, C11 photo
 
 ### A3 Human visual GT review (2026-11-02)
 
-Auto PASS is retained, Human FAIL: P01 partial, P02 fail, P03 fail, P04 character isolation pass, P05 partial. Actual `sw-pose-0001` images are seated while metadata/prompt says standing; P02/P03 do not track source, P03 uses different seed than P02, and P05 does not preserve pose/framing. See `pose-gallery-live/HUMAN_REVIEW_20261102.md`. A4 must not be promoted under an A3 PASS claim. Phase 2.1 UI/UX remains separate.
+Prior Human FAIL (`e0b8f0f`): seated assets labeled standing; P02/P03/P05 visual criteria failed. Remediation: pack metadata corrected to sitting, rematch on asymmetric `sw-pose-0005` with same-seed flip and full-body framing (`pose-gallery-live/`). Awaiting Human GT re-review before formal A3 PASS. A4 stays blocked. Phase 2.1 UI/UX remains separate.

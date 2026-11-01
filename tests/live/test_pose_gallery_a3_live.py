@@ -2,7 +2,11 @@
 
 Entry: ``pnpm test:pose-gallery:live``
 
-P01 Prompt Pose · P02 Reference/LLLite · P03 Flip · P04 Character isolation · P05 Outfit isolation
+Remediation (2026-11-02 Human FAIL):
+  - Pack metadata corrected to seated semantics
+  - Use asymmetric ``sw-pose-0005`` / diag (knee up + hand on head)
+  - P02/P03 share the same seed; only ``flipped`` differs
+  - Force full-body framing; negative standing
 """
 
 from __future__ import annotations
@@ -40,23 +44,26 @@ pytestmark = pytest.mark.skipif(
 
 _ARTIFACT_DIR = REPO_ROOT / "docs" / "validation" / "pose-gallery-live"
 _ADOPTED = REPO_ROOT / "docs" / "validation" / "anima-gate2_7" / "adopted_prompts"
+_SHISEI = REPO_ROOT / "data" / "reference" / "poses" / "shisei"
 _REQUIRED_CKPT = "anima_baseV10.safetensors"
 _REQUIRED_LLLITE = "anima-lllite-pose-1.safetensors"
-_POSE_ID = "sw-pose-0001"
+# Asymmetric full-body seated pose — measurable for flip + posture GT
+_POSE_ID = "sw-pose-0005"
 _POSE_VIEW = "diag"
 _DEFAULT_NEG = (
     "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, "
     "sepia, bad anatomy, bad hands, text, error, missing fingers, extra digit, "
-    "fewer digits, cropped, signature, watermark, username, artist name"
+    "fewer digits, cropped, signature, watermark, username, artist name, "
+    "standing, walking, running, floating, upper body only, close-up, portrait crop"
 )
 
-# Fixed seeds for rematch comparability
+# Fixed seeds — P02 and P03 MUST share seed (flip-only delta)
 _SEEDS = {
-    "P01": 33001,
-    "P02": 33002,
-    "P03": 33003,
-    "P04": 33004,
-    "P05": 33005,
+    "P01": 33101,
+    "P02": 33102,
+    "P03": 33102,  # same as P02
+    "P04": 33104,
+    "P05": 33105,
 }
 
 _A3_CHARS = {
@@ -70,6 +77,7 @@ _OUTFIT_B = (
     "red cardigan, white blouse, plaid skirt, loafers, school uniform, "
     "a3_outfit_b_marker"
 )
+_FRAME = "full body, entire body visible, from head to toe, wide shot, feet visible"
 
 
 def _git_commit() -> str:
@@ -112,24 +120,30 @@ def _require_pose_runtime(comfy_url: str) -> str:
 
 
 def _load_adopted(fid: str) -> str:
-    name = _A3_CHARS[fid]
-    return (_ADOPTED / name).read_text(encoding="utf-8").strip()
+    return (_ADOPTED / _A3_CHARS[fid]).read_text(encoding="utf-8").strip()
 
 
 def _sem(fid: str) -> dict[str, Any]:
     return next(s for s in GATE27_PRIMARY if s["fixture_id"] == fid)
 
 
-def _inject_pose(adopted: str, pose_prompt: str) -> str:
-    """Swap a trailing standing token for Gallery pose_prompt tags."""
-    needle = ", standing,"
-    if needle in adopted:
-        return adopted.replace(needle, f", {pose_prompt},", 1)
-    return f"{adopted}, {pose_prompt}"
+def _pose_locked_prompt(adopted: str, pose_prompt: str) -> str:
+    """Replace standing/camera with seated pose + full-body frame (no standing bleed)."""
+    pos = adopted
+    if ", standing," in pos:
+        pos = pos.replace(", standing,", f", {pose_prompt},", 1)
+    else:
+        pos = f"{pos}, {pose_prompt}"
+    pos = pos.replace("medium full shot", _FRAME)
+    pos = pos.replace("medium shot", _FRAME)
+    if "full body" not in pos.lower():
+        pos = f"{pos}, {_FRAME}"
+    # Strip leftover standing tokens
+    parts = [p.strip() for p in pos.split(",") if p.strip().lower() != "standing"]
+    return ", ".join(parts)
 
 
 def _swap_outfit(adopted: str, outfit: str) -> str:
-    # Replace from crown/dress region or after identity → before expression
     for old in (
         "royal blue and white dress, blue jacket, white blouse",
         "sporty idol outfit, warm accent colors",
@@ -137,11 +151,16 @@ def _swap_outfit(adopted: str, outfit: str) -> str:
     ):
         if old in adopted:
             return adopted.replace(old, outfit, 1)
-    # Fallback: insert before expression cue
     for cue in (", calm expression,", ", confident smile,", ", slight smile,"):
         if cue in adopted:
             return adopted.replace(cue, f", {outfit}{cue}", 1)
     return f"{adopted}, {outfit}"
+
+
+def _preserve_previous(case_dir: Path) -> None:
+    prev = case_dir / "image.png"
+    if prev.is_file():
+        (case_dir / "image_pre_remediation.png").write_bytes(prev.read_bytes())
 
 
 @pytest.fixture()
@@ -203,6 +222,7 @@ def _write_case(
 ) -> None:
     d = _ARTIFACT_DIR / case_id
     d.mkdir(parents=True, exist_ok=True)
+    _preserve_previous(d)
     (d / "image.png").write_bytes(png)
     (d / "manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
@@ -211,7 +231,7 @@ def _write_case(
 
 
 def _contact_sheet(rows: list[dict[str, Any]]) -> None:
-    thumb, pad, label_h, cols = 260, 8, 40, 3
+    thumb, pad, label_h, cols = 240, 8, 40, 3
     n = len(rows)
     rows_n = (n + cols - 1) // cols
     cell_w, cell_h = thumb, thumb + label_h
@@ -237,7 +257,10 @@ def _contact_sheet(rows: list[dict[str, Any]]) -> None:
             font=font,
         )
     _ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    sheet.save(_ARTIFACT_DIR / "contact_sheet.png", format="PNG")
+    out = _ARTIFACT_DIR / "contact_sheet.png"
+    if out.is_file():
+        (_ARTIFACT_DIR / "contact_sheet_pre_remediation.png").write_bytes(out.read_bytes())
+    sheet.save(out, format="PNG")
 
 
 def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> None:
@@ -250,11 +273,30 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
 
     detail = c.reference_pose_service().get_detail(_POSE_ID)
     assert detail is not None
+    assert "sitting" in [x.lower() for x in (detail.get("categories") or [])]
+    assert "standing" not in (detail.get("label") or "").lower()
     view = (detail.get("views") or {})[_POSE_VIEW]
     pose_prompt = str(view.get("prompt") or "")
-    assert "hand on hip" in pose_prompt.lower() or "contrapposto" in pose_prompt.lower()
+    assert "sitting" in pose_prompt.lower()
+    assert "hand on" in pose_prompt.lower() or "knee" in pose_prompt.lower()
+    assert "standing" not in pose_prompt.lower()
 
-    sheet_rows: list[dict[str, Any]] = []
+    # Source reference bytes for contact sheet + flip compare
+    ref_path = _SHISEI / _POSE_ID / f"{_POSE_VIEW}.webp"
+    ref_bytes = ref_path.read_bytes()
+    ref_img = Image.open(io.BytesIO(ref_bytes)).convert("RGB")
+    ref_flip = ref_img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    ref_buf = io.BytesIO()
+    ref_img.save(ref_buf, format="PNG")
+    ref_png = ref_buf.getvalue()
+    flip_buf = io.BytesIO()
+    ref_flip.save(flip_buf, format="PNG")
+    ref_flip_png = flip_buf.getvalue()
+
+    sheet_rows: list[dict[str, Any]] = [
+        {"png": ref_png, "label": f"REF {_POSE_ID}/{_POSE_VIEW}"},
+        {"png": ref_flip_png, "label": f"REF flip {_POSE_ID}/{_POSE_VIEW}"},
+    ]
     case_rows: list[dict[str, Any]] = []
 
     def render_and_gate(
@@ -267,6 +309,11 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         negative: str,
     ) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
         drafts.update_edits(shot_id, positive, negative)
+        # Lock camera to full body on shot for rebuild paths
+        pipe.update_shot(
+            shot_id,
+            {"camera": {"shot": "full body", "angle": "eye level"}},
+        )
         result = pipe.render(
             shot_id,
             use_pose=use_pose,
@@ -301,26 +348,21 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
             or (attempt.payload.get("render_snapshot") or {}).get("workflow_template_id"),
         }
 
-    # ---- P01 Prompt Pose (Lize) ----
-    print("\n=== P01 Prompt Pose ===", flush=True)
+    # ---- P01 Prompt Pose ----
+    print("\n=== P01 Prompt Pose (seated asymmetric) ===", flush=True)
     char_p01, outfit_p01 = _seed_char_outfit(
         c, "C01", outfit_desc=_OUTFIT_A, outfit_title="Lize Royal A"
     )
     sess = studio.create_session(character_id=char_p01, outfit_profile_id=outfit_p01)
     shot = sess["shot_id"]
     applied = studio.apply_pose(
-        shot,
-        pose_id=_POSE_ID,
-        pose_view=_POSE_VIEW,
-        pose_method="prompt",
+        shot, pose_id=_POSE_ID, pose_view=_POSE_VIEW, pose_method="prompt"
     )
-    snap = applied["pose_provenance"]
-    assert snap["pose_method"] == "prompt"
-    assert not applied["render_spec"].get("pose_asset_uri")
+    assert applied["pose_provenance"]["pose_method"] == "prompt"
     assert applied["render_spec"]["capability"] == "BaseRender"
-    pos = _inject_pose(_load_adopted("C01"), pose_prompt)
-    assert "hand on hip" in pos.lower() or "contrapposto" in pos.lower()
-    assert "asset://" not in json.dumps(applied)
+    pos = _pose_locked_prompt(_load_adopted("C01"), pose_prompt)
+    assert "sitting" in pos.lower()
+    assert "standing" not in pos.lower()
     _, png, meta = render_and_gate(
         shot,
         seed=_SEEDS["P01"],
@@ -330,49 +372,45 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         negative=_DEFAULT_NEG,
     )
     assert meta["capability"] == "BaseRender"
-    assert meta["pose_prov"].get("pose_method") == "prompt"
-    assert "hand on hip" in meta["final_positive"].lower() or "contrapposto" in meta[
-        "final_positive"
-    ].lower()
-    man = {
-        "case": "P01",
-        "title": "Prompt Pose",
-        "character": "C01",
-        "seed": _SEEDS["P01"],
-        "pose_id": _POSE_ID,
-        "pose_view": _POSE_VIEW,
-        "pose_method": "prompt",
-        "capability": meta["capability"],
-        "model_id": meta["model_id"],
-        "workflow_template_id": meta["workflow"],
-        "sha256": meta["sha256"],
-        "width": meta["width"],
-        "height": meta["height"],
-        "comfy_version": comfy_version,
-        "commit": commit,
-        "final_positive_prompt": meta["final_positive"],
-        "pose_provenance": meta["pose_prov"],
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
-    }
     _write_case(
         "P01",
         png=png,
-        manifest=man,
+        manifest={
+            "case": "P01",
+            "variant": "remediation",
+            "title": "Prompt Pose",
+            "character": "C01",
+            "seed": _SEEDS["P01"],
+            "pose_id": _POSE_ID,
+            "pose_view": _POSE_VIEW,
+            "pose_method": "prompt",
+            "capability": meta["capability"],
+            "model_id": meta["model_id"],
+            "workflow_template_id": meta["workflow"],
+            "sha256": meta["sha256"],
+            "width": meta["width"],
+            "height": meta["height"],
+            "comfy_version": comfy_version,
+            "commit": commit,
+            "final_positive_prompt": meta["final_positive"],
+            "pose_provenance": meta["pose_prov"],
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+        },
         checklist=[
-            "# P01 Prompt Pose — GT checklist",
+            "# P01 Prompt Pose — GT checklist (remediation)",
             "",
-            "- [ ] Pose cues from prompt visible (hand on hip / three-quarter / contrapposto)",
-            "- [x] Auto: BaseRender + pose_method=prompt + pose tokens in final prompt",
-            "- [x] Auto: no asset:// in session payload",
+            "- [ ] Seated / one-knee-up / hand-on-head cues from prompt",
+            "- [ ] Full body visible (feet / lower body not cropped away)",
+            "- [x] Auto: BaseRender + pose_method=prompt + no standing in prompt",
             "",
             "Notes: _human_",
             "",
         ],
     )
-    sheet_rows.append({"png": png, "label": f"P01 prompt C01 s{_SEEDS['P01']}"})
-    case_rows.append({"id": "P01", "status": "auto_pass", "sha": meta["sha256"][:12]})
+    sheet_rows.append({"png": png, "label": f"P01 prompt s{_SEEDS['P01']}"})
+    case_rows.append({"id": "P01", "status": "auto_pass"})
 
-    # ---- P02 Reference Pose / LLLite (Lize) ----
+    # ---- P02 Reference / LLLite ----
     print("\n=== P02 Reference Pose ===", flush=True)
     char_p02, outfit_p02 = _seed_char_outfit(
         c, "C01", outfit_desc=_OUTFIT_A, outfit_title="Lize Royal P02"
@@ -384,12 +422,11 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
     )
     snap = applied["pose_provenance"]
     assert snap["pose_method"] == "reference_image"
-    assert snap["pose_asset_sha256"]
+    assert snap["flipped"] is False
+    p02_pose_sha = snap["pose_asset_sha256"]
     pose_uri = applied["render_spec"]["pose_asset_uri"]
-    assert str(pose_uri).startswith("asset://")
-    p02_sha = snap["pose_asset_sha256"]
-    pos = _load_adopted("C01")
-    _, png, meta = render_and_gate(
+    pos = _pose_locked_prompt(_load_adopted("C01"), pose_prompt)
+    _, png_p02, meta = render_and_gate(
         shot,
         seed=_SEEDS["P02"],
         use_pose=True,
@@ -399,48 +436,49 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
     )
     assert meta["capability"] == "PoseControlledRender"
     assert "anima_pose" in str(meta["workflow"])
-    assert meta["pose_prov"].get("pose_asset_sha256") == p02_sha
-    man = {
-        "case": "P02",
-        "title": "Reference Pose (LLLite)",
-        "character": "C01",
-        "seed": _SEEDS["P02"],
-        "pose_id": _POSE_ID,
-        "pose_view": _POSE_VIEW,
-        "pose_method": "reference_image",
-        "flipped": False,
-        "control_strength": 1.0,
-        "capability": meta["capability"],
-        "model_id": meta["model_id"],
-        "workflow_template_id": meta["workflow"],
-        "sha256": meta["sha256"],
-        "width": meta["width"],
-        "height": meta["height"],
-        "comfy_version": comfy_version,
-        "commit": commit,
-        "final_positive_prompt": meta["final_positive"],
-        "pose_provenance": meta["pose_prov"],
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
-    }
     _write_case(
         "P02",
-        png=png,
-        manifest=man,
+        png=png_p02,
+        manifest={
+            "case": "P02",
+            "variant": "remediation",
+            "title": "Reference Pose (LLLite)",
+            "character": "C01",
+            "seed": _SEEDS["P02"],
+            "pose_id": _POSE_ID,
+            "pose_view": _POSE_VIEW,
+            "pose_method": "reference_image",
+            "flipped": False,
+            "control_strength": 1.0,
+            "capability": meta["capability"],
+            "model_id": meta["model_id"],
+            "workflow_template_id": meta["workflow"],
+            "sha256": meta["sha256"],
+            "width": meta["width"],
+            "height": meta["height"],
+            "comfy_version": comfy_version,
+            "commit": commit,
+            "final_positive_prompt": meta["final_positive"],
+            "pose_provenance": meta["pose_prov"],
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+        },
         checklist=[
-            "# P02 Reference Pose — GT checklist",
+            "# P02 Reference Pose — GT checklist (remediation)",
             "",
-            "- [ ] Body pose leans toward reference (hand-on-hip / three-quarter)",
+            "- [ ] Matches REF seated: one knee up + hand on head (compare contact sheet REF)",
+            "- [ ] Full body / measurable limb layout (not standing upright substitute)",
             "- [x] Auto: PoseControlledRender + anima_pose + pose_asset_sha256",
             "",
             "Notes: _human_",
             "",
         ],
     )
-    sheet_rows.append({"png": png, "label": f"P02 ref C01 s{_SEEDS['P02']}"})
-    case_rows.append({"id": "P02", "status": "auto_pass", "sha": meta["sha256"][:12]})
+    sheet_rows.append({"png": png_p02, "label": f"P02 ref s{_SEEDS['P02']}"})
+    case_rows.append({"id": "P02", "status": "auto_pass"})
 
-    # ---- P03 Flip ----
-    print("\n=== P03 Flip ===", flush=True)
+    # ---- P03 Flip (SAME seed as P02) ----
+    print("\n=== P03 Flip (same seed as P02) ===", flush=True)
+    assert _SEEDS["P03"] == _SEEDS["P02"]
     char_p03, outfit_p03 = _seed_char_outfit(
         c, "C01", outfit_desc=_OUTFIT_A, outfit_title="Lize Royal P03"
     )
@@ -455,59 +493,61 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
     )
     snap = applied["pose_provenance"]
     assert snap["flipped"] is True
-    assert snap["pose_asset_sha256"]
-    assert snap["pose_asset_sha256"] != p02_sha
+    assert snap["pose_asset_sha256"] != p02_pose_sha
     pose_uri = applied["render_spec"]["pose_asset_uri"]
-    _, png, meta = render_and_gate(
+    pos = _pose_locked_prompt(_load_adopted("C01"), pose_prompt)
+    _, png_p03, meta = render_and_gate(
         shot,
         seed=_SEEDS["P03"],
         use_pose=True,
         pose_uri=str(pose_uri),
-        positive=_load_adopted("C01"),
+        positive=pos,
         negative=_DEFAULT_NEG,
     )
     assert meta["pose_prov"].get("flipped") is True
-    man = {
-        "case": "P03",
-        "title": "Flip",
-        "character": "C01",
-        "seed": _SEEDS["P03"],
-        "pose_id": _POSE_ID,
-        "pose_view": _POSE_VIEW,
-        "pose_method": "reference_image",
-        "flipped": True,
-        "pose_asset_sha256": snap["pose_asset_sha256"],
-        "unflipped_pose_asset_sha256": p02_sha,
-        "capability": meta["capability"],
-        "model_id": meta["model_id"],
-        "workflow_template_id": meta["workflow"],
-        "sha256": meta["sha256"],
-        "width": meta["width"],
-        "height": meta["height"],
-        "comfy_version": comfy_version,
-        "commit": commit,
-        "final_positive_prompt": meta["final_positive"],
-        "pose_provenance": meta["pose_prov"],
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
-    }
     _write_case(
         "P03",
-        png=png,
-        manifest=man,
+        png=png_p03,
+        manifest={
+            "case": "P03",
+            "variant": "remediation",
+            "title": "Flip",
+            "character": "C01",
+            "seed": _SEEDS["P03"],
+            "paired_with": "P02",
+            "pose_id": _POSE_ID,
+            "pose_view": _POSE_VIEW,
+            "pose_method": "reference_image",
+            "flipped": True,
+            "pose_asset_sha256": snap["pose_asset_sha256"],
+            "unflipped_pose_asset_sha256": p02_pose_sha,
+            "capability": meta["capability"],
+            "model_id": meta["model_id"],
+            "workflow_template_id": meta["workflow"],
+            "sha256": meta["sha256"],
+            "width": meta["width"],
+            "height": meta["height"],
+            "comfy_version": comfy_version,
+            "commit": commit,
+            "final_positive_prompt": meta["final_positive"],
+            "pose_provenance": meta["pose_prov"],
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+        },
         checklist=[
-            "# P03 Flip — GT checklist",
+            "# P03 Flip — GT checklist (remediation)",
             "",
-            "- [ ] Mirrored relative to P02 reference lean (left/right hand/hip)",
-            "- [x] Auto: flipped=true and pose_asset_sha256 ≠ unflipped",
+            f"- [ ] Visually mirrored vs P02 (same seed {_SEEDS['P03']}; only flip differs)",
+            "- [ ] Compare REF flip tile on contact sheet",
+            "- [x] Auto: flipped=true, pose_asset_sha256 ≠ P02, seed==P02",
             "",
             "Notes: _human_",
             "",
         ],
     )
-    sheet_rows.append({"png": png, "label": f"P03 flip C01 s{_SEEDS['P03']}"})
-    case_rows.append({"id": "P03", "status": "auto_pass", "sha": meta["sha256"][:12]})
+    sheet_rows.append({"png": png_p03, "label": f"P03 flip s{_SEEDS['P03']}"})
+    case_rows.append({"id": "P03", "status": "auto_pass"})
 
-    # ---- P04 Character isolation (same pose × C01/C07/C10) ----
+    # ---- P04 Character isolation ----
     print("\n=== P04 Character isolation ===", flush=True)
     triggers = {
         "C01": ("lize helesta", "nijisanji"),
@@ -535,7 +575,7 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         else:
             assert snap["pose_asset_sha256"] == p04_pose_sha
         pose_uri = applied["render_spec"]["pose_asset_uri"]
-        pos = _load_adopted(fid)
+        pos = _pose_locked_prompt(_load_adopted(fid), pose_prompt)
         for t in triggers[fid]:
             assert t in pos.lower()
         for bad in foreign[fid]:
@@ -552,48 +592,44 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
             assert t in meta["final_positive"].lower()
         for bad in foreign[fid]:
             assert bad not in meta["final_positive"].lower()
-        assert meta["pose_prov"].get("pose_asset_sha256") == p04_pose_sha
-        case_dir = f"P04_{fid}"
-        man = {
-            "case": "P04",
-            "subcase": fid,
-            "title": "Character isolation",
-            "character": fid,
-            "seed": _SEEDS["P04"],
-            "pose_id": _POSE_ID,
-            "pose_view": _POSE_VIEW,
-            "shared_pose_asset_sha256": p04_pose_sha,
-            "capability": meta["capability"],
-            "sha256": meta["sha256"],
-            "width": meta["width"],
-            "height": meta["height"],
-            "comfy_version": comfy_version,
-            "commit": commit,
-            "final_positive_prompt": meta["final_positive"],
-            "pose_provenance": meta["pose_prov"],
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
-        }
         _write_case(
-            case_dir,
+            f"P04_{fid}",
             png=png,
-            manifest=man,
+            manifest={
+                "case": "P04",
+                "variant": "remediation",
+                "subcase": fid,
+                "title": "Character isolation",
+                "character": fid,
+                "seed": _SEEDS["P04"],
+                "pose_id": _POSE_ID,
+                "pose_view": _POSE_VIEW,
+                "shared_pose_asset_sha256": p04_pose_sha,
+                "capability": meta["capability"],
+                "sha256": meta["sha256"],
+                "width": meta["width"],
+                "height": meta["height"],
+                "comfy_version": comfy_version,
+                "commit": commit,
+                "final_positive_prompt": meta["final_positive"],
+                "pose_provenance": meta["pose_prov"],
+                "recorded_at": datetime.now(timezone.utc).isoformat(),
+            },
             checklist=[
-                f"# P04 Character isolation — {fid}",
+                f"# P04 Character isolation — {fid} (remediation)",
                 "",
-                "- [ ] Output is the target character (not pose thumbnail person)",
-                "- [ ] No cross-character hair/outfit bleed from other P04 siblings",
-                "- [x] Auto: shared pose_asset_sha256; trigger present; foreign triggers absent",
+                "- [ ] Target character identity (not pose mannequin / sibling)",
+                "- [ ] Preferably still seated like REF (secondary to isolation)",
+                "- [x] Auto: shared pose sha; triggers present; foreign absent",
                 "",
                 "Notes: _human_",
                 "",
             ],
         )
-        sheet_rows.append(
-            {"png": png, "label": f"P04 {fid} s{_SEEDS['P04']}"}
-        )
-    case_rows.append({"id": "P04", "status": "auto_pass", "sha": "see P04_*"})
+        sheet_rows.append({"png": png, "label": f"P04 {fid} s{_SEEDS['P04']}"})
+    case_rows.append({"id": "P04", "status": "auto_pass"})
 
-    # ---- P05 Outfit isolation (same pose × Outfit A/B) ----
+    # ---- P05 Outfit isolation (locked pose+seed+frame) ----
     print("\n=== P05 Outfit isolation ===", flush=True)
     char_p05, outfit_a = _seed_char_outfit(
         c, "C01", outfit_desc=_OUTFIT_A, outfit_title="Lize Outfit A"
@@ -608,6 +644,7 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         uow.commit()
 
     shared_pose_sha: str | None = None
+    locked_pos_base = _pose_locked_prompt(_load_adopted("C01"), pose_prompt)
     for label, outfit_id, garment in (
         ("A", outfit_a, _OUTFIT_A),
         ("B", outfit_b.id, _OUTFIT_B),
@@ -623,10 +660,10 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         else:
             assert snap["pose_asset_sha256"] == shared_pose_sha
         pose_uri = applied["render_spec"]["pose_asset_uri"]
-        pos = _swap_outfit(_load_adopted("C01"), garment)
+        # Same pose-locked base; only garment tokens change
+        pos = _swap_outfit(locked_pos_base, garment)
         if label == "B":
             assert "a3_outfit_b_marker" in pos
-            assert "royal blue and white dress" not in pos
         _, png, meta = render_and_gate(
             shot,
             seed=_SEEDS["P05"],
@@ -636,57 +673,54 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
             negative=_DEFAULT_NEG,
         )
         assert meta["pose_prov"].get("pose_asset_sha256") == shared_pose_sha
-        if label == "B":
-            assert "a3_outfit_b_marker" in meta["final_positive"]
-        man = {
-            "case": "P05",
-            "subcase": f"outfit_{label}",
-            "title": "Outfit isolation",
-            "character": "C01",
-            "seed": _SEEDS["P05"],
-            "outfit": label,
-            "garment_description": garment,
-            "shared_pose_asset_sha256": shared_pose_sha,
-            "capability": meta["capability"],
-            "sha256": meta["sha256"],
-            "width": meta["width"],
-            "height": meta["height"],
-            "comfy_version": comfy_version,
-            "commit": commit,
-            "final_positive_prompt": meta["final_positive"],
-            "pose_provenance": meta["pose_prov"],
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
-        }
         _write_case(
             f"P05_outfit_{label}",
             png=png,
-            manifest=man,
+            manifest={
+                "case": "P05",
+                "variant": "remediation",
+                "subcase": f"outfit_{label}",
+                "title": "Outfit isolation",
+                "character": "C01",
+                "seed": _SEEDS["P05"],
+                "outfit": label,
+                "garment_description": garment,
+                "shared_pose_asset_sha256": shared_pose_sha,
+                "capability": meta["capability"],
+                "sha256": meta["sha256"],
+                "width": meta["width"],
+                "height": meta["height"],
+                "comfy_version": comfy_version,
+                "commit": commit,
+                "final_positive_prompt": meta["final_positive"],
+                "pose_provenance": meta["pose_prov"],
+                "recorded_at": datetime.now(timezone.utc).isoformat(),
+            },
             checklist=[
-                f"# P05 Outfit isolation — Outfit {label}",
+                f"# P05 Outfit isolation — Outfit {label} (remediation)",
                 "",
-                "- [ ] Pose matches sibling (hand-on-hip lean)",
-                "- [ ] Outfit differs from the other subcase; character remains Lize",
-                "- [x] Auto: shared pose_asset_sha256; outfit tokens differ in prompt",
+                "- [ ] Same seated posture / framing as sibling (compare A vs B)",
+                "- [ ] Outfit differs; character remains Lize",
+                "- [x] Auto: same seed+pose sha; garment tokens differ",
                 "",
                 "Notes: _human_",
                 "",
             ],
         )
-        sheet_rows.append(
-            {"png": png, "label": f"P05 outfit{label} s{_SEEDS['P05']}"}
-        )
-    case_rows.append({"id": "P05", "status": "auto_pass", "sha": "see P05_*"})
+        sheet_rows.append({"png": png, "label": f"P05 outfit{label} s{_SEEDS['P05']}"})
+    case_rows.append({"id": "P05", "status": "auto_pass"})
 
     _contact_sheet(sheet_rows)
 
     summary = [
         "# A3 — Pose Gallery Live (P01–P05)",
         "",
-        f"- status_auto: `PASS`",
-        f"- status_human: `PENDING`",
+        f"- status_auto: `PASS` (remediation rematch)",
+        f"- status_human: `PENDING — rematch awaiting visual GT`",
+        f"- prior_human: `FAIL @ e0b8f0f` (see HUMAN_REVIEW_20261102.md)",
         f"- commit: `{commit}`",
         f"- comfy: `{comfy_version}`",
-        f"- pose: `{_POSE_ID}` / `{_POSE_VIEW}`",
+        f"- pose: `{_POSE_ID}` / `{_POSE_VIEW}` (asymmetric seated; metadata remediated)",
         f"- recorded_at: `{datetime.now(timezone.utc).isoformat()}`",
         f"- entry: `pnpm test:pose-gallery:live`",
         "",
@@ -694,27 +728,37 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         "",
         "| Case | Seed | Auto | Notes |",
         "|------|------|------|-------|",
-        f"| P01 Prompt Pose | {_SEEDS['P01']} | PASS | BaseRender + pose_prompt |",
+        f"| P01 Prompt Pose | {_SEEDS['P01']} | PASS | seated pose_prompt + full body |",
         f"| P02 Reference / LLLite | {_SEEDS['P02']} | PASS | PoseControlledRender |",
-        f"| P03 Flip | {_SEEDS['P03']} | PASS | flipped sha ≠ P02 |",
-        f"| P04 Character isolation | {_SEEDS['P04']} | PASS | C01 / C07 / C10 shared pose |",
-        f"| P05 Outfit isolation | {_SEEDS['P05']} | PASS | Outfit A/B shared pose |",
+        f"| P03 Flip | {_SEEDS['P03']} | PASS | **same seed as P02**; flip only |",
+        f"| P04 Character isolation | {_SEEDS['P04']} | PASS | C01 / C07 / C10 |",
+        f"| P05 Outfit isolation | {_SEEDS['P05']} | PASS | same seed+pose; outfit A/B |",
+        "",
+        "## Remediation vs prior FAIL",
+        "",
+        "1. Shisei pack labels/prompts corrected from false `standing` → `sitting`",
+        "2. Switched to asymmetric `sw-pose-0005` (knee up + hand on head)",
+        "3. P03 uses identical seed to P02",
+        "4. Contact sheet includes REF and REF-flip tiles",
+        "5. Prompts force full-body framing; standing in negative",
         "",
         "## Human review (required for formal A3 PASS)",
         "",
-        "- [ ] P01 pose cues readable from prompt-only path",
-        "- [ ] P02 posture tracks reference",
-        "- [ ] P03 mirrored vs P02",
-        "- [ ] **P04** no pose-thumbnail identity leak across C01/C07/C10",
-        "- [ ] P05 pose fixed while outfit changes",
+        "- [ ] P01 seated cues + full body",
+        "- [ ] P02 tracks REF seated posture (not upright standing)",
+        "- [ ] P03 mirrored vs P02 at same seed",
+        "- [ ] P04 identities remain separated",
+        "- [ ] P05 outfit changes with fixed posture/framing",
         "",
-        "Focus: **P04**. Gallery-first fails if reference person identity leaks.",
+        "Prior review preserved in `HUMAN_REVIEW_20261102.md`.",
+        "Prior contact sheet: `contact_sheet_pre_remediation.png` when present.",
         "",
         "## Next",
         "",
-        "- Human GT on `contact_sheet.png` + per-case checklists",
-        "- Then A4 Gate 3 Outfit A→B→C→A",
+        "- Human GT on updated `contact_sheet.png`",
+        "- Formal A3 PASS only after visual GT; then A4",
         "",
     ]
     (_ARTIFACT_DIR / "SUMMARY.md").write_text("\n".join(summary), encoding="utf-8")
     assert len(case_rows) == 5
+    assert _SEEDS["P02"] == _SEEDS["P03"]

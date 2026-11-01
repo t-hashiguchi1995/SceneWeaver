@@ -1,7 +1,7 @@
 # Pose Gallery — live validation（実生成ゲート）
 
 **段階:** A3（[`quality-validation-roadmap.md`](./quality-validation-roadmap.md)）  
-**ステータス:** Auto PASS / Human FAIL（2026-11-02 GT visual review）  
+**ステータス:** Human FAIL（2026-11-02）→ pack semantic remediation + rematch（Human GT 再評価待ち）  
 **UI 方針:** [`../ux/pose-gallery-first.md`](../ux/pose-gallery-first.md)  
 **前提:** A1 Gate 2.6 ✅ → A2 Gate 2.7 PASS → 本ゲート
 

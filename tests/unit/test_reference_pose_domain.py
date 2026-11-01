@@ -4,9 +4,9 @@ from creator_studio.domain.reference import PoseDefinition, PoseRefAsset, PoseSo
 def test_pose_definition_available_views_order() -> None:
     pose = PoseDefinition(
         id="sw-pose-0001",
-        label="Standing pose 001",
-        categories=("standing",),
-        tags=("standing",),
+        label="Seated pose 001",
+        categories=("sitting",),
+        tags=("sitting",),
         people_count=1,
         content_rating="general",
         default_view="front",

@@ -1,12 +1,15 @@
 {
   "id": "sw-pose-0001",
-  "label": "Standing pose 001",
+  "label": "Seated pose 001 — one knee up, hands behind",
   "categories": [
-    "standing"
+    "sitting"
   ],
   "tags": [
-    "standing",
-    "line-art"
+    "sitting",
+    "seated",
+    "one knee up",
+    "line-art",
+    "full body"
   ],
   "people_count": 1,
   "content_rating": "general",
@@ -15,7 +18,7 @@
     "front": {
       "id": "sw-pose-0001-front",
       "angle": "front",
-      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "prompt": "sitting on ground facing viewer, one knee raised, both hands on floor behind hips for support, leaning back, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0001/front.webp",
@@ -23,12 +26,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "diag": {
       "id": "sw-pose-0001-diag",
       "angle": "diag",
-      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "prompt": "sitting on ground three-quarter view, one knee raised, one hand on floor behind for support, other hand near raised knee, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0001/diag.webp",
@@ -36,12 +44,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "side": {
       "id": "sw-pose-0001-side",
       "angle": "side",
-      "prompt": "standing in profile, upright posture, arms at sides",
+      "prompt": "sitting on ground in profile, one knee raised, both hands on floor behind for support, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0001/side.webp",
@@ -49,7 +62,12 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     }
   },
   "source": {
@@ -63,6 +81,7 @@
       "front": "441294551540ce41ef16b30d7427148fcc5e454d75f1e6a4ee98625cc4206ba7",
       "diag": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
       "side": "2551e45cb3a624b531b04c7a858027618c5a78cb4f277e6c68ceff36452338eb"
-    }
+    },
+    "semantic_audit": "2026-11-02-sitting-remediation"
   }
 }

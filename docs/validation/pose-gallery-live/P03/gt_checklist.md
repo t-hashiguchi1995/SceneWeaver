@@ -1,9 +1,8 @@
-# P03 Flip — GT checklist
+# P03 Flip — GT checklist (remediation)
 
-- [ ] Mirrored relative to P02 reference lean (left/right hand/hip) — Human FAIL
-- [x] Auto: flipped=true and pose_asset_sha256 ≠ unflipped
+- [ ] Visually mirrored vs P02 (same seed 33102; only flip differs)
+- [ ] Compare REF flip tile on contact sheet
+- [x] Auto: flipped=true, pose_asset_sha256 ≠ P02, seed==P02
 
-Human verdict: **FAIL** (2026-11-02)
-
-Notes: Output has no discernible mirrored seated limbs relative to P02; flipped SHA alone proves input manipulation, not visual pose transfer. P02 seed=33002 and P03 seed=33003 confound an A/B flip comparison.
+Notes: _human_
 

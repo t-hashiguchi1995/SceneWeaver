@@ -1,10 +1,8 @@
-# P04 Character isolation — C07
+# P04 Character isolation — C07 (remediation)
 
-- [x] Output is the target character (not pose thumbnail person)
-- [x] No cross-character hair/outfit bleed from other P04 siblings
-- [x] Auto: shared pose_asset_sha256; trigger present; foreign triggers absent
+- [ ] Target character identity (not pose mannequin / sibling)
+- [ ] Preferably still seated like REF (secondary to isolation)
+- [x] Auto: shared pose sha; triggers present; foreign absent
 
-Human verdict: **PASS identity isolation** (2026-11-02)
-
-Notes: Tsubasa keeps short blonde hair, warm red-pink eyes and warm idol outfit distinct from Lize/Firefly; pose compliance NOT established.
+Notes: _human_
 

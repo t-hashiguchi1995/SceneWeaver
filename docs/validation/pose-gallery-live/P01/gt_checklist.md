@@ -1,10 +1,8 @@
-# P01 Prompt Pose — GT checklist
+# P01 Prompt Pose — GT checklist (remediation)
 
-- [ ] Pose cues from prompt visible (hand on hip / three-quarter / contrapposto) — Human PARTIAL
-- [x] Auto: BaseRender + pose_method=prompt + pose tokens in final prompt
-- [x] Auto: no asset:// in session payload
+- [ ] Seated / one-knee-up / hand-on-head cues from prompt
+- [ ] Full body visible (feet / lower body not cropped away)
+- [x] Auto: BaseRender + pose_method=prompt + no standing in prompt
 
-Human verdict: **PARTIAL** (2026-11-02)
-
-Notes: Hand-on-hip cue is visible in the cropped output, but three-quarter and contrapposto cannot be reliably confirmed; crop hides lower-body weight distribution.
+Notes: _human_
 

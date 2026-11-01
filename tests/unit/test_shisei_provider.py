@@ -1,6 +1,21 @@
 from creator_studio.infrastructure.reference.shisei_provider import ShiseiPoseProvider
 
 
+def test_shisei_semantics_match_sitting_line_art() -> None:
+    """A3 Human FAIL root cause: standing labels on seated bytes must not recur."""
+    provider = ShiseiPoseProvider()
+    for pose in provider.list_poses():
+        cats = {c.lower() for c in pose.categories}
+        assert "standing" not in cats, f"{pose.id} still categorized standing"
+        assert "sitting" in cats or "seated" in cats, f"{pose.id} missing sitting category"
+        assert "standing" not in pose.label.lower(), f"{pose.id} label still says Standing"
+        for angle, view in pose.views.items():
+            prompt = (view.prompt or "").lower()
+            assert "standing" not in prompt, f"{pose.id}/{angle} prompt still standing"
+            assert "sitting" in prompt or "seated" in prompt, f"{pose.id}/{angle} not seated"
+            assert view.line is not None
+
+
 def test_shisei_provider_loads_pack() -> None:
     provider = ShiseiPoseProvider()
     poses = provider.list_poses()

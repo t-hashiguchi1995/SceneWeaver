@@ -1,12 +1,17 @@
 {
   "id": "sw-pose-0005",
-  "label": "Standing pose 005",
+  "label": "Seated pose 005 — one knee up, hand on head",
   "categories": [
-    "standing"
+    "sitting"
   ],
   "tags": [
-    "standing",
-    "line-art"
+    "sitting",
+    "seated",
+    "one knee up",
+    "hand on head",
+    "asymmetric",
+    "line-art",
+    "full body"
   ],
   "people_count": 1,
   "content_rating": "general",
@@ -15,7 +20,7 @@
     "front": {
       "id": "sw-pose-0005-front",
       "angle": "front",
-      "prompt": "standing facing viewer, arms relaxed at sides, full body",
+      "prompt": "sitting on ground facing viewer, one knee raised, one hand on top of head, other arm resting on raised knee, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0005/front.webp",
@@ -23,12 +28,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "diag": {
       "id": "sw-pose-0005-diag",
       "angle": "diag",
-      "prompt": "standing three-quarter view, one hand on hip, contrapposto",
+      "prompt": "sitting on ground three-quarter view, one knee raised, one hand on top of head, other forearm resting on raised knee, opposite leg extended along ground, full body, asymmetric pose",
       "references": {
         "line": {
           "relative_path": "sw-pose-0005/diag.webp",
@@ -36,12 +46,17 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     },
     "side": {
       "id": "sw-pose-0005-side",
       "angle": "side",
-      "prompt": "standing in profile, upright posture, arms at sides",
+      "prompt": "sitting on ground in profile, one knee raised, one hand on head, other arm on knee, full body",
       "references": {
         "line": {
           "relative_path": "sw-pose-0005/side.webp",
@@ -49,7 +64,12 @@
           "mime": "image/webp"
         }
       },
-      "qc_status": "pass"
+      "qc_status": "pass",
+      "semantic_qc": {
+        "status": "remediated",
+        "audited_at": "2026-11-02",
+        "note": "Label/prompt corrected to match seated line-art bytes; prior standing metadata was wrong."
+      }
     }
   },
   "source": {
@@ -63,6 +83,7 @@
       "front": "62c115799fb2d8321e2e3e136fe85f374bf7287b2afc234933c506f283b5d587",
       "diag": "9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955",
       "side": "0d6a45d28120e87e0b891979d3797d05cb571a1d341041b40ddc0084640923c6"
-    }
+    },
+    "semantic_audit": "2026-11-02-sitting-remediation"
   }
 }

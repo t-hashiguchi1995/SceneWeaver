@@ -1,10 +1,8 @@
-# P05 Outfit isolation — Outfit B
+# P05 Outfit isolation — Outfit B (remediation)
 
-- [ ] Pose matches sibling (hand-on-hip lean) — Human PARTIAL / full criterion FAIL
-- [x] Outfit differs from the other subcase; character remains Lize
-- [x] Auto: shared pose_asset_sha256; outfit tokens differ in prompt
+- [ ] Same seated posture / framing as sibling (compare A vs B)
+- [ ] Outfit differs; character remains Lize
+- [x] Auto: same seed+pose sha; garment tokens differ
 
-Human verdict: **PARTIAL / full criterion FAIL** (2026-11-02)
-
-Notes: Red cardigan and plaid skirt differ from A; Lize retained. This image uses a high-angle forward lean unlike upright Outfit A; crown also persists from character-prompt accessory.
+Notes: _human_
 
