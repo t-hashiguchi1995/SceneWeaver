@@ -13,8 +13,8 @@
 |------|------|------|
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
-| **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | 🟡 Auto PASS / Human PENDING |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🔴 |
+| **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 実行準備可 / 未実行 |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |
@@ -90,3 +90,8 @@
 5. Review（比較→provenance→Adopt/Reject/Regen）
 
 各フローで **入力→実行→出力→次の行動** が迷わず繋がるか。
+
+
+### A2 Human rematch verdict (2026-11-01)
+
+Baseline 8/11 identifiable → fixed-seed remediation GT review 11/11, C11 photoreal condition PASS. Original grades retained in `anima-gate2_7/human_scores.csv` and rematch grades stored in separate columns. Full per-item records: `anima-gate2_7/C02|C04|C06|C11/gt_checklist.md`. A2 is now formally PASS for the frozen fixture/seed criteria. This does not certify multi-seed or outfit generalization. A3 P01–P05 is **authorized to start**, not yet run. Phase 2.1 UI/UX remains independent.
