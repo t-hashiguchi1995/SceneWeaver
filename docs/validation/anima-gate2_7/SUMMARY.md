@@ -1,8 +1,8 @@
 # Gate 2.7 — Anima Full Character Coverage
 
 - status_auto: `PASS`
-- status_human: `FAIL — remediation rematch generated; awaiting human rematch`
-- human_identifiable: `8/11` (pre-rematch)
+- status_human: `PASS — GT rematch reviewed 2026-11-01`
+- human_identifiable: `11/11` (effective after rematch; prior 8/11)
 - commit_auto: `053800f6`
 - comfy: `0.42.5`
 - recorded_at: `2026-10-31T15:40:28.740514+00:00`
@@ -13,25 +13,25 @@
 | ID | Name | Seed | Prompt | W×H | Trigger | Auto | Human |
 |----|------|------|--------|-----|---------|------|-------|
 | C01 | リゼ・ヘルエスタ | 27001 | gate26_adopted | 768×1024 | yes | PASS | 6/8 identifiable |
-| C02 | 栞葉るり | 27002 | compiled | 768×1024 | yes | PASS | 3/8 **not identifiable** |
+| C02 | 栞葉るり | 27002 | compiled | 768×1024 | yes | PASS | 7/8 identifiable (rematch) |
 | C03 | 夜見れな | 27003 | compiled | 768×1024 | yes | PASS | 7/8 identifiable |
-| C04 | 星川サラ | 27004 | gate26_adopted | 768×1024 | yes | PASS | 5/8 identifiable, drift |
+| C04 | 星川サラ | 27004 | gate26_adopted | 768×1024 | yes | PASS | 7/8 identifiable (rematch) |
 | C05 | イレイナ | 27005 | gate26_adopted | 768×1024 | yes | PASS | 8/8 identifiable |
-| C06 | 春日未来 | 27006 | compiled | 768×1024 | yes | PASS | 4/8 **not confidently identifiable** |
+| C06 | 春日未来 | 27006 | compiled | 768×1024 | yes | PASS | 7/8 identifiable (rematch) |
 | C07 | 伊吹翼 | 27007 | compiled | 768×1024 | yes | PASS | 7/8 identifiable |
 | C08 | 暁美ほむら | 27008 | gate26_adopted | 768×1024 | yes | PASS | 7/8 identifiable |
 | C09 | 鹿目まどか | 27009 | compiled | 768×1024 | yes | PASS | 8/8 identifiable |
 | C10 | ホタル（Firefly） | 27010 | gate26_adopted | 768×1024 | yes | PASS | 8/8 identifiable |
-| C11 | オリジナル成人実写系 | 27011 | compiled | 768×1024 | yes | PASS | 4/8 **anime bias; photoreal criterion FAIL** |
+| C11 | オリジナル成人実写系 | 27011 | compiled | 768×1024 | yes | PASS | 6/8 photoreal criterion PASS (rematch) |
 
 ## Human review
 
 - [x] catastrophic image failure なし
-- [ ] ≥9/11 が GT 主要項目で識別可能 — **8/11**
+- [x] ≥9/11 が GT 主要項目で識別可能 — **11/11 after rematch**
 - [x] contact sheet で別人取り違えが支配的でない
-- [ ] C11 が極端な anime 化で破綻しない — **FAIL: strongly anime/illustrated**
+- [x] C11 が極端な anime 化で破綻しない — **PASS after rematch: photographic / no dominant anime bias**
 
-### Main remediation targets
+### Pre-remediation targets (historical)
 
 1. **C02 栞葉るり** — restore canonical police/canine identity: silver hair, characteristic eyes, police cap/poncho, tail and silhouette.
 2. **C06 春日未来** — strengthen Mirai-specific hair/eye/outfit cues; current result is too generic for confident standalone identification.
@@ -42,8 +42,7 @@ See `human_scores.csv` for per-fixture notes.
 
 ## Gate decision
 
-**A2 is not yet a formal PASS.** Automatic execution coverage is PASS, but the frozen Human criteria are not met.  
-Do not advance the quality claim to A3 as if A2 passed; first remediate/re-run C02/C06/C11 (and preferably C04), then rescore the affected rows.
+**A2 Gate 2.7 Human PASS** on the frozen 11-fixture / fixed-seed criteria: 11/11 recognizable or C11 photoreal-compatible, no catastrophic failure, and no dominant identity swap. These observations support proceeding to A3 Pose Live P01–P05; they do not demonstrate across-seed or across-outfit stability. Original grades are preserved in CSV; rematch grades are in dedicated columns.
 
 ## Next after A2 Human PASS
 
@@ -51,7 +50,7 @@ Do not advance the quality claim to A3 as if A2 passed; first remediate/re-run C
 
 ## Remediation rematch
 
-- status: `GENERATED — awaiting human rematch`
+- status: `HUMAN PASS — reviewed 2026-11-01`
 - commit: `6e6b3dc`
 - comfy: `0.42.5`
 - recorded_at: `2026-10-31T16:47:11.675838+00:00`
@@ -84,3 +83,17 @@ Anima Base (`anima_baseV10`) is anime-tuned. Photoreal tags without a photoreal 
 2. Fill `gt_checklist.md` per 8 GT items + update `human_scores.csv`
 3. Require ≥9/11 identifiable and C11 photoreal criterion (or policy carve-out)
 4. Only then proceed to A3 Pose Live
+
+
+## Human GT rematch review (2026-11-01)
+
+| ID | Previous | Rematch | Identifiable / style | Remaining mismatch |
+|---|---:|---:|---|---|
+| C02 栞葉るり | 3/8 | 7/8 | Yes | Eyes amber instead of green; dog ears not distinct; copyright-style text artifact at bottom right |
+| C04 星川サラ | 5/8 | 7/8 | Yes | Stylized stage outfit rather than canonical default |
+| C06 春日未来 | 4/8 | 7/8 | Yes | Canonical outfit fidelity not fully established |
+| C11 Original adult photoreal | 4/8 | 6/8 | Photoreal criterion PASS | Straight instead of wavy hair; T-shirt instead of blouse |
+
+**Decision:** Automatic PASS + Human PASS for the specified fixed seeds (11/11). C11 reads as a studio photo rather than anime, albeit with smooth synthetic skin. Source images reviewed: updated `contact_sheet.png` and individual PNGs. Per-item yes/no details: `C02|C04|C06|C11/gt_checklist.md`. Old scores and notes remain in `human_scores.csv`; newer scores are separate columns.
+
+**Quality follow-up (not a frozen gate blocker):** C02 contains copyright-like text in the lower-right of the generated PNG. Exclude that asset from release until the artifact is removed and rights/presentation reviewed. Also re-evaluate identity on more seeds and outfits in subsequent gates. Phase 2.1 UI/UX remains a separate track.
