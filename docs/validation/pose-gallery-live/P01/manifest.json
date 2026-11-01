@@ -1,0 +1,31 @@
+{
+  "case": "P01",
+  "title": "Prompt Pose",
+  "character": "C01",
+  "seed": 33001,
+  "pose_id": "sw-pose-0001",
+  "pose_view": "diag",
+  "pose_method": "prompt",
+  "capability": "BaseRender",
+  "model_id": "anima_base",
+  "workflow_template_id": "anima_base_v1",
+  "sha256": "6f8956598d8a1d194992d0915f88601ff31ecbe46caa48a95276e6f449710fa2",
+  "width": 768,
+  "height": 1024,
+  "comfy_version": "0.42.5",
+  "commit": "3f6e5f5",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, calm expression, standing three-quarter view, one hand on hip, contrapposto, medium full shot, eye level, simple studio background, soft lighting",
+  "pose_provenance": {
+    "pose_id": "sw-pose-0001",
+    "pose_view": "diag",
+    "pose_method": "prompt",
+    "pose_prompt": "standing three-quarter view, one hand on hip, contrapposto",
+    "pose_source": "shisei",
+    "pose_source_version": "0.3.0",
+    "pose_asset_id": null,
+    "pose_asset_sha256": null,
+    "control_strength": null,
+    "flipped": false
+  },
+  "recorded_at": "2026-11-01T08:41:29.155189+00:00"
+}

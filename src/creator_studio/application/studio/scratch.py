@@ -178,7 +178,15 @@ class ScratchStudioService:
         pose_view: str,
         flipped: bool = False,
         control_strength: float = 1.0,
+        pose_method: Literal["auto", "prompt", "reference_image"] = "auto",
     ) -> dict[str, Any]:
+        """Apply Gallery pose.
+
+        ``pose_method``:
+          - ``auto``: reference_image when line art exists, else prompt
+          - ``prompt``: force Prompt Pose (BaseRender + pose_prompt), ignore line
+          - ``reference_image``: require line art → PoseControlledRender / LLLite
+        """
         refs = self._c.reference_pose_service()
         detail = refs.get_detail(pose_id)
         if detail is None:
@@ -186,26 +194,46 @@ class ScratchStudioService:
         view = (detail.get("views") or {}).get(pose_view)
         if view is None:
             raise ValueError("pose view not found")
+        line = (view.get("references") or {}).get("line") or {}
+        # Detail DTO uses url/sha256 (not relative_path); keep relative_path for raw packs.
+        has_line = bool(
+            line.get("url")
+            or line.get("uri")
+            or line.get("relative_path")
+            or line.get("sha256")
+        )
+        method = pose_method
+        if method == "auto":
+            method = "reference_image" if has_line else "prompt"
+        if method == "reference_image" and not has_line:
+            raise ValueError("pose view has no reference line art")
+        use_pose = method == "reference_image"
         snap = refs.build_pose_provenance(
             pose_id=pose_id,
             pose_view=pose_view,
-            flipped=flipped,
-            control_strength=control_strength,
+            flipped=flipped if use_pose else False,
+            control_strength=control_strength if use_pose else None,
         )
         assert snap is not None
-        line = (view.get("references") or {}).get("line") or {}
-        use_pose = snap["pose_method"] == "reference_image"
+        # Honor explicit method even when catalog has line art (A3 P01).
+        snap["pose_method"] = method
+        if not use_pose:
+            snap["pose_asset_id"] = None
+            snap["pose_asset_sha256"] = None
+            snap["control_strength"] = None
+            snap["flipped"] = False
+        pose_prompt = str(view.get("prompt") or "").strip()
         patch: dict[str, Any] = {
             "pose": {
-                "id": pose_view if not use_pose else pose_id,
+                "id": pose_id if use_pose else (pose_prompt or pose_id),
                 "pose_id": pose_id,
                 "pose_view": pose_view,
-                "pose_prompt": view.get("prompt") or "",
-                "control_strength": control_strength,
-                "flipped": flipped,
+                "pose_prompt": pose_prompt,
+                "control_strength": control_strength if use_pose else None,
+                "flipped": bool(flipped) if use_pose else False,
             },
             "pose_provenance": snap,
-            "control_strength": control_strength,
+            "control_strength": control_strength if use_pose else None,
         }
         if use_pose:
             patch["capability"] = "PoseControlledRender"
@@ -222,9 +250,11 @@ class ScratchStudioService:
             snap["pose_asset_sha256"] = stored["sha256"]
             snap["pose_asset_id"] = stored["asset_id"]
             snap["flipped"] = bool(flipped)
+            snap["control_strength"] = float(control_strength)
             patch["pose_provenance"] = snap
             patch["pose"]["line_sha256"] = stored["sha256"]
         else:
+            patch["capability"] = "BaseRender"
             patch["pose_asset_uri"] = None
         pipe = self._c.shot_pipeline()
         pipe.update_shot(shot_id, patch)

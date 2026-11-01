@@ -1,7 +1,7 @@
 # Pose Gallery — live validation（実生成ゲート）
 
 **段階:** A3（[`quality-validation-roadmap.md`](./quality-validation-roadmap.md)）  
-**ステータス:** 設計承認 / 未実行（Gate 2.7 の後）  
+**ステータス:** 実装済み / Auto 実行可（`pnpm test:pose-gallery:live`）— Human GT は別途  
 **UI 方針:** [`../ux/pose-gallery-first.md`](../ux/pose-gallery-first.md)  
 **前提:** A1 Gate 2.6 ✅ → A2 Gate 2.7 PASS → 本ゲート
 
@@ -98,12 +98,25 @@ Prompt-only:
 
 ---
 
+## 実行
+
+```bash
+pnpm test:pose-gallery:live
+```
+
+成果物: [`pose-gallery-live/`](./pose-gallery-live/)（`SUMMARY.md` · `contact_sheet.png` · P01–P05）
+
+`pose_method=prompt` で Shisei に line があっても Prompt Pose（BaseRender）を強制できる。
+
+---
+
 ## Gate 順序
 
 ```text
 Gate 1 / 2 / 2.5              ✅
-Anima Gate 2.6 (+ ANIMADEX GT) ▶ 是正再 run
-Pose Gallery Live P01–P05
+Anima Gate 2.6 (+ ANIMADEX GT) ✅
+Gate 2.7 Full Character        ✅ Auto + Human
+Pose Gallery Live P01–P05      ▶ 本ゲート
 Gate 3  A→B→C→A
 Pose ecosystem（Prompt / LLLite / OpenPose / Pose LoRA）
 ```

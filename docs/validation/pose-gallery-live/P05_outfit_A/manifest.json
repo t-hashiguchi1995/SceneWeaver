@@ -1,0 +1,30 @@
+{
+  "case": "P05",
+  "subcase": "outfit_A",
+  "title": "Outfit isolation",
+  "character": "C01",
+  "seed": 33005,
+  "outfit": "A",
+  "garment_description": "royal blue and white dress, blue jacket, white blouse, silver crown",
+  "shared_pose_asset_sha256": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+  "capability": "PoseControlledRender",
+  "sha256": "24b7e72adeceaa09d76aa1e8bf818ab1cdc272e76f620228aa3d3e5d196ebbb8",
+  "width": 768,
+  "height": 1024,
+  "comfy_version": "0.42.5",
+  "commit": "3f6e5f5",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, standing, medium full shot, eye level, simple studio background, soft lighting",
+  "pose_provenance": {
+    "pose_id": "sw-pose-0001",
+    "pose_view": "diag",
+    "pose_method": "reference_image",
+    "pose_prompt": "standing three-quarter view, one hand on hip, contrapposto",
+    "pose_source": "shisei",
+    "pose_source_version": "0.3.0",
+    "pose_asset_id": "1638020057414d0a88c0413ca0",
+    "pose_asset_sha256": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+    "control_strength": 1.0,
+    "flipped": false
+  },
+  "recorded_at": "2026-11-01T08:43:26.397253+00:00"
+}

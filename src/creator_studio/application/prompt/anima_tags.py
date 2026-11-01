@@ -87,6 +87,23 @@ def _spec_id(value: Any, default: str) -> str:
     return default
 
 
+def _pose_tokens(render_spec: dict[str, Any]) -> list[str]:
+    """Prefer Gallery ``pose_prompt``; fall back to pose.id (not view names)."""
+    raw = render_spec.get("pose")
+    if isinstance(raw, dict):
+        prompt = str(raw.get("pose_prompt") or "").strip()
+        if prompt:
+            return _as_tokens(prompt)
+        pid = str(raw.get("id") or "").strip()
+        # View angles used as ids when prompt-only path was incomplete — treat as standing.
+        if pid.lower() in {"front", "diag", "side", "above", "below"}:
+            return ["standing"]
+        if pid:
+            return [pid]
+        return ["standing"]
+    return [_spec_id(raw, "standing")]
+
+
 def _camera_tokens(render_spec: dict[str, Any]) -> list[str]:
     raw = render_spec.get("camera")
     camera = raw if isinstance(raw, dict) else {}
@@ -162,7 +179,7 @@ def compile_anima_positive(render_spec: dict[str, Any]) -> str:
 
     outfit = _as_tokens(render_spec.get("outfit_tags") or "casual clothes")
     expression = [_spec_id(render_spec.get("expression"), "slight smile")]
-    pose = [_spec_id(render_spec.get("pose"), "standing")]
+    pose = _pose_tokens(render_spec)
     camera = _camera_tokens(render_spec)
     background = _as_tokens(render_spec.get("background") or "simple neutral studio background")
     lighting = _as_tokens(render_spec.get("lighting") or "soft lighting")

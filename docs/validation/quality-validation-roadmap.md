@@ -14,7 +14,7 @@
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 実行準備可 / 未実行 |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 Auto PASS / Human PENDING（`pose-gallery-live/`） |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |

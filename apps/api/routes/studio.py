@@ -25,6 +25,10 @@ class ApplyPoseBody(BaseModel):
     pose_view: str = "front"
     flipped: bool = False
     control_strength: float = Field(default=1.0, ge=0.0, le=2.0)
+    pose_method: str = Field(
+        default="auto",
+        description="auto | prompt | reference_image — prompt forces BaseRender + pose_prompt",
+    )
 
 
 class MaterializeBody(BaseModel):
@@ -66,12 +70,19 @@ def apply_pose(
     shot_id: str, body: ApplyPoseBody, c: Container = Depends(container)
 ) -> dict[str, Any]:
     try:
+        method = (body.pose_method or "auto").strip().lower()
+        if method not in {"auto", "prompt", "reference_image"}:
+            raise HTTPException(
+                status_code=400,
+                detail="pose_method must be auto|prompt|reference_image",
+            )
         return _scratch(c).apply_pose(
             shot_id,
             pose_id=body.pose_id,
             pose_view=body.pose_view,
             flipped=body.flipped,
             control_strength=body.control_strength,
+            pose_method=method,  # type: ignore[arg-type]
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

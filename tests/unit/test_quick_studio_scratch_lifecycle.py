@@ -146,6 +146,33 @@ def test_pose_provenance_snapshot(container: Container) -> None:
     assert snap2 == snap1
 
 
+def test_apply_pose_prompt_method_skips_reference(container: Container) -> None:
+    """A3 P01: force Prompt Pose even when Shisei line art exists."""
+    char_id, _ = _seed_character(container, "PromptPoseHero")
+    client = TestClient(create_app())
+    pose = client.get("/api/v1/references/poses").json()[0]
+    shot_id = client.post(
+        "/api/v1/studio/sessions", json={"character_id": char_id}
+    ).json()["shot_id"]
+
+    applied = client.post(
+        f"/api/v1/studio/sessions/{shot_id}/pose",
+        json={
+            "pose_id": pose["id"],
+            "pose_view": "diag" if "diag" in (pose.get("available_views") or []) else pose["default_view"],
+            "pose_method": "prompt",
+        },
+    )
+    assert applied.status_code == 200, applied.text
+    body = applied.json()
+    snap = body["pose_provenance"]
+    assert snap["pose_method"] == "prompt"
+    assert snap.get("pose_asset_sha256") in (None, "")
+    assert body["render_spec"]["capability"] == "BaseRender"
+    assert not body["render_spec"].get("pose_asset_uri")
+    assert "hand on hip" in (snap.get("pose_prompt") or "") or snap.get("pose_prompt")
+
+
 def test_flip_updates_pose_asset_sha256(container: Container) -> None:
     """Flip must change the asset bytes actually handed to Comfy, not only provenance.flipped."""
     char_id, _ = _seed_character(container, "FlipHero")

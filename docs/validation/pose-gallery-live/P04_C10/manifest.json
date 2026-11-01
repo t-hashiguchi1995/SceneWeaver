@@ -1,0 +1,30 @@
+{
+  "case": "P04",
+  "subcase": "C10",
+  "title": "Character isolation",
+  "character": "C10",
+  "seed": 33004,
+  "pose_id": "sw-pose-0001",
+  "pose_view": "diag",
+  "shared_pose_asset_sha256": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+  "capability": "PoseControlledRender",
+  "sha256": "e8ad8707a076a03694b0daa9345e2d3fbb6153a23e6c65660020b236c0f50dab",
+  "width": 768,
+  "height": 1024,
+  "comfy_version": "0.42.5",
+  "commit": "3f6e5f5",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, firefly (honkai: star rail), firefly (honkai: star rail), honkai (series), @fuzichoco, @rella, hair between eyes, purple eyes, detailed eyes, grey hair, long hair, hair intakes, black hairband, white shirt, black jacket, long sleeves, slight smile, standing, medium full shot, eye level, simple neutral studio background, soft lighting",
+  "pose_provenance": {
+    "pose_id": "sw-pose-0001",
+    "pose_view": "diag",
+    "pose_method": "reference_image",
+    "pose_prompt": "standing three-quarter view, one hand on hip, contrapposto",
+    "pose_source": "shisei",
+    "pose_source_version": "0.3.0",
+    "pose_asset_id": "1638020057414d0a88c0413ca0",
+    "pose_asset_sha256": "4461d85aa5d5291b78b69f491b7176e6ec3fc4501db63e42b4139a1e505f17b1",
+    "control_strength": 1.0,
+    "flipped": false
+  },
+  "recorded_at": "2026-11-01T08:43:06.955682+00:00"
+}

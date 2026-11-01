@@ -81,6 +81,24 @@ def test_renderer_anima_path_uses_tag_compiler() -> None:
     assert rendered.assembly_metadata.get("franchise") == "nijisanji"
 
 
+def test_compile_prefers_pose_prompt_over_view_id() -> None:
+    positive = compile_anima_positive(
+        {
+            "identity_tags": ["1girl"],
+            "character_name": "lize helesta",
+            "franchise": "nijisanji",
+            "outfit_tags": "royal dress",
+            "pose": {
+                "id": "diag",
+                "pose_prompt": "standing three-quarter view, one hand on hip, contrapposto",
+            },
+        }
+    )
+    assert "one hand on hip" in positive
+    assert "contrapposto" in positive
+    assert ", diag," not in f", {positive},"
+
+
 def test_renderer_prefers_saved_anima_positive() -> None:
     saved = (
         "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, "
