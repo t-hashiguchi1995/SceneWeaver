@@ -1,21 +1,17 @@
 {
   "case": "P01",
-  "variant": "remediation",
-  "title": "Prompt Pose",
-  "character": "C01",
-  "seed": 33101,
+  "variant": "remediation_r2",
+  "seed": 33201,
   "pose_id": "sw-pose-0005",
   "pose_view": "diag",
   "pose_method": "prompt",
   "capability": "BaseRender",
-  "model_id": "anima_base",
-  "workflow_template_id": "anima_base_v1",
-  "sha256": "7f4db6fb72fed8e88a5497bdfd4a1a5bbb8cc31bbf7a20efc8d5ed779b62ae90",
+  "sha256": "ec1f460dbbc767510d066bc658f0a1c46d1e8a0c6c1041319de055398c6ab210",
   "width": 768,
   "height": 1024,
   "comfy_version": "0.42.5",
-  "commit": "e0b8f0f",
-  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, calm expression, sitting on ground three-quarter view, one knee raised, one hand on top of head, other forearm resting on raised knee, opposite leg extended along ground, full body, asymmetric pose, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
+  "commit": "acd8862",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised, one hand on top of head, palm flat on crown of head, arm raised above head, other forearm resting on raised knee, opposite leg extended, asymmetric pose, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
   "pose_provenance": {
     "pose_id": "sw-pose-0005",
     "pose_view": "diag",
@@ -28,5 +24,5 @@
     "control_strength": null,
     "flipped": false
   },
-  "recorded_at": "2026-11-01T15:27:36.489991+00:00"
+  "recorded_at": "2026-11-01T17:04:06.173561+00:00"
 }

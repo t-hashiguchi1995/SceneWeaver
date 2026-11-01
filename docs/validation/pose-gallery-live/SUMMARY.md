@@ -51,3 +51,40 @@ The semantic pack correction and rematch resolved the upright-standing failure: 
 
 - Remediate P03 actual output mirror and P05 image-level pose/framing lock; optionally P01 hand-on-head; rerun with identical controllable variables and repeat visual GT
 - Formal A3 PASS only after visual GT; then A4
+
+## Remediation r2 rematch
+
+- status_auto: `PASS` (r2 rematch generated)
+- status_human: `PENDING`
+- commit: `acd8862`
+- comfy: `0.42.5`
+- control_strength: `1.85`
+- prompt_mode: side-agnostic locked pose cues (no left/right words) for P02/P03/P05
+- P02/P03 seed: `33102` (identical prompt+seed; flip only)
+- P01 seed: `33201`
+- P05 seed: `33105`
+- recorded_at: `2026-11-01T17:09:00.545373+00:00`
+- entry: `pnpm test:pose-gallery:live:r2`
+
+### Hypothesis addressed
+
+1. Prompt limb text with implied side competed with flipped refs → use side-agnostic
+   but still specific locked cues + higher LLLite strength.
+2. P05 pose drift from weak control / crown+outfit churn → strength 1.85,
+   crown stripped on B, identical pose text.
+
+### Local r2 spot-check (not formal PASS)
+
+- **P01**: hand on crown/head + seated knee-up looks achieved (seed 33201).
+- **P02**: seated, knee up, hands near/on head restored after strength/prompt tighten.
+- **P03**: still seated with head-arm; **laterality vs P02 remains uncertain** — needs human mirror check.
+- **P05**: outfits distinct; **pose/framing still diverge** (A knee-up+hands-on-head vs B different crouch).
+
+### Human recheck focus
+
+1. P03 vs P02: mirrored knee / head-arm laterality (not SHA alone)
+2. P05 A vs B: joint layout + camera stay fixed
+3. P01: hand clearly on top of head
+4. P02 regression: still seated with REF cues after strength/prompt change
+
+Prior reviews: `HUMAN_REVIEW_20261102.md`, `HUMAN_REMATCH_REVIEW_20261102.md`

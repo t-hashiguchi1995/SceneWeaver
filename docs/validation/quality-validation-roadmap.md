@@ -14,7 +14,7 @@
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🔴 rematch Auto PASS / Human FAIL（P03左右反転・P05姿勢固定未達） |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 r2 rematch Auto PASS / Human PENDING（P03/P05 重点） |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |
@@ -105,3 +105,7 @@ Prior Human FAIL (`e0b8f0f`): seated assets labeled standing; P02/P03/P05 visual
 ### A3 rematch visual GT result (2026-11-02, input `368171f`)
 
 Seated reference pack remediation confirmed; P02 seated / one-knee-up / hand-on-head and full-body: coarse PASS. P04 identity isolation PASS. P01 PARTIAL (hand-on-head cue absent). P03 FAIL (P02/P03 same seed and flipped input SHA but generated knee and head arm remain on same side). P05 PARTIAL (outfit switch and seating succeed but knee placement/camera framing vary). Human FAIL remains, A4 blocked. Detailed independent review: `pose-gallery-live/HUMAN_REMATCH_REVIEW_20261102.md`. Phase 2.1 UI/UX separate.
+
+### A3 remediation r2 (after rematch FAIL)
+
+`pnpm test:pose-gallery:live:r2`: side-agnostic locked pose prompts, LLLite strength 1.85, P01 hand-on-head emphasis, P02/P03 same seed+prompt with flip-only delta, P05 crown stripped on B. Auto PASS artifacts pushed for Human GT; P03/P05 remain the critical visual questions. A4 stays blocked.
