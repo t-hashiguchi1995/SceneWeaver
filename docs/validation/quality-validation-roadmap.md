@@ -14,7 +14,7 @@
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 Auto PASS / Human PENDING（`pose-gallery-live/`） |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🔴 Auto PASS / Human FAIL（参照ポーズGT不整合、P02/P03/P05） |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |
@@ -95,3 +95,8 @@
 ### A2 Human rematch verdict (2026-11-01)
 
 Baseline 8/11 identifiable → fixed-seed remediation GT review 11/11, C11 photoreal condition PASS. Original grades retained in `anima-gate2_7/human_scores.csv` and rematch grades stored in separate columns. Full per-item records: `anima-gate2_7/C02|C04|C06|C11/gt_checklist.md`. A2 is now formally PASS for the frozen fixture/seed criteria. This does not certify multi-seed or outfit generalization. A3 P01–P05 is **authorized to start**, not yet run. Phase 2.1 UI/UX remains independent.
+
+
+### A3 Human visual GT review (2026-11-02)
+
+Auto PASS is retained, Human FAIL: P01 partial, P02 fail, P03 fail, P04 character isolation pass, P05 partial. Actual `sw-pose-0001` images are seated while metadata/prompt says standing; P02/P03 do not track source, P03 uses different seed than P02, and P05 does not preserve pose/framing. See `pose-gallery-live/HUMAN_REVIEW_20261102.md`. A4 must not be promoted under an A3 PASS claim. Phase 2.1 UI/UX remains separate.

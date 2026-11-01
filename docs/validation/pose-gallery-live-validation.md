@@ -1,7 +1,7 @@
 # Pose Gallery — live validation（実生成ゲート）
 
 **段階:** A3（[`quality-validation-roadmap.md`](./quality-validation-roadmap.md)）  
-**ステータス:** 実装済み / Auto 実行可（`pnpm test:pose-gallery:live`）— Human GT は別途  
+**ステータス:** Auto PASS / Human FAIL（2026-11-02 GT visual review）  
 **UI 方針:** [`../ux/pose-gallery-first.md`](../ux/pose-gallery-first.md)  
 **前提:** A1 Gate 2.6 ✅ → A2 Gate 2.7 PASS → 本ゲート
 
@@ -120,3 +120,8 @@ Pose Gallery Live P01–P05      ▶ 本ゲート
 Gate 3  A→B→C→A
 Pose ecosystem（Prompt / LLLite / OpenPose / Pose LoRA）
 ```
+
+
+## Human review 2026-11-02
+
+Source `sw-pose-0001` front/diag/side imagery shows **seated figure with one raised knee**, but pose.json labels standing and describes diagonal hand-on-hip. P02 generated posture is standing; P03 flip is not evident and P02/P03 seeds differ. P05 changes clothing but not with fixed posture/composition. P04 identity isolation succeeds. Audit every pose source image/metadata pair, correct mappings and SHA, rerun same-seed paired flip and full-body reference tracking, and keep Human FAIL until visual quality PASS. Details: [`pose-gallery-live/HUMAN_REVIEW_20261102.md`](pose-gallery-live/HUMAN_REVIEW_20261102.md).
