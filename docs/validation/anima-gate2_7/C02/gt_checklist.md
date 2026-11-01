@@ -4,8 +4,8 @@
 - Notes: Official 1st costume: silver/sandy hair, green eyes, white police hat with blue flower, white capelet, blue high-waist shorts + pantyhose, canine dog-girl silhouette (NOT lavender cardigan).
 
 - [x] Trigger / character
-- [ ] Hair (silver/grey) — FAIL: not matched
-- [x] Eyes (green)
+- [x] Hair (silver/grey) — Grey/silver top with blonde tips
+- [ ] Eyes (green) — FAIL: irises are amber/yellow rather than the intended green
 - [x] Hairstyle
 - [x] Signature accessory (police hat + blue flower)
 - [x] Default outfit (police/capelet/blue shorts)
