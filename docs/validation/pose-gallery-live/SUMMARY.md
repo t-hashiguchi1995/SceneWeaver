@@ -1,8 +1,9 @@
 # A3 — Pose Gallery Live (P01–P05)
 
 - status_auto: `PASS` (remediation rematch)
-- status_human: `PENDING — rematch awaiting visual GT`
+- status_human: `FAIL — 2026-11-02 rematch visual GT; P03 flip and P05 fixed-pose criteria unmet`
 - prior_human: `FAIL @ e0b8f0f` (see HUMAN_REVIEW_20261102.md)
+- rematch_artifact_commit: `368171f`
 - commit: `e0b8f0f`
 - comfy: `0.42.5`
 - pose: `sw-pose-0005` / `diag` (asymmetric seated; metadata remediated)
@@ -29,11 +30,11 @@
 
 ## Human review (required for formal A3 PASS)
 
-- [ ] P01 seated cues + full body
-- [ ] P02 tracks REF seated posture (not upright standing)
-- [ ] P03 mirrored vs P02 at same seed
-- [ ] P04 identities remain separated
-- [ ] P05 outfit changes with fixed posture/framing
+- [ ] P01 seated cues + full body — PARTIAL: seated/full-body yes, hand-on-head no
+- [x] P02 tracks REF seated posture (not upright standing) — PASS for coarse cues; not exact joints
+- [ ] P03 mirrored vs P02 at same seed — FAIL: outputs not clear mirror
+- [x] P04 identities remain separated — PASS across C01/C07/C10
+- [ ] P05 outfit changes with fixed posture/framing — PARTIAL: outfits distinct; framing/leg pose differs
 
 ### Local rematch spot-check (not formal PASS)
 
@@ -42,7 +43,11 @@
 - Prior FAIL review preserved in `HUMAN_REVIEW_20261102.md`.
 - Prior contact sheet: `contact_sheet_pre_remediation.png` when present.
 
+## Rematch visual GT (2026-11-02)
+
+The semantic pack correction and rematch resolved the upright-standing failure: P02 now shows seated, one knee raised, hand on head and visible feet; P04 identity separation also PASS. P01 PARTIAL because the hand is not on top of the head. P03 remains FAIL: although reference SHA changes and P02/P03 now share seed 33102, the prominent knee and overhead arm remain on the same image side in both outputs; generated poses are not demonstrably mirrored. P05 PARTIAL: red cardigan / plaid skirt successfully replaces blue/white dress while Lize remains recognizable, but A/B leg configuration and camera framing do not remain fixed. **Therefore A3 Human FAIL; A4 stays blocked.** Old human records and generated PNGs are retained. See `HUMAN_REMATCH_REVIEW_20261102.md`.
+
 ## Next
 
-- Human GT on updated `contact_sheet.png`
+- Remediate P03 actual output mirror and P05 image-level pose/framing lock; optionally P01 hand-on-head; rerun with identical controllable variables and repeat visual GT
 - Formal A3 PASS only after visual GT; then A4

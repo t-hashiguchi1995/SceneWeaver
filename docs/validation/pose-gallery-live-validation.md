@@ -1,7 +1,7 @@
 # Pose Gallery — live validation（実生成ゲート）
 
 **段階:** A3（[`quality-validation-roadmap.md`](./quality-validation-roadmap.md)）  
-**ステータス:** Human FAIL（2026-11-02）→ pack semantic remediation + rematch（Human GT 再評価待ち）  
+**ステータス:** rematch Auto PASS / Human FAIL（2026-11-02: P03 mirror、P05 pose lock 未達）  
 **UI 方針:** [`../ux/pose-gallery-first.md`](../ux/pose-gallery-first.md)  
 **前提:** A1 Gate 2.6 ✅ → A2 Gate 2.7 PASS → 本ゲート
 
@@ -125,3 +125,8 @@ Pose ecosystem（Prompt / LLLite / OpenPose / Pose LoRA）
 ## Human review 2026-11-02
 
 Source `sw-pose-0001` front/diag/side imagery shows **seated figure with one raised knee**, but pose.json labels standing and describes diagonal hand-on-hip. P02 generated posture is standing; P03 flip is not evident and P02/P03 seeds differ. P05 changes clothing but not with fixed posture/composition. P04 identity isolation succeeds. Audit every pose source image/metadata pair, correct mappings and SHA, rerun same-seed paired flip and full-body reference tracking, and keep Human FAIL until visual quality PASS. Details: [`pose-gallery-live/HUMAN_REVIEW_20261102.md`](pose-gallery-live/HUMAN_REVIEW_20261102.md).
+
+
+## 2026-11-02 rematch visual GT
+
+Pack semantic corrections and new seated `sw-pose-0005` reference addressed previous standing output. P02 coarse seated reference tracking and P04 character isolation PASS. P01 is PARTIAL (missing hand-on-head), P03 FAIL (same seed/input flip but generated outputs not a clear mirror), P05 PARTIAL (outfit changes, pose/framing diverge). Keep formal A3 Human FAIL. Remediation must measure or check output-side limb laterality and fixed body geometry across outfits, not only pose input hash or seed. Details: [`pose-gallery-live/HUMAN_REMATCH_REVIEW_20261102.md`](pose-gallery-live/HUMAN_REMATCH_REVIEW_20261102.md).
