@@ -1,19 +1,20 @@
 {
   "case": "P02",
-  "variant": "remediation_r2",
+  "variant": "remediation_r3",
   "seed": 33102,
   "pose_id": "sw-pose-0005",
   "pose_view": "diag",
   "flipped": false,
-  "control_strength": 1.85,
-  "prompt_mode": "side_agnostic_locked",
+  "control_strength": 2.0,
+  "control_png_sha256": "a7718be023342f1bfcf504f49667f71e39f9c0341649e334a787305bbe4ea835",
+  "output_laterality_left_mass_ratio": 0.4552,
   "capability": "PoseControlledRender",
-  "sha256": "037377701a06f022767cf468eac6cb5a7ef487bec9d68e416884fb3540eb4039",
+  "sha256": "990128ce7c7a083e43c600693c67bad23b4ed579f6bb7d16cdc57e9be7dfe8a6",
   "width": 768,
   "height": 1024,
   "comfy_version": "0.42.5",
-  "commit": "acd8862",
-  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised toward chest, one hand on top of head, palm on crown of head, arm raised above head, other forearm resting on raised knee, opposite leg extended along ground, asymmetric seated pose, pose follows reference, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
+  "commit": "6d2c166",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised toward chest, one hand on top of head, palm flat on scalp, arm raised above head, other forearm resting on raised knee, opposite leg extended along ground, asymmetric seated pose, pose follows reference, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
   "pose_provenance": {
     "pose_id": "sw-pose-0005",
     "pose_view": "diag",
@@ -21,10 +22,12 @@
     "pose_prompt": "sitting on ground three-quarter view, one knee raised, one hand on top of head, other forearm resting on raised knee, opposite leg extended along ground, full body, asymmetric pose",
     "pose_source": "shisei",
     "pose_source_version": "0.3.0",
-    "pose_asset_id": "7a933f77b993412ebd8078d3fa",
+    "pose_asset_id": "697d91a50fb64434b42e50b827",
     "pose_asset_sha256": "9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955",
-    "control_strength": 1.85,
+    "control_strength": 2.0,
     "flipped": false
   },
-  "recorded_at": "2026-11-01T17:08:04.039638+00:00"
+  "slots_pose_image": "asset://9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955/sw-pose-0005-diag.webp",
+  "slots_control_strength": 2.0,
+  "recorded_at": "2026-11-02T15:24:09.996450+00:00"
 }

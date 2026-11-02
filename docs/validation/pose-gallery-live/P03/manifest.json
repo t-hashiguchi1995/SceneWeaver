@@ -1,23 +1,30 @@
 {
   "case": "P03",
-  "variant": "remediation_r2",
+  "variant": "remediation_r3",
   "seed": 33102,
   "paired_with": "P02",
   "pose_id": "sw-pose-0005",
   "pose_view": "diag",
   "flipped": true,
-  "control_strength": 1.85,
-  "prompt_mode": "side_agnostic_locked",
+  "control_strength": 2.0,
   "same_prompt_as_p02": true,
-  "pose_asset_sha256": "a23ffa733267efcf74c5ab7c09176dbce93dd3eb44023ec59a2d99be577f3a6e",
-  "unflipped_pose_asset_sha256": "9422cb256d1c2f22a903f45c7c2ed4ab7b8e6907be81c08a8d2a21ae481a0955",
+  "control_png_sha256": "a23ffa733267efcf74c5ab7c09176dbce93dd3eb44023ec59a2d99be577f3a6e",
+  "control_flip_check": {
+    "max_channel_delta": 0,
+    "size": [
+      900,
+      1200
+    ]
+  },
+  "output_laterality_left_mass_ratio": 0.6528,
+  "output_laterality_delta_vs_p02": 0.1976,
   "capability": "PoseControlledRender",
-  "sha256": "347bcc0439821da812ab85b30ef207b2051b7a51ba569569ec0644c6215c1bf1",
+  "sha256": "cb2f7c4e86433d478bc8516c3c73e7e734a6f005342aa0d56fed3b3f77b99fe9",
   "width": 768,
   "height": 1024,
   "comfy_version": "0.42.5",
-  "commit": "acd8862",
-  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised toward chest, one hand on top of head, palm on crown of head, arm raised above head, other forearm resting on raised knee, opposite leg extended along ground, asymmetric seated pose, pose follows reference, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
+  "commit": "6d2c166",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised toward chest, one hand on top of head, palm flat on scalp, arm raised above head, other forearm resting on raised knee, opposite leg extended along ground, asymmetric seated pose, pose follows reference, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
   "pose_provenance": {
     "pose_id": "sw-pose-0005",
     "pose_view": "diag",
@@ -25,10 +32,12 @@
     "pose_prompt": "sitting on ground three-quarter view, one knee raised, one hand on top of head, other forearm resting on raised knee, opposite leg extended along ground, full body, asymmetric pose",
     "pose_source": "shisei",
     "pose_source_version": "0.3.0",
-    "pose_asset_id": "7ea2ccccb22a4862a55a286ae7",
+    "pose_asset_id": "91563a667c7f45d48f40744067",
     "pose_asset_sha256": "a23ffa733267efcf74c5ab7c09176dbce93dd3eb44023ec59a2d99be577f3a6e",
-    "control_strength": 1.85,
+    "control_strength": 2.0,
     "flipped": true
   },
-  "recorded_at": "2026-11-01T17:08:22.204198+00:00"
+  "slots_pose_image": "asset://a23ffa733267efcf74c5ab7c09176dbce93dd3eb44023ec59a2d99be577f3a6e/sw-pose-0005-diag-flip.png",
+  "slots_control_strength": 2.0,
+  "recorded_at": "2026-11-02T15:24:30.064921+00:00"
 }

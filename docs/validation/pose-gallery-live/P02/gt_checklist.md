@@ -1,4 +1,4 @@
-# P02 r2 (paired with P03)
+# P02 r3
 - [ ] Seated REF cues (knee up, hand on head)
-- [x] Auto: strength 1.85; side-agnostic locked pose prompt
+- [x] Auto: strength 2.0; control.png saved; slots.pose_image set
 

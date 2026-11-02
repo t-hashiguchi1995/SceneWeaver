@@ -14,7 +14,7 @@
 | **P12** | Phase 1–2 Quick Studio vertical slice | ✅ live PASS（see `quick-studio-phase1/`） |
 | **A1** | Anima Prompt 品質（Gate 2.6・5キャラ） | ✅ |
 | **A2** | Anima 全標準キャラ確認（**Gate 2.7**・C01–C11） | ✅ Auto PASS / Human PASS（fixed seed 11/11） |
-| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 r2 rematch Auto PASS / Human PENDING（P03/P05 重点） |
+| **A3** | Pose Gallery 実生成（P01–P05） | 🟡 r3 rematch Auto PASS / Human PENDING（P03/P05 重点） |
 | **A4** | 衣装 A→B→C→A（Gate 3・4キャラ） | 🔴 |
 | **M1** | MOSS キャラ品質（同一 Semantic GT） | 🔴 |
 | **M2** | MOSS Prompt refinement（Base→edit→same seed） | 🔴 |
@@ -109,3 +109,7 @@ Seated reference pack remediation confirmed; P02 seated / one-knee-up / hand-on-
 ### A3 remediation r2 (after rematch FAIL)
 
 `pnpm test:pose-gallery:live:r2`: side-agnostic locked pose prompts, LLLite strength 1.85, P01 hand-on-head emphasis, P02/P03 same seed+prompt with flip-only delta, P05 crown stripped on B. Auto PASS artifacts pushed for Human GT; P03/P05 remain the critical visual questions. A4 stays blocked.
+
+### A3 remediation r3 (control evidence + prompt hygiene)
+
+`pnpm test:pose-gallery:live:r3`: LLLite strength 2.0; save/assert `P02/control.png` and `P03/control.png` as final `pose_image` bytes with pixel H-flip equality; record output laterality heuristic (not Human PASS). Identity/outfit prompt split: silver crown is Outfit A only; `a3_outfit_b_marker` is manifest-only. Auto PASS; Human PENDING on P03 mirror and P05 joint/camera lock. A4 stays blocked.

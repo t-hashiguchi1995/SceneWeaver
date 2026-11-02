@@ -1,17 +1,17 @@
 {
   "case": "P01",
-  "variant": "remediation_r2",
-  "seed": 33201,
+  "variant": "remediation_r3",
+  "seed": 33301,
   "pose_id": "sw-pose-0005",
   "pose_view": "diag",
   "pose_method": "prompt",
   "capability": "BaseRender",
-  "sha256": "ec1f460dbbc767510d066bc658f0a1c46d1e8a0c6c1041319de055398c6ab210",
+  "sha256": "dd8cd2fb5c49777e295909542558a91ded369114d2f81a31ac65c615b84f928d",
   "width": 768,
   "height": 1024,
   "comfy_version": "0.42.5",
-  "commit": "acd8862",
-  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, crown, silver crown, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised, one hand on top of head, palm flat on crown of head, arm raised above head, other forearm resting on raised knee, opposite leg extended, asymmetric pose, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
+  "commit": "6d2c166",
+  "final_positive_prompt": "year 2025, newest, masterpiece, best quality, score_9, score_8, highres, safe, 1girl, lize helesta, lize helesta, nijisanji, @fuzichoco, @rella, purple eyes, detailed eyes, white hair, blue hair, two-tone hair, colored inner hair, long hair, blunt bangs, feather hair ornament, royal blue and white dress, blue jacket, white blouse, silver crown, calm expression, sitting on ground, one knee raised, one hand on top of head, palm flat on scalp, arm raised above head, other forearm resting on raised knee, opposite leg extended, asymmetric pose, full body, entire body visible, from head to toe, wide shot, feet visible, eye level, simple studio background, soft lighting",
   "pose_provenance": {
     "pose_id": "sw-pose-0005",
     "pose_view": "diag",
@@ -24,5 +24,5 @@
     "control_strength": null,
     "flipped": false
   },
-  "recorded_at": "2026-11-01T17:04:06.173561+00:00"
+  "recorded_at": "2026-11-02T15:23:50.065503+00:00"
 }

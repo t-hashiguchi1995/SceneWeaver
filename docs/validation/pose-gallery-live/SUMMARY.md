@@ -88,3 +88,32 @@ The semantic pack correction and rematch resolved the upright-standing failure: 
 4. P02 regression: still seated with REF cues after strength/prompt change
 
 Prior reviews: `HUMAN_REVIEW_20261102.md`, `HUMAN_REMATCH_REVIEW_20261102.md`
+
+## Remediation r3 rematch
+
+- status_auto: `PASS` (r3 rematch generated)
+- status_human: `PENDING`
+- commit: `6d2c166`
+- comfy: `0.42.5`
+- control_strength: `2.0`
+- P02/P03 seed: `33102` (identical prompt; flip only)
+- P01 seed: `33301`
+- P05 seed: `33105`
+- recorded_at: `2026-11-02T15:25:11.007563+00:00`
+- entry: `pnpm test:pose-gallery:live:r3`
+
+### Auto evidence upgrades
+
+1. `P02/control.png` and `P03/control.png` are the final bytes fed as `pose_image`
+2. Pixel assert: P03 control == H-flip(P02 control)
+3. Output laterality heuristic recorded in manifests (not Human PASS)
+4. Crown is Outfit A only; `a3_outfit_b_marker` lives in manifest, never in prompt
+
+### Human recheck focus
+
+1. P03 vs P02 body laterality (use CTRL tiles + outputs)
+2. P05 A vs B joint/camera lock with crown absent on B
+3. P01 hand-on-head
+4. P02 still tracks REF after strength 2.0
+
+Prior: `HUMAN_REVIEW_20261102.md`, `HUMAN_REMATCH_REVIEW_20261102.md`

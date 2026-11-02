@@ -34,6 +34,13 @@ from creator_studio.infrastructure.db.session import reset_engine
 from creator_studio.infrastructure.settings import Settings, clear_settings_cache
 from creator_studio.infrastructure.settings.config import REPO_ROOT
 from tests.live.anima_character_semantics import GATE27_PRIMARY
+from tests.live.anima_pose_gallery_prompts import (
+    FRAME as _FRAME,
+    OUTFIT_A as _OUTFIT_A,
+    OUTFIT_B as _OUTFIT_B,
+    OUTFIT_B_MANIFEST_MARKER,
+    prompt_ref_locked,
+)
 from tests.live.test_moss_sft_live import _assert_image_gate
 
 pytestmark = pytest.mark.skipif(
@@ -72,12 +79,6 @@ _A3_CHARS = {
     "C10": "C10_firefly.anima.txt",
 }
 
-_OUTFIT_A = "royal blue and white dress, blue jacket, white blouse, silver crown"
-_OUTFIT_B = (
-    "red cardigan, white blouse, plaid skirt, loafers, school uniform, "
-    "a3_outfit_b_marker"
-)
-_FRAME = "full body, entire body visible, from head to toe, wide shot, feet visible"
 
 
 def _git_commit() -> str:
@@ -141,20 +142,6 @@ def _pose_locked_prompt(adopted: str, pose_prompt: str) -> str:
     # Strip leftover standing tokens
     parts = [p.strip() for p in pos.split(",") if p.strip().lower() != "standing"]
     return ", ".join(parts)
-
-
-def _swap_outfit(adopted: str, outfit: str) -> str:
-    for old in (
-        "royal blue and white dress, blue jacket, white blouse",
-        "sporty idol outfit, warm accent colors",
-        "white shirt, black jacket, long sleeves",
-    ):
-        if old in adopted:
-            return adopted.replace(old, outfit, 1)
-    for cue in (", calm expression,", ", confident smile,", ", slight smile,"):
-        if cue in adopted:
-            return adopted.replace(cue, f", {outfit}{cue}", 1)
-    return f"{adopted}, {outfit}"
 
 
 def _preserve_previous(case_dir: Path) -> None:
@@ -644,7 +631,6 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         uow.commit()
 
     shared_pose_sha: str | None = None
-    locked_pos_base = _pose_locked_prompt(_load_adopted("C01"), pose_prompt)
     for label, outfit_id, garment in (
         ("A", outfit_a, _OUTFIT_A),
         ("B", outfit_b.id, _OUTFIT_B),
@@ -660,10 +646,13 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
         else:
             assert snap["pose_asset_sha256"] == shared_pose_sha
         pose_uri = applied["render_spec"]["pose_asset_uri"]
-        # Same pose-locked base; only garment tokens change
-        pos = _swap_outfit(locked_pos_base, garment)
-        if label == "B":
-            assert "a3_outfit_b_marker" in pos
+        # Identity/outfit separated — marker stays out of model prompt
+        pos = prompt_ref_locked(_load_adopted("C01"), garment)
+        if label == "A":
+            assert "silver crown" in pos
+        else:
+            assert "silver crown" not in pos
+            assert OUTFIT_B_MANIFEST_MARKER not in pos
         _, png, meta = render_and_gate(
             shot,
             seed=_SEEDS["P05"],
@@ -685,6 +674,8 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
                 "seed": _SEEDS["P05"],
                 "outfit": label,
                 "garment_description": garment,
+                "manifest_marker": OUTFIT_B_MANIFEST_MARKER if label == "B" else None,
+                "marker_in_prompt": False,
                 "shared_pose_asset_sha256": shared_pose_sha,
                 "capability": meta["capability"],
                 "sha256": meta["sha256"],
@@ -701,7 +692,7 @@ def test_pose_gallery_live_p01_to_p05(live_container: tuple[Container, str]) -> 
                 "",
                 "- [ ] Same seated posture / framing as sibling (compare A vs B)",
                 "- [ ] Outfit differs; character remains Lize",
-                "- [x] Auto: same seed+pose sha; garment tokens differ",
+                "- [x] Auto: same seed+pose sha; garment tokens differ; no test marker",
                 "",
                 "Notes: _human_",
                 "",
