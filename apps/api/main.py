@@ -10,6 +10,7 @@ from apps.api.routes import (
     csp,
     jobs,
     projects,
+    quality_evaluations,
     references,
     settings as settings_routes,
     shots,
@@ -46,6 +47,7 @@ def create_app() -> FastAPI:
     app.include_router(visual_library.router)
     app.include_router(shots.router)
     app.include_router(assets.router)
+    app.include_router(quality_evaluations.router)
     app.include_router(csp.router)
 
     # Test-only control plane — never registered outside e2e / live-test
