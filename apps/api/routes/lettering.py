@@ -27,6 +27,8 @@ class LayerBody(BaseModel):
     text: str
     bbox_xyxy_norm: tuple[float, float, float, float] | None = None
     anchor_xy_norm: tuple[float, float] | None = None
+    tail_mode: Literal["auto", "none"] = "auto"
+    tail_tip_xy_norm: tuple[float, float] | None = None
     writing_mode: Literal["vertical-rl", "horizontal"] | None = None
     shape: Literal["oval", "cloud", "jagged", "rect", "none"] | None = None
     reading_order: int = 0

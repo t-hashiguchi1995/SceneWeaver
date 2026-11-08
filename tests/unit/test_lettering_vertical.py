@@ -25,3 +25,35 @@ def test_shrink():
 def test_tiny():
     result = layout_vertical("長い台詞" * 20, font_px=24, box_w_px=5, box_h_px=5)
     assert not result.feasible and result.font_px == 21
+
+
+def test_full_kinsoku_boundaries():
+    from creator_studio.application.lettering.vertical_text import (
+        END_FORBIDDEN,
+        START_FORBIDDEN,
+        _columns,
+    )
+
+    for text in (
+        "あい……。うえ",
+        "あいーうえ",
+        "あ(いう)え",
+        "あ［いう］え",
+        "あいゃうえ",
+        "あい―うえ",
+    ):
+        columns = _columns(text, 2)
+        assert "".join(columns) == text
+        assert all(c[0] not in START_FORBIDDEN and c[-1] not in END_FORBIDDEN for c in columns)
+
+
+def test_explicit_paragraph_edges_use_spacers():
+    from creator_studio.application.lettering.vertical_text import (
+        END_FORBIDDEN,
+        START_FORBIDDEN,
+        _columns,
+    )
+
+    columns = _columns("。あ\nい「", 2)
+    assert all(c[0] not in START_FORBIDDEN and c[-1] not in END_FORBIDDEN for c in columns)
+    assert "".join(columns).replace("　", "") == "。あい「"

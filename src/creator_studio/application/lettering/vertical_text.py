@@ -5,10 +5,10 @@ from dataclasses import dataclass
 
 from creator_studio.application.image.speech_bubble import wrap_text
 
-START_FORBIDDEN = set(
+START_FORBIDDEN = set(")]］}｝―") | set(
     "、。，．！？：；」』）】〕〉》ー・ぁぃぅぇぉゃゅょゎァィゥェォャュョヮっッ…‥ゝゞ々"
 )
-END_FORBIDDEN = set("「『（〔【〈《")
+END_FORBIDDEN = set("(（[［{｛【〔〈《「『")
 
 
 @dataclass
@@ -21,6 +21,12 @@ class VerticalLayout:
 def _columns(text, capacity):
     columns = []
     for paragraph in text.split("\n"):
+        # Explicit paragraph edges cannot borrow a glyph from a neighbour.
+        # A full-width spacer keeps isolated punctuation off the column edge.
+        if paragraph and paragraph[0] in START_FORBIDDEN:
+            paragraph = "　" + paragraph
+        if paragraph and paragraph[-1] in END_FORBIDDEN:
+            paragraph += "　"
         current = ""
         for char in paragraph:
             if len(current) >= capacity and char not in START_FORBIDDEN:
@@ -43,7 +49,7 @@ def layout_vertical(text, *, font_px, box_w_px, box_h_px, min_font_px=21):
         columns = _columns(text, max(1, math.floor(box_h_px / advance)))
         feasible = len(columns) * advance <= box_w_px
         # A box must accommodate at least one full cell, even for short text.
-        feasible = feasible and box_h_px >= advance
+        feasible = feasible and max(map(len, columns), default=1) * advance <= box_h_px
         if feasible or size == min_font_px:
             return VerticalLayout(columns, size, feasible)
         size = max(min_font_px, size - 2)

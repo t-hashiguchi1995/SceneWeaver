@@ -20,7 +20,12 @@ class LetteringLayer:
     font_profile: str = "jp_manga_sans"
     min_font_px: int = 21
 
+    tail_mode: str = "auto"
+    tail_tip_xy_norm: tuple[float, float] | None = None
+
     def __post_init__(self):
+        if self.tail_mode not in {"auto", "none"}:
+            raise ValueError("Invalid tail mode")
         if self.kind not in {"speech_bubble", "inner_voice", "narration", "sfx"}:
             raise ValueError("Invalid lettering kind")
         if self.writing_mode is None:
@@ -35,7 +40,7 @@ class LetteringLayer:
             raise ValueError("Invalid shape")
         if self.min_font_px < 1:
             raise ValueError("min_font_px must be positive")
-        for name, length in (("bbox_xyxy_norm", 4), ("anchor_xy_norm", 2)):
+        for name, length in (("bbox_xyxy_norm", 4), ("anchor_xy_norm", 2), ("tail_tip_xy_norm", 2)):
             value = getattr(self, name)
             if value is not None:
                 if len(value) != length or any(

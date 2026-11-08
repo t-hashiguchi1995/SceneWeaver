@@ -131,3 +131,22 @@ def test_planned_oval_text_stays_inside_ellipse(text):
                 text_pixels += 1
                 assert ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
     assert text_pixels > 100
+
+
+def test_stored_tip_and_tail_none():
+    source = Image.new("RGB", (400, 400), "blue")
+    layer = LetteringLayer(
+        "speech_bubble",
+        "b",
+        "",
+        bbox_xyxy_norm=(0.1, 0.2, 0.5, 0.8),
+        anchor_xy_norm=(0.95, 0.5),
+        tail_tip_xy_norm=(0.7, 0.5),
+    )
+    layout = LetteringLayout("l", "a", {"width": 400, "height": 400}, [layer])
+    output = render_lettering(source, layout)
+    assert output.getpixel((279, 200)) != source.getpixel((279, 200))
+    assert output.getpixel((350, 200)) == source.getpixel((350, 200))
+    layer.tail_mode = "none"
+    output = render_lettering(source, layout)
+    assert output.getpixel((250, 200)) == source.getpixel((250, 200))

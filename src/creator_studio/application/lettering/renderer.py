@@ -60,7 +60,7 @@ def _shape(draw, layer, w, h, size, anchor):
 
 
 def _tail(draw, layer, w, h, size, anchor, origin):
-    if layer.shape != "oval" or min(w, h) < 7:
+    if layer.tail_mode == "none" or layer.shape != "oval" or min(w, h) < 7:
         return
     if anchor is not None and (
         ((anchor[0] - w / 2) / max(1, w / 2 - 3)) ** 2
@@ -104,11 +104,8 @@ def render_lettering(base_image, layout):
         draw = ImageDraw.Draw(tile)
         size, lines, _, pad = fit_text(layer, w, h, font_target(height, layer), font_path)
         font = ImageFont.truetype(str(font_path), size)
-        anchor = (
-            None
-            if layer.anchor_xy_norm is None
-            else (layer.anchor_xy_norm[0] * width - left, layer.anchor_xy_norm[1] * height - top)
-        )
+        tip = layer.tail_tip_xy_norm or layer.anchor_xy_norm
+        anchor = None if tip is None else (tip[0] * width - left, tip[1] * height - top)
         _shape(draw, layer, w, h, size, None)
         tail = Image.new("RGBA", result.size)
         _tail(ImageDraw.Draw(tail), layer, w, h, size, anchor, (left, top))
