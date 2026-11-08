@@ -1,5 +1,6 @@
 """Deterministic corner-first placement, with explicit overlap warnings."""
 
+import math
 from dataclasses import asdict, is_dataclass
 from uuid import uuid4
 
@@ -14,7 +15,18 @@ def overlap(a, b):
     return max(0, min(a[2], b[2]) - max(a[0], b[0])) * max(0, min(a[3], b[3]) - max(a[1], b[1]))
 
 
+OVAL_INSET = (0.72, 0.84)
+
+
+def text_insets(layer, width, height):
+    if layer.shape == "oval":
+        return width * (1 - OVAL_INSET[0]) / 2, height * (1 - OVAL_INSET[1]) / 2
+    return 0, 0
+
+
 def fit_text(layer, width, height, target, font_path):
+    ix, iy = text_insets(layer, width, height)
+    width, height = width - 2 * ix, height - 2 * iy
     padding = max(4, target * 0.65)
     width, height = max(1, width - 2 * padding), max(1, height - 2 * padding)
     if layer.writing_mode == "vertical-rl":
@@ -59,7 +71,11 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
         data["reading_order"] = index
         layer = LetteringLayer.from_dict(data)
         target = font_target(image_h, layer)
-        size, lines, feasible, pad = fit_text(layer, region_w, region_h, target, font_path)
+        max_width, max_height = region_w, region_h
+        if layer.shape == "oval" and layer.writing_mode == "vertical-rl":
+            max_width = min(region_w, 0.30 * image_w)
+            max_height = min(region_h, 4.5 * max_width)
+        size, lines, feasible, pad = fit_text(layer, max_width, max_height, target, font_path)
         advance = size * 1.12
         if layer.writing_mode == "vertical-rl":
             bw = len(lines) * advance + 2 * pad
@@ -68,7 +84,13 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
             font = ImageFont.truetype(str(font_path), size)
             bw = max((font.getlength(v) for v in lines), default=1) + 2 * pad
             bh = len(lines) * size * 1.4 + 2 * pad
-        bw, bh = min(region_w, bw) / image_w, min(region_h, bh) / image_h
+        if layer.shape == "oval":
+            # Invert the renderer inset and round outward to preserve wrapping.
+            bw = math.ceil(bw / OVAL_INSET[0]) + 2
+            bh = math.ceil(bh / OVAL_INSET[1]) + 2
+            if layer.writing_mode == "vertical-rl":
+                bw = max(bw, min(max_width, bh / 3))
+        bw, bh = min(max_width, bw) / image_w, min(max_height, bh) / image_h
         candidates = []
         for right, y in (
             (True, m),

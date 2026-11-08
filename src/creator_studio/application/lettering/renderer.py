@@ -1,11 +1,11 @@
-"""Pillow lettering, clipped to each editable layer's bounds."""
+"""Pillow lettering with canvas-clipped tails and bounded text tiles."""
 
 import math
 
 from PIL import Image, ImageDraw, ImageFont
 
 from creator_studio.application.image.speech_bubble import find_japanese_font
-from creator_studio.application.lettering.planner import fit_text, font_target
+from creator_studio.application.lettering.planner import fit_text, font_target, text_insets
 
 ROTATED = set("ー―…‥「」『』（）")
 
@@ -33,22 +33,6 @@ def _shape(draw, layer, w, h, size, anchor):
     box = (2, 2, w - 3, h - 3)
     if layer.shape == "oval":
         draw.ellipse(box, fill="white", outline="black", width=3)
-        if anchor is not None and (
-            ((anchor[0] - w / 2) / max(1, w / 2 - 3)) ** 2
-            + ((anchor[1] - h / 2) / max(1, h / 2 - 3)) ** 2
-            > 1
-        ):
-            cx, cy = w / 2, h / 2
-            dx, dy = anchor[0] - cx, anchor[1] - cy
-            angle = math.atan2(dy / max(1, h / 2 - 3), dx / max(1, w / 2 - 3))
-            delta = min(0.25, size * 0.5 / max(w, h))
-            base = [
-                (cx + (w / 2 - 4) * math.cos(a), cy + (h / 2 - 4) * math.sin(a))
-                for a in (angle - delta, angle + delta)
-            ]
-            draw.polygon([base[0], anchor, base[1]], fill="white")
-            draw.line([base[0], anchor, base[1]], fill="black", width=3)
-            draw.line(base, fill="white", width=4)
     elif layer.shape == "rect":
         draw.rectangle(box, fill="black")
     elif layer.shape == "jagged":
@@ -73,6 +57,30 @@ def _shape(draw, layer, w, h, size, anchor):
                 r = radius + extra
                 draw.ellipse((x - r, y - r, x + r, y + r), fill=color)
             draw.ellipse((radius, radius, w - radius, h - radius), fill=color)
+
+
+def _tail(draw, layer, w, h, size, anchor, origin):
+    if layer.shape != "oval" or min(w, h) < 7:
+        return
+    if anchor is not None and (
+        ((anchor[0] - w / 2) / max(1, w / 2 - 3)) ** 2
+        + ((anchor[1] - h / 2) / max(1, h / 2 - 3)) ** 2
+        > 1
+    ):
+        cx, cy = w / 2, h / 2
+        dx, dy = anchor[0] - cx, anchor[1] - cy
+        angle = math.atan2(dy / max(1, h / 2 - 3), dx / max(1, w / 2 - 3))
+        delta = min(0.25, size * 0.5 / max(w, h))
+        base = [
+            (cx + (w / 2 - 4) * math.cos(a), cy + (h / 2 - 4) * math.sin(a))
+            for a in (angle - delta, angle + delta)
+        ]
+        base = [(x + origin[0], y + origin[1]) for x, y in base]
+        anchor = (anchor[0] + origin[0], anchor[1] + origin[1])
+        # Polygon outlines stay inside the triangle, preserving all pixels
+        # outside the bubble bounds and tail polygon.
+        draw.polygon([base[0], anchor, base[1]], fill="white", outline="black", width=3)
+        draw.line(base, fill="white", width=4)
 
 
 def render_lettering(base_image, layout):
@@ -101,7 +109,10 @@ def render_lettering(base_image, layout):
             if layer.anchor_xy_norm is None
             else (layer.anchor_xy_norm[0] * width - left, layer.anchor_xy_norm[1] * height - top)
         )
-        _shape(draw, layer, w, h, size, anchor)
+        _shape(draw, layer, w, h, size, None)
+        tail = Image.new("RGBA", result.size)
+        _tail(ImageDraw.Draw(tail), layer, w, h, size, anchor, (left, top))
+        inset_x, inset_y = text_insets(layer, w, h)
         color = (
             "white"
             if layer.shape == "rect"
@@ -116,7 +127,7 @@ def render_lettering(base_image, layout):
             for col, line in enumerate(lines):
                 for row, char in enumerate(line):
                     glyph = glyph_tile(char, font, color, stroke, "white")
-                    x, y = w - pad - size - col * advance, pad + row * advance
+                    x, y = w - inset_x - pad - size - col * advance, inset_y + pad + row * advance
                     if char in "。、":
                         x, y = x + size * 0.32, y - size * 0.32
                     if halo:
@@ -126,7 +137,7 @@ def render_lettering(base_image, layout):
                     tile.alpha_composite(glyph, (round(x), round(y)))
         else:
             for i, line in enumerate(lines):
-                xy = (pad, pad + i * size * 1.4)
+                xy = (inset_x + pad, inset_y + pad + i * size * 1.4)
                 if halo:
                     for dx, dy in ((-2, -2), (-2, 2), (2, -2), (2, 2)):
                         draw.text(
@@ -142,4 +153,5 @@ def render_lettering(base_image, layout):
                     stroke_fill="white",
                 )
         result.paste(tile, (left, top), tile)
+        result.paste(tail, (0, 0), tail)
     return result
