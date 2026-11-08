@@ -7,7 +7,9 @@ from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
 from apps.api.deps import container
-from creator_studio.application.assets.store_asset import to_dto
+from creator_studio.application.assets.store_asset import StoreBytesCommand, to_dto
+from creator_studio.application.image.speech_bubble import BubblePosition, composite_speech_bubble
+from creator_studio.domain.asset import AssetKind
 from creator_studio.domain.ids import AssetId
 from creator_studio.infrastructure.container import Container
 
@@ -16,6 +18,48 @@ router = APIRouter(prefix="/api/v1/assets", tags=["assets"])
 
 class DecisionBody(BaseModel):
     decision: str = Field(description="adopted | rejected")
+
+
+class SpeechBubbleBody(BaseModel):
+    text: str = Field(min_length=1)
+    position: BubblePosition = "top-right"
+
+
+@router.post("/{asset_id}/speech-bubble")
+def add_speech_bubble(
+    asset_id: str, body: SpeechBubbleBody, c: Container = Depends(container)
+) -> dict[str, Any]:
+    if not body.text.strip():
+        raise HTTPException(status_code=422, detail="Speech-bubble text must not be empty")
+    with c.uow() as uow:
+        source = uow.assets.get(AssetId(asset_id))
+        if source is None:
+            raise HTTPException(status_code=404, detail="asset not found")
+        uri = source.uri
+    try:
+        path = c.asset_store.path_for_uri(uri)
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=404, detail="asset content not found") from exc
+    try:
+        data = composite_speech_bubble(path, body.text, body.position)
+    except (ValueError, OSError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return c.store_asset().execute(
+        StoreBytesCommand(
+            data=data,
+            kind=AssetKind.DERIVED,
+            mime="image/png",
+            relative_dir="derived",
+            filename="speech-bubble.png",
+            provenance={
+                "source_asset_id": asset_id, "operation": "speech_bubble",
+                "text": body.text, "position": body.position,
+            },
+            deduplicate=False,
+        )
+    ).__dict__
 
 
 @router.get("/{asset_id}")

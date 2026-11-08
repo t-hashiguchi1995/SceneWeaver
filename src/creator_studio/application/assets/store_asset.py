@@ -43,6 +43,8 @@ class StoreBytesCommand:
     filename: str
     metadata: dict[str, Any] | None = None
     provenance: dict[str, Any] | None = None
+    # Derived operations may need a distinct record with their own provenance.
+    deduplicate: bool = True
 
 
 class StoreAssetBytes:
@@ -57,7 +59,7 @@ class StoreAssetBytes:
             filename=cmd.filename,
         )
         with self._uow as uow:
-            existing = uow.assets.find_by_sha256(blob.sha256)
+            existing = uow.assets.find_by_sha256(blob.sha256) if cmd.deduplicate else None
             if existing:
                 return to_dto(existing)
             asset = Asset.create(
