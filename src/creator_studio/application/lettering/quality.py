@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from itertools import combinations
 from uuid import uuid4
 
+from .fonts import KIND_DEFAULTS, canonical_profile, font_cmap
 from .planner import overlap, segment_interior_length, tail_start
 
 # Provisional thresholds; calibrate against reviewed manga pages before production use.
@@ -46,7 +47,7 @@ def _clip(start, end, box):
 def evaluate_layout(
     layout, image_w, image_h, protected_regions=None, profile="manga_single_character_v1"
 ):
-    """Evaluate stored evidence without fitting text or consulting external resources.
+    """Evaluate stored geometry and font evidence without fitting text.
 
     Protection sums smaller-box overlap percentages (clamped to 0..100).
     Tail uses the worst piecewise length score, minus 25 for any generic crossing.
@@ -60,6 +61,8 @@ def evaluate_layout(
     p = PROFILES[profile]
     regions = protected_regions or []
     findings, reasons, tails, fonts, shapes = [], [], [], [], []
+    font_records = []
+    profile_mismatch = False
     protection_loss, face_hit = 0.0, False
     any_generic_crossing = False
     scale = (image_w, image_h, image_w, image_h)
@@ -146,7 +149,35 @@ def evaluate_layout(
                     generic_crossing = True
         any_generic_crossing = any_generic_crossing or generic_crossing
         if layer.text:
-            if layer.font_px is None:
+            resolved = layer.font_resolved
+            if resolved:
+                font_records.append(
+                    {
+                        "layer_id": layer.block_id,
+                        **{
+                            k: resolved[k]
+                            for k in (
+                                "profile",
+                                "font_name",
+                                "font_version",
+                                "font_file",
+                                "fallback",
+                            )
+                        },
+                    }
+                )
+                cmap = font_cmap(resolved["font_path"])
+                missing = sorted({c for c in layer.text if c not in "\n\r" and ord(c) not in cmap})
+                if missing:
+                    finding("missing_glyph", layer)
+                    findings[-1]["chars"] = missing
+                if (
+                    resolved["profile"] != KIND_DEFAULTS[layer.kind]
+                    and canonical_profile(layer.font_profile) != resolved["profile"]
+                ):
+                    finding("font_profile_mismatch", layer, severity="major")
+                    profile_mismatch = True
+            if not resolved or layer.font_px is None:
                 fonts.append(None)
                 reasons.append("missing_font_info:" + layer.block_id)
             else:
@@ -214,6 +245,8 @@ def evaluate_layout(
         "reading_order": max(0, 100 - 25 * inversions),
         "shape": sum(shapes) / len(shapes) if shapes else None,
     }
+    if profile_mismatch and components["typography"] is not None:
+        components["typography"] = min(60, components["typography"])
     if any(r.startswith("missing_bbox:") for r in reasons):
         # No partial geometry score may masquerade as a complete measurement.
         for name in ("protection", "tail", "reading_order", "shape"):
@@ -269,6 +302,11 @@ def evaluate_layout(
         "gate_d": d,
         "final_gate": final,
         "reasons": reasons,
-        "evaluator_versions": {"lettering_quality": "0.1.0", "profile": profile},
+        "fonts": font_records,
+        "evaluator_versions": {
+            "lettering_quality": "0.1.0",
+            "profile": profile,
+            "font_registry": "0.1.0",
+        },
         "created_at": datetime.now(UTC).isoformat(),
     }

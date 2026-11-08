@@ -4,17 +4,19 @@ import math
 
 from PIL import Image, ImageDraw, ImageFont
 
-from creator_studio.application.image.speech_bubble import find_japanese_font
 from creator_studio.application.lettering.planner import fit_text, font_target, text_insets
 
-ROTATED = set("ー―…‥「」『』（）")
+from .fonts import resolve_font
+
+ROTATED = set("ー―－…‥〜～:：;；()（）[]［］{}｛｝「」『』【】〔〕〈〉《》")
 
 
 def glyph_tile(char, font, fill="black", stroke_width=0, stroke_fill="white"):
-    """Tight glyph tile; clockwise rotation preserves visible glyph bounds."""
+    """Transform a glyph within its square cell."""
+    size = font.size
     box = font.getbbox(char, stroke_width=stroke_width)
-    tile = Image.new("RGBA", (max(1, box[2] - box[0]), max(1, box[3] - box[1])))
-    ImageDraw.Draw(tile).text(
+    ink = Image.new("RGBA", (max(1, box[2] - box[0]), max(1, box[3] - box[1])))
+    ImageDraw.Draw(ink).text(
         (-box[0], -box[1]),
         char,
         font=font,
@@ -22,7 +24,18 @@ def glyph_tile(char, font, fill="black", stroke_width=0, stroke_fill="white"):
         stroke_width=stroke_width,
         stroke_fill=stroke_fill,
     )
-    return tile.rotate(-90, expand=True) if char in ROTATED else tile
+    if char in "、。" and ink.getbbox():
+        ink = ink.crop(ink.getbbox())
+    if ink.width > size or ink.height > size:
+        ink.thumbnail((size, size))
+    tile = Image.new("RGBA", (size, size))
+    xy = (
+        (size - ink.width, 0)
+        if char in "、。"
+        else ((size - ink.width) // 2, (size - ink.height) // 2)
+    )
+    tile.alpha_composite(ink, xy)
+    return tile.transpose(Image.Transpose.ROTATE_270) if char in ROTATED else tile
 
 
 def _shape(draw, layer, w, h, size, anchor):
@@ -85,9 +98,13 @@ def _tail(draw, layer, w, h, size, anchor, origin):
 
 def render_lettering(base_image, layout):
     result = base_image.convert("RGB").copy()
-    font_path = find_japanese_font()
+    cell_boxes = {}
+    result.info["glyph_cell_boxes"] = cell_boxes
     width, height = result.size
     for layer in sorted(layout.layers, key=lambda v: v.reading_order):
+        layer.font_resolved = resolve_font(layer).to_dict()
+        font_path = layer.font_resolved["font_path"]
+        cell_boxes[layer.block_id] = []
         if layer.bbox_xyxy_norm is None:
             continue
         x1, y1, x2, y2 = layer.bbox_xyxy_norm
@@ -102,7 +119,8 @@ def render_lettering(base_image, layout):
             continue
         tile = Image.new("RGBA", (w, h))
         draw = ImageDraw.Draw(tile)
-        size, lines, _, pad = fit_text(layer, w, h, font_target(height, layer), font_path)
+        size, lines, feasible, pad = fit_text(layer, w, h, font_target(height, layer), font_path)
+        layer.font_px, layer.fit_feasible = size, feasible
         font = ImageFont.truetype(str(font_path), size)
         tip = layer.tail_tip_xy_norm or layer.anchor_xy_norm
         anchor = None if tip is None else (tip[0] * width - left, tip[1] * height - top)
@@ -125,8 +143,9 @@ def render_lettering(base_image, layout):
                 for row, char in enumerate(line):
                     glyph = glyph_tile(char, font, color, stroke, "white")
                     x, y = w - inset_x - pad - size - col * advance, inset_y + pad + row * advance
-                    if char in "。、":
-                        x, y = x + size * 0.32, y - size * 0.32
+                    cell_boxes[layer.block_id].append(
+                        (char, left + round(x), top + round(y), size, size)
+                    )
                     if halo:
                         halo_glyph = glyph_tile(char, font, "white")
                         for dx, dy in ((-2, -2), (-2, 2), (2, -2), (2, 2)):

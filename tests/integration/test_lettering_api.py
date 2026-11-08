@@ -40,6 +40,8 @@ def test_editable_derived_lettering(container):
             )
             assert response.status_code == 200, response.text
             layout = response.json()
+            assert layout["layers"][0]["font_resolved"]["profile"] == "manga_dialogue"
+            assert layout["layers"][0]["font_resolved"]["fallback"] is False
             url = root + "/" + layout["layout_id"]
             evaluation = client.post(
                 url + "/evaluate",
@@ -67,6 +69,8 @@ def test_editable_derived_lettering(container):
             assert client.get(url).json() == edit.json()
             result = client.post(url + "/render")
             assert result.status_code == 200, result.text
+            stored = client.get(url).json()["layers"][0]
+            assert stored["font_resolved"]["profile"] == "manga_dialogue"
             asset = result.json()
             assert asset["kind"] == "derived" and asset["id"] != source.id
             assert asset["provenance"] == {

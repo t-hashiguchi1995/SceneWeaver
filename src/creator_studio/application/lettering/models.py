@@ -17,7 +17,7 @@ class LetteringLayer:
     writing_mode: str | None = None
     shape: str | None = None
     reading_order: int = 0
-    font_profile: str = "jp_manga_sans"
+    font_profile: str | None = None
     min_font_px: int = 21
 
     font_px: int | None = None
@@ -27,7 +27,13 @@ class LetteringLayer:
     tail_mode: str = "auto"
     tail_tip_xy_norm: tuple[float, float] | None = None
 
+    font_resolved: dict | None = None
+
     def __post_init__(self):
+        if self.font_profile is None:
+            from .fonts import KIND_DEFAULTS
+
+            self.font_profile = KIND_DEFAULTS.get(self.kind, "manga_dialogue")
         if self.tail_mode not in {"auto", "none"}:
             raise ValueError("Invalid tail mode")
         if self.kind not in {"speech_bubble", "inner_voice", "narration", "sfx"}:

@@ -1,11 +1,14 @@
 import json
 
 import pytest
+from PIL import Image
 
+from creator_studio.application.lettering.fonts import resolve_font
 from creator_studio.application.lettering.models import LetteringLayer, LetteringLayout
 from creator_studio.application.lettering.planner import plan_layout
 from creator_studio.application.lettering.quality import evaluate_layout
 from creator_studio.application.lettering.quality_store import load_evaluation, save_evaluation
+from creator_studio.application.lettering.renderer import render_lettering
 
 FACE = {"id": "face1", "role": "face", "bbox_xyxy_norm": (0.33, 0.04, 0.67, 0.32)}
 
@@ -75,6 +78,8 @@ def test_clean_demo():
         ],
         protected_regions_norm=[FACE["bbox_xyxy_norm"]],
     )
+    render_lettering(Image.new("RGB", (1536, 1536), "white"), layout)
+    print({v.block_id: v.font_resolved for v in layout.layers})
     result = evaluate_layout(layout, 1536, 1536, [FACE])
     assert result["gate_a"]["status"] == "PASS"
     assert result["gate_b"]["score"] is not None
@@ -101,6 +106,7 @@ def test_legacy_missing_font_and_roundtrip(tmp_path):
 @pytest.mark.parametrize("font,expected", [(22, 100), (20, 75), (17, 40)])
 def test_font_bands(font, expected):
     layout = regression()
+    layout.layers[0].font_resolved = resolve_font(layout.layers[0]).to_dict()
     layout.layers[0].font_px = font
     layout.layers[0].tail_mode = "none"
     assert evaluate_layout(layout, 1000, 1000)["gate_b"]["components"]["typography"] == expected
@@ -149,6 +155,7 @@ def test_na_redistribution_and_component_floor():
     layer = LetteringLayer(
         "narration", "a", "text", bbox_xyxy_norm=(0.1, 0.1, 0.2, 0.2), font_px=17, fit_feasible=True
     )
+    layer.font_resolved = resolve_font(layer).to_dict()
     layout = LetteringLayout("floor", "", {"width": 1000, "height": 1000}, [layer])
     result = evaluate_layout(layout, 1000, 1000)
     assert result["gate_b"]["score"] == 85

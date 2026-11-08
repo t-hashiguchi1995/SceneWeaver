@@ -32,7 +32,7 @@ class LayerBody(BaseModel):
     writing_mode: Literal["vertical-rl", "horizontal"] | None = None
     shape: Literal["oval", "cloud", "jagged", "rect", "none"] | None = None
     reading_order: int = 0
-    font_profile: str = "jp_manga_sans"
+    font_profile: str | None = None
     min_font_px: int = Field(default=21, ge=1, le=512)
 
     @model_validator(mode="after")
@@ -136,6 +136,7 @@ def render_layout(layout_id: str, c: Annotated[Container, Depends(container)]):
         rendered = render_lettering(image, layout)
     except RuntimeError as exc:
         raise HTTPException(503, str(exc)) from exc
+    save_layout(layout, directory=_directory(c))
     output = BytesIO()
     rendered.save(output, format="PNG")
     asset = c.store_asset().execute(

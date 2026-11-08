@@ -6,9 +6,10 @@ from uuid import uuid4
 
 from PIL import ImageFont
 
-from creator_studio.application.image.speech_bubble import find_japanese_font
 from creator_studio.application.lettering.models import LetteringLayer, LetteringLayout
 from creator_studio.application.lettering.vertical_text import layout_horizontal, layout_vertical
+
+from .fonts import resolve_font
 
 
 def overlap(a, b):
@@ -94,7 +95,6 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
     if image_w <= 0 or image_h <= 0 or not 0 <= margin_norm < 0.25:
         raise ValueError("Invalid canvas or margin")
     result = LetteringLayout(uuid4().hex, "", {"width": image_w, "height": image_h})
-    font_path = find_japanese_font()
     m = max(0.01, margin_norm)
     protected_regions_norm = sorted(tuple(p) for p in protected_regions_norm)
     region_w, region_h = (0.5 - 2 * m) * image_w, (0.5 - 2 * m) * image_h
@@ -103,6 +103,8 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
         data.setdefault("block_id", f"block_{index + 1}")
         data["reading_order"] = index
         layer = LetteringLayer.from_dict(data)
+        layer.font_resolved = resolve_font(layer).to_dict()
+        font_path = layer.font_resolved["font_path"]
         target = font_target(image_h, layer)
         max_width, max_height = region_w, region_h
         if layer.shape == "oval" and layer.writing_mode == "vertical-rl":
