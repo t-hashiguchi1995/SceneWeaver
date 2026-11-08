@@ -41,6 +41,22 @@ def test_editable_derived_lettering(container):
             assert response.status_code == 200, response.text
             layout = response.json()
             url = root + "/" + layout["layout_id"]
+            evaluation = client.post(
+                url + "/evaluate",
+                json={
+                    "protected_regions": [
+                        {"id": "face1", "role": "face", "bbox_xyxy_norm": [0.4, 0.4, 0.5, 0.5]}
+                    ]
+                },
+            )
+            assert evaluation.status_code == 200, evaluation.text
+            quality = evaluation.json()
+            assert (
+                client.get("/api/v1/lettering/quality/" + quality["quality_evaluation_id"]).json()
+                == quality
+            )
+            assert client.post(root + "/missing/evaluate", json={}).status_code == 404
+            assert client.get("/api/v1/lettering/quality/missing").status_code == 404
             assert client.get(url).json() == layout
             layout["layers"][0].update(
                 text="変更", shape="cloud", bbox_xyxy_norm=[0.1, 0.1, 0.4, 0.5]

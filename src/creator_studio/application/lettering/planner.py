@@ -181,10 +181,34 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
                 else 0
             )
             margin_bonus = 0.0001 if min(x, y, 1 - box[2], 1 - box[3]) >= 0.02 - 1e-12 else 0
+            # Keep crossings primary; discourage long tails in pixel space.
+            tail_ratio = (
+                math.dist(
+                    tuple(a * d for a, d in zip(tail_start(box, tip), (image_w, image_h))),
+                    tuple(a * d for a, d in zip(tip, (image_w, image_h))),
+                )
+                / min(image_w, image_h)
+                if tip
+                else 0
+            )
+            anchor_distance = (
+                math.hypot(
+                    ((box[0] + box[2]) / 2 - layer.anchor_xy_norm[0]) * image_w,
+                    ((box[1] + box[3]) / 2 - layer.anchor_xy_norm[1]) * image_h,
+                )
+                / min(image_w, image_h)
+                if tip and layer.anchor_xy_norm
+                else 0
+            )
+            tail_cost = (
+                0.01 * anchor_distance
+                + 0.5 * max(0, tail_ratio - 0.12)
+                + 3 * max(0, tail_ratio - 0.20)
+            )
             candidates.append(
                 (
                     crossing,
-                    100 * crossing + 3 * protected + 2 * placed - margin_bonus,
+                    100 * crossing + 3 * protected + 2 * placed + tail_cost - margin_bonus,
                     box,
                     protected,
                 )
@@ -192,6 +216,16 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
         crosses, _, layer.bbox_xyxy_norm, protected = min(
             candidates, key=lambda c: (c[0] > 1e-12, c[0] if c[0] > 1e-12 else 0, c[1])
         )
+        left, top, right, bottom = layer.bbox_xyxy_norm
+        layer.font_px, _, layer.fit_feasible, _ = fit_text(
+            layer,
+            round(right * image_w) - round(left * image_w),
+            round(bottom * image_h) - round(top * image_h),
+            target,
+            font_path,
+        )
+        feasible = feasible and layer.fit_feasible
+        layer.fit_feasible = feasible
         if crosses > 1e-12:
             result.warnings.append(f"tail_crosses_protected:{layer.block_id}")
         if not feasible:

@@ -155,3 +155,51 @@ def render_layout(layout_id: str, c: Annotated[Container, Depends(container)]):
         )
     )
     return {**asset.__dict__, "warnings": layout.warnings}
+
+
+class ProtectedRegionBody(BaseModel):
+    id: str | None = None
+    role: str = "protected"
+    bbox_xyxy_norm: tuple[float, float, float, float]
+
+    @model_validator(mode="after")
+    def validate_bounds(self):
+        LetteringLayer("speech_bubble", "region", "", bbox_xyxy_norm=self.bbox_xyxy_norm)
+        return self
+
+
+class EvaluateBody(BaseModel):
+    protected_regions: list[ProtectedRegionBody] = Field(default_factory=list)
+
+
+@router.post("/{layout_id}/evaluate")
+def evaluate(
+    layout_id: str, c: Annotated[Container, Depends(container)], body: EvaluateBody | None = None
+):
+    from creator_studio.application.lettering.quality import evaluate_layout
+    from creator_studio.application.lettering.quality_store import save_evaluation
+
+    layout = _load(layout_id, c)
+    result = evaluate_layout(
+        layout,
+        layout.canvas["width"],
+        layout.canvas["height"],
+        [v.model_dump() for v in body.protected_regions] if body else [],
+    )
+    save_evaluation(result, directory=c.settings.runtime_path() / "lettering_quality")
+    return result
+
+
+quality_router = APIRouter(prefix="/api/v1/lettering/quality", tags=["lettering"])
+
+
+@quality_router.get("/{evaluation_id}")
+def get_quality(evaluation_id: str, c: Annotated[Container, Depends(container)]):
+    from creator_studio.application.lettering.quality_store import load_evaluation
+
+    try:
+        return load_evaluation(
+            evaluation_id, directory=c.settings.runtime_path() / "lettering_quality"
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(404, "quality evaluation not found") from exc

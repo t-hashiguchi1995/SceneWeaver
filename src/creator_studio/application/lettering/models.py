@@ -20,6 +20,10 @@ class LetteringLayer:
     font_profile: str = "jp_manga_sans"
     min_font_px: int = 21
 
+    font_px: int | None = None
+    fit_feasible: bool | None = None
+    text_overflow: bool = False
+
     tail_mode: str = "auto"
     tail_tip_xy_norm: tuple[float, float] | None = None
 

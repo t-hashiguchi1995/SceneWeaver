@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(shots.router)
     app.include_router(assets.router)
     app.include_router(lettering.router)
+    app.include_router(lettering.quality_router)
     app.include_router(quality_evaluations.router)
     app.include_router(csp.router)
 
