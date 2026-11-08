@@ -40,6 +40,7 @@ def test_api_vertical_slice_preview(container: Container, settings: Settings) ->
     client.put(
         f"/api/v1/characters/{character['id']}/persona",
         json={
+            "max_fragments": 3,
             "first_person": "私",
             "voice_examples": [{"text": "えへへ", "polarity": "positive"}],
         },

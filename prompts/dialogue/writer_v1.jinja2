@@ -18,8 +18,8 @@ Hard constraints:
 - do not narrate visible actions
 - do not add stage directions inside the spoken line
 
-Return JSON array:
-[{"text":"...", "tone":"...", "fragment_hint":["..."]}]
+Return a JSON object with a candidates array:
+{"candidates":[{"text":"...", "tone":"...", "fragment_hint":["..."]}]}
 
 Director plan:
 {{ director_json }}

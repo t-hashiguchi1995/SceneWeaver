@@ -9,6 +9,7 @@ from apps.api.routes import (
     characters,
     csp,
     jobs,
+    lettering,
     projects,
     quality_evaluations,
     references,
@@ -47,6 +48,7 @@ def create_app() -> FastAPI:
     app.include_router(visual_library.router)
     app.include_router(shots.router)
     app.include_router(assets.router)
+    app.include_router(lettering.router)
     app.include_router(quality_evaluations.router)
     app.include_router(csp.router)
 

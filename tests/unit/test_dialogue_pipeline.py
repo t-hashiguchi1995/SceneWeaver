@@ -12,6 +12,7 @@ def test_stub_dialogue_pipeline_and_lock(container: Container) -> None:
     container.update_persona().execute(
         character.id,
         {
+            "max_fragments": 3,
             "first_person": "私",
             "second_person": "あなた",
             "voice_examples": [
@@ -71,7 +72,7 @@ def test_locked_dialogue_and_state_reach_writer_critic_and_shot_planner(containe
     monkeypatch.setattr(container, 'llm', lambda: llm)
     project = container.create_project().execute(CreateProjectCommand(title='Continuity'))
     character = container.create_character().execute('リゼ・ヘルエスタ')
-    container.update_persona().execute(character.id, {'max_chars': 48, 'forbidden_patterns': ['わらわ']})
+    container.update_persona().execute(character.id, {'max_fragments': 3, 'max_chars': 48, 'forbidden_patterns': ['わらわ']})
     scene = container.create_scene().execute(project.id, 'Library', initial_state={
         'memo_meaning': 'unknown', 'background': 'library shelves',
         'relationship': {'trust': 'high'},
@@ -103,3 +104,38 @@ def test_locked_dialogue_and_state_reach_writer_critic_and_shot_planner(containe
     draft = container.prompt_draft_service().ensure_for_shot(shot.id)
     assert 'evening light' in draft.rendered_base_positive
     assert 'library shelves' in draft.rendered_base_positive
+
+
+@pytest.mark.parametrize('mode', ['malformed', 'partial', 'all'])
+def test_scripted_writer_validation(container, monkeypatch, mode):
+    from creator_studio.adapters.llm import StubLLMProvider
+    from creator_studio.application.dialogue.pipeline import DialogueGenerationError
+
+    class Scripted(StubLLMProvider):
+        def complete_json(self, **kwargs):
+            if kwargs.get('schema_hint') == 'array':
+                if mode == 'malformed':
+                    return [{'tone': 'missing text'}]
+                return [{'text': '長' * 41}, {'text': '長' * 42 if mode == 'all' else 'はい'}]
+            if 'Score each dialogue candidate' in kwargs['user']:
+                return {'scores': [{'index': 1, 'score': 5}, {'index': 0, 'score': 1}]}
+            return super().complete_json(**kwargs)
+
+    monkeypatch.setattr(container, 'llm', Scripted)
+    project = container.create_project().execute(CreateProjectCommand(title='Validation'))
+    character = container.create_character().execute('Speaker')
+    scene = container.create_scene().execute(project.id, 'Scene')
+    beat = container.create_beat().execute(scene.id, 'Intent', speaker_id=character.id)
+    pipeline = container.dialogue_pipeline()
+    if mode == 'partial':
+        result = pipeline.generate_candidates(beat_id=beat.id, character_id=character.id, candidate_count=1)
+        assert [c.text for c in result.candidates] == ['はい']
+        assert result.candidates[0].critic_scores['score'] == 5
+        assert result.rejected == [{'text': '長' * 41, 'issues': ['too_long']}]
+        assert result.model == result.provider == 'stub'
+    else:
+        with pytest.raises(DialogueGenerationError) as error:
+            pipeline.generate_candidates(beat_id=beat.id, character_id=character.id)
+        assert error.value.stage == ('writer' if mode == 'malformed' else 'all_candidates_rejected')
+        if mode == 'all':
+            assert len(error.value.issues) == 2

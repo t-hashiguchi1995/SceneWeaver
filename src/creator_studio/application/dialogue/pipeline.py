@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
+from pydantic import TypeAdapter, ValidationError
+
+from creator_studio.application.dialogue.schemas import CriticResult, DirectorPlan, WriterCandidate
+from creator_studio.application.dialogue.validation import validate_candidate
 from creator_studio.domain.character import Character, Persona
 from creator_studio.domain.ids import BeatId, CharacterId
 from creator_studio.domain.story import (
@@ -16,8 +20,16 @@ from creator_studio.domain.story import (
     resolve_effective_state,
 )
 from creator_studio.infrastructure.prompts import PromptRegistry
-from creator_studio.ports.llm import LLMGateway
+from creator_studio.ports.llm import LLMGateway, LLMResponseError
 from creator_studio.ports.unit_of_work import UnitOfWork
+
+
+class DialogueGenerationError(RuntimeError):
+    def __init__(self, stage: str, detail: Any = None, *, issues: Any = None) -> None:
+        self.stage = stage
+        self.detail = detail
+        self.issues = issues
+        super().__init__(f"{stage}: {detail}" if detail is not None else stage)
 
 
 @dataclass
@@ -33,6 +45,9 @@ class GenerateDialogueResult:
     director_plan: dict[str, Any]
     voice_examples: list[dict[str, Any]]
     candidates: list[DialogueCandidateDTO]
+    rejected: list[dict[str, Any]] = field(default_factory=list)
+    model: str | None = None
+    provider: str | None = None
 
 
 class ContextAssembler:
@@ -47,7 +62,9 @@ class ContextAssembler:
         previous_script_events: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         previous_beats = sorted(previous_beats, key=lambda b: b.seq)
-        state = resolve_effective_state(scene.initial_state, [b.state_delta for b in previous_beats])
+        state = resolve_effective_state(
+            scene.initial_state, [b.state_delta for b in previous_beats]
+        )
         return {
             "character": {
                 "id": str(character.id),
@@ -59,7 +76,9 @@ class ContextAssembler:
                     "forbidden_patterns": character.persona.forbidden_patterns,
                 },
             },
-            "relationship": relationship if relationship is not None else state.get("relationship", {}),
+            "relationship": relationship
+            if relationship is not None
+            else state.get("relationship", {}),
             "scene": {
                 "id": str(scene.id),
                 "title": scene.title,
@@ -68,8 +87,14 @@ class ContextAssembler:
                 "effective_state_before_beat": state,
             },
             "previous_beats": [
-                {"seq": b.seq, "intent": b.intent, "subtext": b.subtext,
-                 "action": b.action, "state_delta": b.state_delta} for b in previous_beats
+                {
+                    "seq": b.seq,
+                    "intent": b.intent,
+                    "subtext": b.subtext,
+                    "action": b.action,
+                    "state_delta": b.state_delta,
+                }
+                for b in previous_beats
             ],
             "previous_locked_script_events": previous_script_events or [],
             "beat": {
@@ -108,6 +133,13 @@ class DialoguePipeline:
         self._voice = VoiceExampleRetriever()
         self._on_script_change = on_script_change
 
+    def _complete(self, stage: str, schema: Any, **kwargs: Any) -> Any:
+        try:
+            payload = self._llm.complete_json(**kwargs)
+            return TypeAdapter(schema).validate_python(payload)
+        except (ValidationError, LLMResponseError) as exc:
+            raise DialogueGenerationError(stage, str(exc)) from exc
+
     def generate_candidates(
         self,
         *,
@@ -132,7 +164,9 @@ class DialoguePipeline:
                 if e.locked and e.kind == ScriptEventKind.SPEECH
             ]
             if locked:
-                raise PermissionError("locked ScriptEvent exists; unlock/supersede before regenerate")
+                raise PermissionError(
+                    "locked ScriptEvent exists; unlock/supersede before regenerate"
+                )
 
             context = self._context.assemble(
                 character=character,
@@ -140,30 +174,41 @@ class DialoguePipeline:
                 beat=beat,
                 previous_beats=previous,
                 previous_script_events=[
-                    {"beat_seq": b.seq, "speaker_id": str(e.speaker_id) if e.speaker_id else None,
-                     "kind": e.kind.value, "text": e.text, "revision": e.revision}
+                    {
+                        "beat_seq": b.seq,
+                        "speaker_id": str(e.speaker_id) if e.speaker_id else None,
+                        "kind": e.kind.value,
+                        "text": e.text,
+                        "revision": e.revision,
+                    }
                     for b in sorted(previous, key=lambda b: b.seq)
-                    for e in uow.script_events.list_for_beat(b.id) if e.locked
+                    for e in uow.script_events.list_for_beat(b.id)
+                    if e.locked
                 ],
             )
             context_json = json.dumps(context, ensure_ascii=False, indent=2)
-            persona_json = json.dumps({
-                "first_person": character.persona.first_person,
-                "second_person": character.persona.second_person,
-                "speech_rules": character.persona.speech_rules,
-                "forbidden_patterns": character.persona.forbidden_patterns,
-                "max_chars": character.persona.max_chars,
-                "max_fragments": character.persona.max_fragments,
-            }, ensure_ascii=False)
+            persona_json = json.dumps(
+                {
+                    "first_person": character.persona.first_person,
+                    "second_person": character.persona.second_person,
+                    "speech_rules": character.persona.speech_rules,
+                    "forbidden_patterns": character.persona.forbidden_patterns,
+                    "max_chars": character.persona.max_chars,
+                    "max_fragments": character.persona.max_fragments,
+                },
+                ensure_ascii=False,
+            )
             director_user = self._prompts.render(
                 "dialogue/director_v1.jinja2",
                 context_json=context_json,
             )
-            director_plan = self._llm.complete_json(
+            director_plan = self._complete(
+                "director",
+                DirectorPlan,
                 system="Return JSON only.",
                 user=director_user,
             )
-            assert isinstance(director_plan, dict)
+            director_plan = director_plan.model_dump()
 
             voice_examples = self._voice.retrieve(character.persona)
             writer_user = self._prompts.render(
@@ -180,14 +225,24 @@ class DialoguePipeline:
                 persona_json=persona_json,
                 context_json=context_json,
             )
-            lines = self._llm.complete_json(
-                system="Return JSON array only.",
+            lines = self._complete(
+                "writer",
+                list[WriterCandidate],
+                system='Return a JSON object with a "candidates" array.',
                 user=writer_user,
                 schema_hint="array",
             )
-            if isinstance(lines, dict) and "candidates" in lines:
-                lines = lines["candidates"]
-            assert isinstance(lines, list)
+            lines = [line.model_dump() for line in lines]
+            rejected = []
+            valid_indices = []
+            for idx, line in enumerate(lines):
+                issues = validate_candidate(line["text"], character.persona)
+                if issues:
+                    rejected.append({"text": line["text"], "issues": issues})
+                else:
+                    valid_indices.append(idx)
+            if not valid_indices:
+                raise DialogueGenerationError("all_candidates_rejected", issues=rejected)
 
             critic_user = self._prompts.render(
                 "dialogue/critic_v1.jinja2",
@@ -196,9 +251,24 @@ class DialoguePipeline:
                 persona_json=persona_json,
                 context_json=context_json,
             )
-            critic = self._llm.complete_json(system="Return JSON only.", user=critic_user)
-            assert isinstance(critic, dict)
-            score_rows = critic.get("scores", [])
+            critic = self._complete(
+                "critic", CriticResult, system="Return JSON only.", user=critic_user
+            )
+            score_rows = critic.scores
+            indexed_scores = {}
+            for position, row in enumerate(score_rows):
+                index = row.get("index", position)
+                if (
+                    not isinstance(index, int)
+                    or isinstance(index, bool)
+                    or index < 0
+                    or index >= len(lines)
+                    or index in indexed_scores
+                ):
+                    raise DialogueGenerationError("critic", "invalid or duplicate candidate index")
+                indexed_scores[index] = row
+            if set(indexed_scores) != set(range(len(lines))):
+                raise DialogueGenerationError("critic", "scores must align with all candidates")
 
             # supersede previous candidates
             for old in uow.script_events.list_for_beat(beat.id):
@@ -207,8 +277,9 @@ class DialoguePipeline:
                     uow.script_events.save(old)
 
             dtos: list[DialogueCandidateDTO] = []
-            for idx, line in enumerate(lines[:candidate_count]):
-                scores = score_rows[idx] if idx < len(score_rows) else {}
+            for idx in valid_indices[:candidate_count]:
+                line = lines[idx]
+                scores = indexed_scores[idx]
                 event = ScriptEvent.create_candidate(
                     beat.id,
                     kind=ScriptEventKind.SPEECH,
@@ -232,6 +303,9 @@ class DialoguePipeline:
                 director_plan=director_plan,
                 voice_examples=voice_examples,
                 candidates=dtos,
+                rejected=rejected,
+                model=getattr(self._llm, "model_name", None),
+                provider=getattr(self._llm, "provider_name", None),
             )
 
     def lock_script_event(self, event_id: str, text: str | None = None) -> ScriptEvent:

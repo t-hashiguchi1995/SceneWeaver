@@ -88,6 +88,9 @@ def generate_candidates(
         "director_plan": result.director_plan,
         "voice_examples": result.voice_examples,
         "candidates": [c.__dict__ for c in result.candidates],
+        "rejected": result.rejected,
+        "model": result.model,
+        "provider": result.provider,
     }
 
 

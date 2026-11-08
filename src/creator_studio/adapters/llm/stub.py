@@ -4,9 +4,16 @@ import json
 import re
 from typing import Any
 
+import httpx
+
+from creator_studio.ports.llm import LLMResponseError
+
 
 class StubLLMProvider:
     """Deterministic dialogue pipeline responses for tests and offline MVP."""
+
+    model_name = property(lambda self: "stub")
+    provider_name = property(lambda self: "stub")
 
     def complete_json(
         self,
@@ -115,36 +122,93 @@ def _extract(text: str, pattern: str) -> str | None:
     return m.group(1) if m else None
 
 
+def _normalize(data: Any, schema_hint: str | None) -> dict[str, Any] | list[Any]:
+    if schema_hint == "array":
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            for key in ("candidates", "items", "lines", "results", "data"):
+                if isinstance(data.get(key), list):
+                    return data[key]
+        raise LLMResponseError("expected array or list wrapper")
+    if isinstance(data, dict):
+        return data
+    raise LLMResponseError("expected object")
+
+
+def _parse_json(content: str) -> Any:
+    content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.IGNORECASE)
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        starts = [i for i in (content.find("{"), content.find("[")) if i >= 0]
+        if not starts:
+            raise
+        start = min(starts)
+        end = content.rfind("}" if content[start] == "{" else "]")
+        return json.loads(content[start : end + 1])
+
+
 class OpenAICompatibleProvider:
-    def __init__(self, *, base_url: str, api_key: str, model: str) -> None:
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        api_key: str,
+        model: str,
+        temperature: float = 0.4,
+        timeout: float = 60.0,
+        max_retries: int = 2,
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
         self._model = model
+        self._temperature = temperature
+        self._timeout = timeout
+        self._max_retries = max(0, max_retries)
+
+    model_name = property(lambda self: self._model)
+    provider_name = property(lambda self: "openai_compatible")
 
     def complete_json(
-        self,
-        *,
-        system: str,
-        user: str,
-        schema_hint: str | None = None,
+        self, *, system: str, user: str, schema_hint: str | None = None
     ) -> dict[str, Any] | list[Any]:
-        import httpx
-
-        payload = {
-            "model": self._model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "temperature": 0.4,
-            "response_format": {"type": "json_object"},
-        }
-        headers = {"Authorization": f"Bearer {self._api_key}"}
-        with httpx.Client(timeout=60.0) as client:
-            r = client.post(f"{self._base_url}/chat/completions", json=payload, headers=headers)
-            r.raise_for_status()
-            content = r.json()["choices"][0]["message"]["content"]
-        data = json.loads(content)
-        if schema_hint == "array" and isinstance(data, dict) and "items" in data:
-            return data["items"]
-        return data
+        raw = ""
+        reason = "invalid response"
+        with httpx.Client(timeout=self._timeout) as client:
+            for attempt in range(self._max_retries + 1):
+                instruction = user
+                if schema_hint == "array":
+                    instruction += '\nReturn a JSON object with a "candidates" array.'
+                if attempt:
+                    instruction += "\nReturn ONLY valid JSON matching the requested shape."
+                try:
+                    response = client.post(
+                        f"{self._base_url}/chat/completions",
+                        json={
+                            "model": self._model,
+                            "temperature": self._temperature,
+                            "response_format": {"type": "json_object"},
+                            "messages": [
+                                {"role": "system", "content": system},
+                                {"role": "user", "content": instruction},
+                            ],
+                        },
+                        headers={"Authorization": f"Bearer {self._api_key}"},
+                    )
+                    raw = response.text
+                    response.raise_for_status()
+                    raw = response.json()["choices"][0]["message"]["content"]
+                    if not isinstance(raw, str):
+                        raise LLMResponseError("expected textual JSON content")
+                    return _normalize(_parse_json(raw), schema_hint)
+                except (
+                    httpx.HTTPError,
+                    ValueError,
+                    KeyError,
+                    IndexError,
+                    TypeError,
+                    LLMResponseError,
+                ) as exc:
+                    reason = str(exc)
+        raise LLMResponseError(reason, str(raw))
