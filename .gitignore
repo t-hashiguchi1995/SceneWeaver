@@ -55,3 +55,6 @@ coverage/
 
 # Legacy prompt import working copy
 legacy/
+
+# Runtime outputs
+generated/
