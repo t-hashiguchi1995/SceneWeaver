@@ -28,6 +28,56 @@ def test_infeasible():
     assert "no_feasible_layout:long" in layout.warnings
 
 
+def test_demo_face_and_body_are_hard_constraints():
+    regions = [(0.33, 0.04, 0.67, 0.32), (0.30, 0.28, 0.86, 1.00)]
+    kwargs = {
+        "image_w": 1536,
+        "image_h": 1536,
+        "blocks": [
+            {
+                "block_id": "b01",
+                "kind": "speech_bubble",
+                "text": "ぜ、全部脱いだよ……。手で隠すのが精一杯……",
+                "anchor_xy_norm": (0.50, 0.20),
+            },
+            {"block_id": "b02", "kind": "inner_voice", "text": "……はずかしい、見ないで……"},
+        ],
+        "protected_regions_norm": regions,
+    }
+    layout = plan_layout(**kwargs)
+    bubble = layout.layers[0]
+    assert all(overlap(bubble.bbox_xyxy_norm, region) == 0 for region in regions)
+    assert "overlap_protected:b01" not in layout.warnings
+    repeated = plan_layout(**kwargs)
+    assert bubble.bbox_xyxy_norm == repeated.layers[0].bbox_xyxy_norm
+    assert bubble.tail_tip_xy_norm == repeated.layers[0].tail_tip_xy_norm
+    print("face+body bbox:", bubble.bbox_xyxy_norm, "tail tip:", bubble.tail_tip_xy_norm)
+
+
+def test_cramped_layout_falls_back_to_least_overlap():
+    # Only a narrow strip is unprotected, too small for any candidate.
+    region = (0.10, 0, 1, 1)
+    layout = plan_layout(
+        image_w=1536,
+        image_h=1536,
+        blocks=[
+            {
+                "block_id": "b01",
+                "kind": "speech_bubble",
+                "text": "ぜ、全部脱いだよ……。手で隠すのが精一杯……",
+                "anchor_xy_norm": (0.50, 0.20),
+            }
+        ],
+        protected_regions_norm=[region],
+    )
+    assert len(layout.layers) == 1
+    bubble = layout.layers[0]
+    assert overlap(bubble.bbox_xyxy_norm, region) > 0
+    assert "overlap_protected:b01" in layout.warnings
+    # The leftmost candidate has minimum intrusion, despite the distant anchor.
+    assert bubble.bbox_xyxy_norm[0] == 0.02
+
+
 def test_demo_oval_width_and_fit(tmp_path):
     from PIL import Image
 

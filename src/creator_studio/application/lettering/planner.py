@@ -167,11 +167,23 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
             if position not in seen:
                 seen.add(position)
                 unique_positions.append(position)
+        boxes = []
         for x, y in unique_positions[:600]:
             box = (x, y, x + bw, y + bh)
             if x < m - 1e-12 or y < m - 1e-12 or box[2] > 1 - m + 1e-12 or box[3] > 1 - m + 1e-12:
                 continue
             protected = sum(overlap(box, p) for p in protected_regions_norm)
+            boxes.append((box, protected))
+        # Protected bubble overlap is a hard constraint. If no clean box exists,
+        # minimize overlap first, then use the usual costs to break ties.
+        clean_boxes = [(box, protected) for box, protected in boxes if protected == 0]
+        if clean_boxes:
+            boxes = clean_boxes
+        else:
+            least_overlap = min(protected for _, protected in boxes)
+            boxes = [(box, protected) for box, protected in boxes if protected == least_overlap]
+        for box, protected in boxes:
+            x, y = box[:2]
             placed = sum(overlap(box, p.bbox_xyxy_norm) for p in result.layers)
             tip = layer.tail_tip_xy_norm
             crossing = (
