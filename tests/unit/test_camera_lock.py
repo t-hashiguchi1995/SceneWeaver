@@ -7,7 +7,10 @@ from PIL import Image
 
 from creator_studio.adapters.image import FakeImageBackend
 from creator_studio.application.assets.store_asset import StoreBytesCommand
-from creator_studio.application.camera.face_visibility import FaceVisibilityResult
+from creator_studio.application.camera.face_visibility import (
+    FaceVisibilityResult,
+    UnavailableFaceVisibilityChecker,
+)
 from creator_studio.application.camera.lock_service import CameraLockRequest, CameraLockService
 from creator_studio.application.projects.create_project import CreateProjectCommand
 from creator_studio.application.shots.pipeline import ShotPipeline
@@ -130,7 +133,9 @@ def test_face_gate(container, status):
 
 
 def test_unknown_face_gate(container):
-    svc = CameraLockService(container.uow(), container.asset_store)
+    svc = CameraLockService(
+        container.uow(), container.asset_store, UnavailableFaceVisibilityChecker()
+    )
     p = project(container)
     asset = png(container)
     with pytest.raises(CameraLockError, match="unverified") as error:

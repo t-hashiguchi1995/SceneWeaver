@@ -62,7 +62,7 @@ def test_anchor_and_binding_api(container):
     )
     assert response.status_code == 200
     a = response.json()
-    assert a["face_visibility"] == "unknown"
+    assert a["face_visibility"] == "not_found"
     assert a["anchor_asset_id"] == asset.id
     response = client.put(f"/api/v1/shots/{s.id}/camera-binding", json={"camera_rig_id": r["id"]})
     assert response.status_code == 200
@@ -75,7 +75,7 @@ def test_anchor_and_binding_api(container):
     )
     assert response.status_code == 422
     assert response.json()["detail"]["code"] == "ANCHOR_FACE_INVALID"
-    assert "unverified" in response.json()["detail"]["message"]
+    assert response.json()["detail"]["message"] == "anchor face is not fully visible"
 
 
 def test_render_api_capability_and_plain_render(container):
