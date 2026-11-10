@@ -66,6 +66,40 @@ class E2ESeedService:
             project = self._create_project.execute(CreateProjectCommand(title="E2E Foundation"))
             return SeedResult(scenario=scenario, project_id=project.id)
 
+        if scenario == "camera_lock":
+            from io import BytesIO
+
+            from PIL import Image
+
+            project = self._create_project.execute(CreateProjectCommand(title="E2E Camera Lock"))
+            character = self._create_character.execute("Camera Subject")
+            scene = self._create_scene.execute(
+                project.id, "Camera Studio", objective="fixed camera", initial_state={}
+            )
+            beats = [
+                self._create_beat.execute(
+                    scene.id,
+                    intent=f"Beat {index:02d}",
+                    subtext="camera lock",
+                    emotion={"name": "neutral", "intensity": 0.5},
+                    speaker_id=character.id,
+                )
+                for index in range(1, 11)
+            ]
+            image = BytesIO()
+            Image.new("RGB", (1536, 864), (80, 110, 140)).save(image, format="PNG")
+            asset = self._store.execute(
+                StoreBytesCommand(
+                    data=image.getvalue(), kind=AssetKind.REFERENCE, mime="image/png",
+                    relative_dir="camera", filename="anchor_candidate.png",
+                )
+            )
+            return SeedResult(
+                scenario=scenario, project_id=project.id, character_id=character.id,
+                scene_id=scene.id, beat_id=beats[0].id,
+                extras={"beat_ids": [str(beat.id) for beat in beats], "anchor_asset_id": str(asset.id)},
+            )
+
         if scenario == "visual_library":
             return self._seed_visual_library()
 
