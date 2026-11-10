@@ -13,6 +13,42 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
+export function parseApiError(err: unknown): { status: number | null; code: string | null; message: string } {
+  const message = err instanceof Error ? err.message : String(err)
+  const match = message.match(/^(\d{3}):\s*([\s\S]*)$/)
+  const status = match ? Number(match[1]) : null
+  try {
+    const detail = JSON.parse(match ? match[2] : message).detail
+    if (typeof detail === 'string') return { status, code: null, message: detail }
+    if (detail && typeof detail === 'object') return { status, code: typeof detail.code === 'string' ? detail.code : null, message: typeof detail.message === 'string' ? detail.message : message }
+  } catch { /* Preserve non-JSON errors. */ }
+  return { status, code: null, message }
+}
+
+export type CameraFacePolicy = 'full_visible' | 'partial_allowed' | 'not_required'
+export type CameraRig = {
+  id: string; project_id: string; name: string; revision: number
+  frame: { width: number; height: number; aspect: string }
+  view: { mode: string; azimuth_deg: number; elevation_deg: number; roll_deg: number; geometry_verified: boolean }
+  anchor_asset_id: string | null; background_mask_asset_id: string | null
+  preservation_mode: string; camera_device_visibility: string; face_policy: CameraFacePolicy
+  qc_profile_id: string; status: 'draft' | 'locked'; created_at: string; updated_at: string
+}
+export type CameraAnchor = {
+  id: string; rig_id: string; revision: number; image_asset_id: string; bg_mask_asset_id: string | null
+  sha256: string; face_visibility: string; face_check: Record<string, unknown>; created_at: string; anchor_asset_id: string
+}
+export type ShotCameraBinding = {
+  id: string; shot_id: string; rig_id: string; rig_revision: number; anchor_asset_sha256: string
+  face_policy: 'full_visible' | 'partial_allowed'; subject_motion: string | null; subject_distance_class: string | null
+  edit_mask_asset_id: string | null; pose_asset_id: string | null; created_at: string; updated_at: string
+}
+export type CreateCameraRigBody = Pick<CameraRig, 'name'> & {
+  frame: { width: number; height: number }; view?: Partial<CameraRig['view']>; preservation_mode?: string
+  camera_device_visibility?: string; face_policy?: CameraFacePolicy; qc_profile_id?: string; background_mask_asset_id?: string | null
+}
+export type BindShotCameraBody = { camera_rig_id: string; face_policy?: ShotCameraBinding['face_policy']; subject_motion?: string; subject_distance_class?: string; edit_mask_asset_id?: string; pose_asset_id?: string }
+
 export type Project = {
   id: string
   title: string
@@ -204,6 +240,7 @@ export type GenerationAttemptSummary = {
   template_id?: string
   template_version?: string
   modified?: boolean
+  camera_stale?: boolean | null
   asset_decisions?: Record<string, string>
 }
 
@@ -269,6 +306,15 @@ export type SetupStatus = {
 }
 
 export const api = {
+  listCameraRigs: (projectId: string) => request<CameraRig[]>(`/api/v1/projects/${projectId}/camera-rigs`),
+  createCameraRig: (projectId: string, body: CreateCameraRigBody) => request<CameraRig>(`/api/v1/projects/${projectId}/camera-rigs`, { method: 'POST', body: JSON.stringify(body) }),
+  updateCameraRig: (rigId: string, body: Partial<CreateCameraRigBody> & { expected_revision: number; status?: CameraRig['status'] }) => request<CameraRig>(`/api/v1/camera-rigs/${rigId}`, { method: 'PUT', body: JSON.stringify(body) }),
+  registerCameraAnchor: (rigId: string, imageAssetId: string) => request<CameraAnchor>(`/api/v1/camera-rigs/${rigId}/anchors`, { method: 'POST', body: JSON.stringify({ image_asset_id: imageAssetId }) }),
+  getShotCameraBinding: async (shotId: string): Promise<ShotCameraBinding | null> => {
+    try { return await request<ShotCameraBinding>(`/api/v1/shots/${shotId}/camera-binding`) }
+    catch (err) { if (parseApiError(err).status === 404) return null; throw err }
+  },
+  bindShotCamera: (shotId: string, body: BindShotCameraBody) => request<ShotCameraBinding>(`/api/v1/shots/${shotId}/camera-binding`, { method: 'PUT', body: JSON.stringify(body) }),
   listProjects: () => request<Project[]>('/api/v1/projects'),
   createProject: (title: string) =>
     request<Project>('/api/v1/projects', {
@@ -429,10 +475,11 @@ export const api = {
       kind: string
       provenance: Record<string, unknown>
     }>(`/api/v1/assets/${assetId}`),
-  renderShot: (shotId: string, usePose = true, seed?: number, poseAssetUri?: string, sourceAttemptId?: string) =>
+  renderShot: (shotId: string, usePose = true, seed?: number, poseAssetUri?: string, sourceAttemptId?: string, cameraLock?: { enabled: boolean; rig_id?: string; expected_rig_revision?: number }) =>
     request<RenderResult>(`/api/v1/shots/${shotId}/render`, {
       method: 'POST',
       body: JSON.stringify({
+        ...(cameraLock !== undefined ? { camera_lock: cameraLock } : {}),
         use_pose: usePose,
         seed,
         source_attempt_id: sourceAttemptId,
