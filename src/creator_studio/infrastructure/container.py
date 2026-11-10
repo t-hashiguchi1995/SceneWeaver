@@ -11,6 +11,7 @@ from creator_studio.adapters.vision import build_image_tagger
 from creator_studio.application.assets.decisions import SetAssetDecision
 from creator_studio.application.assets.store_asset import StoreAssetBytes
 from creator_studio.application.assets.tag_asset import ListAssetTags, TagAsset
+from creator_studio.application.camera.lock_service import CameraLockService
 from creator_studio.application.capabilities.resolve import CapabilityService
 from creator_studio.application.characters.manage import (
     CreateCharacter,
@@ -19,6 +20,7 @@ from creator_studio.application.characters.manage import (
     UpdatePersona,
     UpdateVisualIdentity,
 )
+from creator_studio.application.csp.handoff import CspHandoffService, ReleasePreviewService
 from creator_studio.application.dialogue.pipeline import DialoguePipeline
 from creator_studio.application.integrations.diagnose_comfy import DiagnoseComfy
 from creator_studio.application.jobs.manage_jobs import (
@@ -36,10 +38,14 @@ from creator_studio.application.prompt.drafts import PromptDraftService
 from creator_studio.application.prompt.renderer import PromptRenderer
 from creator_studio.application.reference.poses import ReferencePoseService
 from creator_studio.application.settings.service import SettingsService
-from creator_studio.application.story.manage import CreateBeat, CreateScene
-from creator_studio.application.csp.handoff import CspHandoffService, ReleasePreviewService
 from creator_studio.application.shots.pipeline import ShotPipeline
-from creator_studio.application.wardrobe.tryon import AdoptTryOn, RunTryOn, SearchMarket, SeedMarketplaceItem
+from creator_studio.application.story.manage import CreateBeat, CreateScene
+from creator_studio.application.wardrobe.tryon import (
+    AdoptTryOn,
+    RunTryOn,
+    SearchMarket,
+    SeedMarketplaceItem,
+)
 from creator_studio.infrastructure.db.session import get_session_factory
 from creator_studio.infrastructure.db.unit_of_work import SqlAlchemyUnitOfWork
 from creator_studio.infrastructure.filesystem.asset_store import FilesystemAssetStore
@@ -283,6 +289,9 @@ class Container:
     def prompt_draft_service(self) -> PromptDraftService:
         return PromptDraftService(self.uow(), self.prompt_renderer())
 
+    def camera_lock_service(self) -> CameraLockService:
+        return CameraLockService(self.uow(), self.asset_store)
+
     def shot_pipeline(self) -> ShotPipeline:
         # Stateless facade; Shot/Plan/Attempt live in SQL (survives process restart).
         return ShotPipeline(
@@ -292,6 +301,7 @@ class Container:
             self.asset_store,
             self.prompts,
             self.prompt_renderer(),
+            camera_lock_service=self.camera_lock_service(),
         )
 
     def csp_handoff(self) -> CspHandoffService:

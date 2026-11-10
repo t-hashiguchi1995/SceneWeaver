@@ -1,0 +1,1 @@
+"""Camera lock application services."""
