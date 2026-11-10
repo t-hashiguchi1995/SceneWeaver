@@ -67,9 +67,9 @@ def measure_protected_change(
     mask = _mask(mask_bytes)
     if anchor.size != result.size or anchor.size != mask.size:
         raise ValueError("image size mismatch")
-    outside = changed = 0
-    for a, r, m in zip(anchor.getdata(), result.getdata(), _dilate(mask, feather_px).getdata()):
-        if m == 0:
-            outside += 1
-            changed += a != r
-    return changed / outside if outside else 0.0
+    import numpy as np
+
+    outside = np.asarray(_dilate(mask, feather_px)) == 0
+    changed = np.any(np.asarray(anchor) != np.asarray(result), axis=2) & outside
+    count = np.count_nonzero(outside)
+    return float(np.count_nonzero(changed) / count) if count else 0.0

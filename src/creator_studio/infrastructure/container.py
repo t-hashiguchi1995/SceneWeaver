@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from creator_studio.application.camera.qc import CameraQCService
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -307,6 +309,9 @@ class Container:
     def camera_lock_service(self) -> CameraLockService:
         return CameraLockService(self.uow(), self.asset_store)
 
+    def camera_qc_service(self) -> CameraQCService:
+        return CameraQCService(self.uow(), self.asset_store)
+
     def shot_pipeline(self) -> ShotPipeline:
         # Stateless facade; Shot/Plan/Attempt live in SQL (survives process restart).
         return ShotPipeline(
@@ -317,6 +322,7 @@ class Container:
             self.prompts,
             self.prompt_renderer(),
             camera_lock_service=self.camera_lock_service(),
+            camera_qc_service=self.camera_qc_service(),
         )
 
     def csp_handoff(self) -> CspHandoffService:
