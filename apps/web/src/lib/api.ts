@@ -459,6 +459,10 @@ export const api = {
     request<{ source_kind: string; source_ref: string; label: string; body: string }>(
       `/api/v1/shots/${shotId}/prompt-template`,
     ),
+  getCameraQc: (attemptId: string) =>
+    request<{ attempt_id: string; items: CameraQcReport[] }>(`/api/v1/generations/${attemptId}/camera-qc`),
+  runCameraQc: (attemptId: string) =>
+    request<{ attempt_id: string; items: CameraQcReport[] }>(`/api/v1/generations/${attemptId}/camera-qc`, { method: 'POST' }),
   getGenerationAttempt: (attemptId: string) =>
     request<GenerationAttemptSummary>(`/api/v1/generation-attempts/${attemptId}`),
   listGenerationAttempts: (shotId: string) =>
@@ -650,4 +654,12 @@ export function saveStudioContext(patch: StudioContext): StudioContext {
   const next = { ...loadStudioContext(), ...patch }
   sessionStorage.setItem(CTX_KEY, JSON.stringify(next))
   return next
+}
+
+
+export type CameraQcCheck = { status: string; [k: string]: unknown }
+export type CameraQcReport = {
+  id: string; attempt_id: string; candidate_asset_id: string
+  scores: { checks: Record<string, CameraQcCheck> }
+  decision: string; reason_codes: string[]; version: string; created_at: string
 }

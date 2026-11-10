@@ -141,6 +141,18 @@
     "seed": "Seed",
     "attemptStale": "Camera changed",
     "regenerate": "Regenerate",
-    "regenerateHint": "Review the current rig and binding, then use Render with camera lock when the workflow is available."
+    "regenerateHint": "Review the current rig and binding, then use Render with camera lock when the workflow is available.",
+    "qcTitle": "Camera QC",
+    "qcRun": "Run QC",
+    "qcPass": "pass",
+    "qcReview": "review",
+    "qcFail": "fail",
+    "qcBlocked": "This candidate cannot be adopted.",
+    "qcNotRun": "QC has not run.",
+    "qcCheckFrameRatio": "Frame size",
+    "qcCheckProtectedBackground": "Protected background",
+    "qcCheckFaceVisibility": "Face visibility",
+    "qcCheckLandmarkDrift": "Static landmark drift",
+    "qcCheckCameraDevice": "Camera device"
   }
 }

@@ -141,6 +141,18 @@
     "seed": "シード",
     "attemptStale": "カメラが変更されています",
     "regenerate": "再生成",
-    "regenerateHint": "現在のリグと紐付けを確認し、ワークフローが利用可能になったらカメラロックで生成してください。"
+    "regenerateHint": "現在のリグと紐付けを確認し、ワークフローが利用可能になったらカメラロックで生成してください。",
+    "qcTitle": "カメラ品質チェック",
+    "qcRun": "QCを実行",
+    "qcPass": "pass",
+    "qcReview": "review",
+    "qcFail": "fail",
+    "qcBlocked": "この候補は採用できません。",
+    "qcNotRun": "QCは未実行です。",
+    "qcCheckFrameRatio": "フレームサイズ",
+    "qcCheckProtectedBackground": "保護背景",
+    "qcCheckFaceVisibility": "顔の可視性",
+    "qcCheckLandmarkDrift": "静的特徴点のずれ",
+    "qcCheckCameraDevice": "カメラ機器"
   }
 }

@@ -22,7 +22,7 @@ function CameraLockControls({ projectId, shotId }: { projectId: string; shotId: 
     const result = await api.listGenerationAttempts(shotId)
     // P0a's list response may omit camera_stale; preserve explicit null provenance.
     const items = await Promise.all(result.items.map(async attempt => attempt.camera_stale === undefined
-      ? { ...attempt, camera_stale: (await api.getGenerationAttempt(attempt.id)).camera_stale }
+      ? { ...attempt, ...(await api.getGenerationAttempt(attempt.id)) }
       : attempt))
     return { ...result, items }
   } })
@@ -84,7 +84,38 @@ function CameraLockControls({ projectId, shotId }: { projectId: string; shotId: 
     </>}
     <p className="meta" data-testid="camera-binding-state">{binding.data ? `${label('bound')}: ${rigs.data?.find(r => r.id === binding.data?.rig_id)?.name ?? binding.data.rig_id} · ${label('revision')} ${binding.data.rig_revision} · ${binding.data.anchor_asset_sha256.slice(0, 12)}` : label('notBound')}</p>
     {render.error && (parseApiError(render.error).code === 'CAMERA_LOCK_CAPABILITY_UNAVAILABLE' ? <div role="alert" className="hint" data-testid="camera-lock-unavailable">{label('unavailable')}</div> : <p role="alert" className="error" data-testid="camera-lock-render-error">{errorText(render.error)}</p>)}
-    <div className="stack" data-testid="camera-attempts"><h3>{label('attempts')}</h3>{attempts.data?.items.map(a => <div key={a.id} data-testid={`camera-attempt-${a.id}`} className="stack"><span className="meta">{a.status} · {label('seed')} {a.seed} · {a.created_at}</span>{a.camera_stale === true && <div className="cta-row"><span className="hint" data-testid={`camera-attempt-stale-${a.id}`}>{label('attemptStale')}</span><button className="btn" data-testid={`camera-attempt-regenerate-${a.id}`} onClick={() => setNotice(true)}>{label('regenerate')}</button></div>}</div>)}</div>
+    <div className="stack" data-testid="camera-attempts"><h3>{label('attempts')}</h3>{attempts.data?.items.map(a => <div key={a.id} data-testid={`camera-attempt-${a.id}`} className="stack"><CameraQcBlock attemptId={a.id} enabled={!!a.payload?.camera_rig_id || a.capability === 'CameraLockedRender'} /><span className="meta">{a.status} · {label('seed')} {a.seed} · {a.created_at}</span>{a.camera_stale === true && <div className="cta-row"><span className="hint" data-testid={`camera-attempt-stale-${a.id}`}>{label('attemptStale')}</span><button className="btn" data-testid={`camera-attempt-regenerate-${a.id}`} onClick={() => setNotice(true)}>{label('regenerate')}</button></div>}</div>)}</div>
     {notice && <p className="hint" data-testid="camera-regenerate-notice">{label('regenerateHint')}</p>}
   </section>
+}
+
+
+const qcCheckLabels: Record<string, string> = {
+  frame_ratio: 'qcCheckFrameRatio', protected_background: 'qcCheckProtectedBackground',
+  face_visibility: 'qcCheckFaceVisibility', static_landmark_drift: 'qcCheckLandmarkDrift',
+  camera_device_in_frame: 'qcCheckCameraDevice',
+}
+
+function CameraQcBlock({ attemptId, enabled }: { attemptId: string; enabled: boolean }) {
+  const { t } = useTranslation('generation')
+  const label = (key: string) => t(`cameraLock.${key}`)
+  const client = useQueryClient()
+  const queryKey = ['camera-qc', attemptId]
+  const reports = useQuery({ queryKey, queryFn: () => api.getCameraQc(attemptId), enabled })
+  const run = useMutation({ mutationFn: () => api.runCameraQc(attemptId),
+    onSuccess: () => client.invalidateQueries({ queryKey }) })
+  if (!enabled) return null
+  const error = run.error ?? reports.error
+  return <div className="stack" data-testid={`camera-qc-${attemptId}`}>
+    <h4>{label('qcTitle')}</h4>
+    <button className="btn" data-testid={`camera-qc-run-${attemptId}`} disabled={run.isPending} onClick={() => run.mutate()}>{label('qcRun')}</button>
+    {error && <ErrorBanner message={parseApiError(error).message} />}
+    {reports.data?.items.length === 0 && <p className="meta">{label('qcNotRun')}</p>}
+    {reports.data?.items.map(report => <div key={report.id} className="stack">
+      <span className={report.decision === 'fail' ? 'error' : report.decision === 'review' ? 'hint' : 'meta'} data-testid={`camera-qc-decision-${report.candidate_asset_id}`}>{label(report.decision === 'pass' ? 'qcPass' : report.decision === 'fail' ? 'qcFail' : 'qcReview')}</span>
+      <ul>{Object.entries(report.scores.checks).map(([name, check]) => <li key={name}>{label(qcCheckLabels[name] ?? name)}: {check.status}</li>)}</ul>
+      <span className="meta">{report.reason_codes.join(', ')}</span>
+      {report.decision === 'fail' && <p className="error" data-testid={`camera-qc-blocked-${report.candidate_asset_id}`}>{label('qcBlocked')}</p>}
+    </div>)}
+  </div>
 }
