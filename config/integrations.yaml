@@ -2,7 +2,7 @@ integrations:
   eagle:
     mode: official_mcp_and_web_api
     endpoint: http://127.0.0.1:41595
-    enabled: false
+    enabled: true
     scopes:
       - read_assets
       - write_metadata

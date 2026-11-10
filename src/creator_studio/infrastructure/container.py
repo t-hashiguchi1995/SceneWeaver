@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from creator_studio.application.integrations.eagle_sync import SyncAssetToEagle
 
 from creator_studio.adapters.image import ComfyImageBackend, FakeImageBackend
 from creator_studio.adapters.llm import OpenAICompatibleProvider, StubLLMProvider
@@ -91,6 +95,17 @@ class Container:
                 bootstrap=self.settings,
             )
         return self._settings_service
+
+    def sync_asset_to_eagle(self) -> SyncAssetToEagle:
+        from creator_studio.adapters.eagle import EagleClient
+        from creator_studio.application.integrations.eagle_sync import (
+            SyncAssetToEagle,
+            load_eagle_config,
+        )
+
+        return SyncAssetToEagle(
+            self.uow(), EagleClient(load_eagle_config()["endpoint"]), self.asset_store
+        )
 
     def diagnose_comfy(self) -> DiagnoseComfy:
         return DiagnoseComfy()

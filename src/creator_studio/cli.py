@@ -119,8 +119,46 @@ def main() -> None:
     sub.add_parser("start", help="Start API + Worker + Web and open browser")
     sub.add_parser("api", help="Run API only")
     sub.add_parser("worker", help="Run Worker only")
+    eagle = sub.add_parser("eagle", help="Eagle asset integration")
+    eagle_sub = eagle.add_subparsers(dest="eagle_cmd", required=True)
+    sync = eagle_sub.add_parser("sync", help="Sync an adopted asset")
+    sync.add_argument("--asset-id", required=True)
+    sync.add_argument("--dry-run", action="store_true")
+    eagle_sub.add_parser("status", help="Show Eagle application info")
     args = parser.parse_args()
-    if args.cmd == "start":
+    if args.cmd == "eagle":
+        import json
+
+        from creator_studio.adapters.eagle import EagleClient
+        from creator_studio.adapters.eagle.errors import EagleError, EagleErrorCode
+        from creator_studio.application.integrations.eagle_sync import load_eagle_config
+
+        try:
+            if args.eagle_cmd == "status":
+                config = load_eagle_config()
+                if not config.get("enabled", False):
+                    raise EagleError(EagleErrorCode.EAGLE_DISABLED, "Eagle integration is disabled")
+                print(json.dumps(EagleClient(config["endpoint"]).application_info()))
+            else:
+                from creator_studio.infrastructure.container import get_container
+
+                result = (
+                    get_container()
+                    .sync_asset_to_eagle()
+                    .execute(args.asset_id, dry_run=args.dry_run)
+                )
+                print(
+                    json.dumps(
+                        {
+                            key: getattr(result, key)
+                            for key in ("status", "eagle_item_id", "folder_id", "windows_path")
+                        }
+                    )
+                )
+        except EagleError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+    elif args.cmd == "start":
         run_start()
     elif args.cmd == "api":
         run_api()
