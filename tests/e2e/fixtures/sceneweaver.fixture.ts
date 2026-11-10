@@ -1,3 +1,4 @@
+import { CameraLockPage } from '../pages/camera-lock.page'
 import { test as base } from '@playwright/test'
 
 import { ApiClient, type SeedResult } from '../support/api-client'
@@ -13,6 +14,7 @@ import { CspPage } from '../pages/csp.page'
 import { TryOnPage } from '../pages/tryon.page'
 
 type SceneWeaverFixtures = {
+  cameraLock: CameraLockPage
   api: ApiClient
   home: HomePage
   projects: ProjectsPage
@@ -29,6 +31,7 @@ type SceneWeaverFixtures = {
 }
 
 export const test = base.extend<SceneWeaverFixtures>({
+  cameraLock: async ({ page }, use) => { await use(new CameraLockPage(page)) },
   api: async ({}, use) => {
     const api = new ApiClient()
     await use(api)

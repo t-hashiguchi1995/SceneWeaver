@@ -168,6 +168,30 @@ export class ApiClient {
     return res.json()
   }
 
+  private async cameraRequest(path: string, method = 'GET', body?: Record<string, unknown>, nullable = false) {
+    const res = await fetch(`${this.base}/api/v1${path}`, {
+      method, headers: { 'Content-Type': 'application/json' },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    })
+    if (nullable && res.status === 404) return null
+    if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`)
+    return res.json()
+  }
+
+  createCameraRig(projectId: string, body: Record<string, unknown>) { return this.cameraRequest(`/projects/${projectId}/camera-rigs`, 'POST', body) }
+  listCameraRigs(projectId: string) { return this.cameraRequest(`/projects/${projectId}/camera-rigs`) }
+  getCameraRig(rigId: string) { return this.cameraRequest(`/camera-rigs/${rigId}`) }
+  updateCameraRig(rigId: string, body: Record<string, unknown>) { return this.cameraRequest(`/camera-rigs/${rigId}`, 'PUT', body) }
+  async registerCameraAnchor(rigId: string, imageAssetId: string) {
+    const res = await fetch(`${this.base}/api/v1/camera-rigs/${rigId}/anchors`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image_asset_id: imageAssetId }),
+    })
+    return { status: res.status, body: await res.json() }
+  }
+  bindShotCamera(shotId: string, body: Record<string, unknown>) { return this.cameraRequest(`/shots/${shotId}/camera-binding`, 'PUT', body) }
+  getShotCameraBinding(shotId: string) { return this.cameraRequest(`/shots/${shotId}/camera-binding`, 'GET', undefined, true) }
+  getGenerationAttempt(attemptId: string) { return this.cameraRequest(`/generation-attempts/${attemptId}`) }
+
   get baseUrl() {
     return this.base
   }
