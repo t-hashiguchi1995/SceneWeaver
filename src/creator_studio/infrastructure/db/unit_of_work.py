@@ -3,15 +3,20 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from creator_studio.infrastructure.db.repositories.asset_repo import SqlAlchemyAssetRepository
-from creator_studio.infrastructure.db.repositories.asset_tag_repo import SqlAlchemyAssetTagRepository
-from creator_studio.infrastructure.db.repositories.character_repo import SqlAlchemyCharacterRepository
+from creator_studio.infrastructure.db.repositories.asset_tag_repo import (
+    SqlAlchemyAssetTagRepository,
+)
+from creator_studio.infrastructure.db.repositories.camera_repo import (
+    SqlAlchemyCameraAnchorRepository,
+    SqlAlchemyCameraQCReportRepository,
+    SqlAlchemyCameraRigRepository,
+    SqlAlchemyShotCameraBindingRepository,
+)
+from creator_studio.infrastructure.db.repositories.character_repo import (
+    SqlAlchemyCharacterRepository,
+)
 from creator_studio.infrastructure.db.repositories.job_repo import SqlAlchemyJobRepository
 from creator_studio.infrastructure.db.repositories.project_repo import SqlAlchemyProjectRepository
-from creator_studio.infrastructure.db.repositories.story_repo import (
-    SqlAlchemyBeatRepository,
-    SqlAlchemySceneRepository,
-    SqlAlchemyScriptEventRepository,
-)
 from creator_studio.infrastructure.db.repositories.prompt_repo import (
     SqlAlchemyLegacyImportRepository,
     SqlAlchemyPromptDraftRepository,
@@ -21,6 +26,11 @@ from creator_studio.infrastructure.db.repositories.shot_repo import (
     SqlAlchemyGenerationAttemptRepository,
     SqlAlchemyRenderPlanRepository,
     SqlAlchemyShotRepository,
+)
+from creator_studio.infrastructure.db.repositories.story_repo import (
+    SqlAlchemyBeatRepository,
+    SqlAlchemySceneRepository,
+    SqlAlchemyScriptEventRepository,
 )
 from creator_studio.infrastructure.db.repositories.visual_library_repo import (
     SqlAlchemyVisualLibraryMetadataRepository,
@@ -36,6 +46,10 @@ class SqlAlchemyUnitOfWork:
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._session_factory = session_factory
         self.session: Session | None = None
+        self.camera_rigs: SqlAlchemyCameraRigRepository
+        self.camera_anchors: SqlAlchemyCameraAnchorRepository
+        self.shot_camera_bindings: SqlAlchemyShotCameraBindingRepository
+        self.camera_qc_reports: SqlAlchemyCameraQCReportRepository
         self.projects: SqlAlchemyProjectRepository
         self.jobs: SqlAlchemyJobRepository
         self.assets: SqlAlchemyAssetRepository
@@ -75,6 +89,10 @@ class SqlAlchemyUnitOfWork:
         self.prompt_presets = SqlAlchemyPromptPresetRepository(self.session)
         self.legacy_imports = SqlAlchemyLegacyImportRepository(self.session)
         self.visual_library_metadata = SqlAlchemyVisualLibraryMetadataRepository(self.session)
+        self.camera_rigs = SqlAlchemyCameraRigRepository(self.session)
+        self.camera_anchors = SqlAlchemyCameraAnchorRepository(self.session)
+        self.shot_camera_bindings = SqlAlchemyShotCameraBindingRepository(self.session)
+        self.camera_qc_reports = SqlAlchemyCameraQCReportRepository(self.session)
         return self
 
     def __exit__(self, exc_type: object, exc: object, tb: object) -> None:

@@ -22,6 +22,10 @@ from creator_studio.infrastructure.db.models.wardrobe import (
 from creator_studio.infrastructure.db.models.visual_library import VisualLibraryMetadataRow
 
 __all__ = [
+    "CameraRigRow",
+    "CameraAnchorRow",
+    "ShotCameraBindingRow",
+    "CameraQCReportRow",
     "ProjectRow",
     "JobRow",
     "AssetRow",
@@ -42,3 +46,4 @@ __all__ = [
     "LegacyImportRecordRow",
     "VisualLibraryMetadataRow",
 ]
+from .camera import CameraRigRow, CameraAnchorRow, ShotCameraBindingRow, CameraQCReportRow
