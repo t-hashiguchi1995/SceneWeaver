@@ -64,4 +64,5 @@ class WorkflowTemplateLoader:
             outputs=dict(meta.get("outputs") or {}),
             workflow_graph=graph,
             required_model_id=meta.get("required_model_id"),
+            required_slots=tuple(str(s) for s in (meta.get("required_slots") or ())),
         )

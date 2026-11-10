@@ -44,6 +44,14 @@ models:
     capabilities:
       - ReferenceAssetGeneration
 
+  anima_camera_lock:
+    provider: comfyui
+    checkpoint: anima_baseV10.safetensors
+    capabilities:
+      - CameraLockedRender
+    workflow_template: workflows/comfy/camera_lock_inpaint.template.yaml
+    notes: "Camera Lock Studio P1: anchor + edit-mask inpaint on the anima stack. Protected background is composited exactly in the application layer."
+
 approved_models:
   BaseRender: anima_base
   PoseControlledRender: anima_pose
@@ -52,3 +60,4 @@ approved_models:
   ExpressionEdit: qwen_image_edit_2509
   ImageEdit: qwen_image_edit_2509
   ReferenceAssetGeneration: google_flash_image
+  CameraLockedRender: anima_camera_lock

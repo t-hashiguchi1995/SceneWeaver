@@ -1,0 +1,26 @@
+id: camera_lock_inpaint_v1
+backend: comfyui
+capability: CameraLockedRender
+workflow_file: workflows/comfy/camera_lock_inpaint.api.json
+# Slot contract (design §09). pose_image / control_strength are accepted by the
+# contract but intentionally not bound in this graph: a static Comfy graph
+# cannot conditionally include the LLlite pose chain, so pose wiring ships as
+# a separate graph variant later. denoise_strength binds to KSampler.denoise.
+required_slots:
+  - anchor_image
+  - edit_mask_image
+  - positive_prompt
+  - negative_prompt
+  - seed
+slots:
+  candidate_count: { node: "103", input: "amount" }
+  anchor_image: { node: "100", input: "image" }
+  edit_mask_image: { node: "101", input: "image" }
+  positive_prompt: { node: "6", input: "text" }
+  negative_prompt: { node: "7", input: "text" }
+  seed: { node: "12", input: "seed" }
+  sampling_steps: { node: "12", input: "steps" }
+  sampling_cfg: { node: "12", input: "cfg" }
+  denoise_strength: { node: "12", input: "denoise" }
+outputs:
+  images: ["90"]

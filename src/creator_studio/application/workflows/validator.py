@@ -32,6 +32,11 @@ class WorkflowSlotValidator:
                 f"{template.required_model_id}"
             )
 
+        if slots is not None:
+            for name in template.required_slots:
+                if name != "seed" and slots.get(name) is None:
+                    errors.append(f"missing required slot: {name}")
+
         graph = template.workflow_graph
         for slot_name, binding in template.slots.items():
             node = graph.get(binding.node)

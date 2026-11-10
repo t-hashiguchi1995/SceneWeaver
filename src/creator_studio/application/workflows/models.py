@@ -20,6 +20,7 @@ class WorkflowTemplate:
     outputs: dict[str, list[str]]
     workflow_graph: dict[str, Any]
     required_model_id: str | None = None
+    required_slots: tuple[str, ...] = ()
 
 
 @dataclass
