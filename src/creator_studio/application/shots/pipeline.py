@@ -10,10 +10,11 @@ from typing import Any
 import yaml
 
 from creator_studio.application.assets.tag_asset import schedule_asset_tagging
+from creator_studio.application.camera.lock_service import CameraLockRequest, CameraLockService
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
+from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.application.prompt.drafts import capability_for_shot
 from creator_studio.application.prompt.renderer import PromptRenderer
-from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.domain.asset import Asset, AssetKind, ReviewDecision
 from creator_studio.domain.ids import BeatId
 from creator_studio.domain.prompt import PromptDraft, compute_context_hash, compute_prompt_hash
@@ -22,7 +23,9 @@ from creator_studio.domain.story import resolve_effective_state
 from creator_studio.domain.timeutil import utc_now
 from creator_studio.infrastructure.prompts import PromptRegistry
 from creator_studio.infrastructure.settings.config import REPO_ROOT
-from creator_studio.infrastructure.workflows.registry_models import resolve_template_id_for_capability
+from creator_studio.infrastructure.workflows.registry_models import (
+    resolve_template_id_for_capability,
+)
 from creator_studio.ports.asset_store import AssetStore
 from creator_studio.ports.image_backend import ImageBackend, RenderPlanDTO
 from creator_studio.ports.llm import LLMGateway
@@ -58,6 +61,7 @@ class ShotPipeline:
         store: AssetStore,
         prompts: PromptRegistry | None = None,
         renderer: PromptRenderer | None = None,
+        camera_lock_service: CameraLockService | None = None,
     ) -> None:
         self._uow = uow
         self._llm = llm
@@ -66,6 +70,7 @@ class ShotPipeline:
         self._prompts = prompts or PromptRegistry()
         self._renderer = renderer or PromptRenderer()
         self._compiler = PromptCompiler()
+        self._camera = camera_lock_service or CameraLockService(uow, store)
 
     def plan_shot(self, beat_id: str) -> ShotDTO:
         with self._uow as uow:
@@ -137,8 +142,10 @@ class ShotPipeline:
                         uow.render_plans.save(plan)
             uow.commit()
 
-    def render(self, shot_id: str, *, use_pose: bool = False, pose_asset_uri: str | None = None, seed: int | None = None, _replay: dict[str, Any] | None = None) -> dict[str, Any]:
+    def render(self, shot_id: str, *, use_pose: bool = False, pose_asset_uri: str | None = None, seed: int | None = None, _replay: dict[str, Any] | None = None, camera_lock: CameraLockRequest | None = None) -> dict[str, Any]:
         with self._uow as uow:
+            if camera_lock is not None and camera_lock.enabled:
+                self._camera.validate_render_request(shot_id, camera_lock, uow=uow)
             shot = uow.shots.get(shot_id)
             if shot is None:
                 raise ValueError("shot not found")
@@ -322,6 +329,10 @@ class ShotPipeline:
             pose_prov = shot.render_spec.get("pose_provenance")
             if isinstance(pose_prov, dict):
                 attempt_payload["pose_provenance"] = deepcopy(pose_prov)
+            if _replay is None:
+                camera_provenance = self._camera.camera_provenance(shot_id, uow=uow)
+                if camera_provenance is not None:
+                    attempt_payload.update(camera_provenance)
             attempt = GenerationAttempt.create(
                 plan.id,
                 based_revision,

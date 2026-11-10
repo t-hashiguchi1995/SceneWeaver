@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from apps.api.routes import (
     assets,
+    camera_rigs,
     capabilities,
     characters,
     csp,
@@ -47,6 +48,7 @@ def create_app() -> FastAPI:
     app.include_router(wardrobe.router)
     app.include_router(visual_library.router)
     app.include_router(shots.router)
+    app.include_router(camera_rigs.router)
     app.include_router(assets.router)
     app.include_router(lettering.router)
     app.include_router(lettering.quality_router)

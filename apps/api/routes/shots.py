@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 
 from apps.api.deps import container
 from creator_studio.adapters.image.comfy_errors import ComfyError
+from creator_studio.application.camera.lock_service import CameraLockRequest
+from creator_studio.domain.camera.errors import CameraLockError, http_status_for_camera_code
 from creator_studio.infrastructure.container import Container
 
 router = APIRouter(prefix="/api/v1", tags=["shots"])
@@ -21,7 +23,17 @@ def prompt_library(c: Container = Depends(container)) -> list[dict[str, Any]]:
                 for p in uow.prompt_presets.list_enabled()]
 
 
+class CameraLockBody(BaseModel):
+    enabled: bool = False
+    rig_id: str | None = None
+    expected_rig_revision: int | None = None
+    strategy: str | None = None
+    pose_asset_id: str | None = None
+    edit_mask_asset_id: str | None = None
+
+
 class RenderBody(BaseModel):
+    camera_lock: CameraLockBody | None = None
     source_attempt_id: str | None = None
     seed: int | None = Field(default=None, ge=0, le=2147483647)
     use_pose: bool = False
@@ -67,8 +79,12 @@ def render_shot(shot_id: str, body: RenderBody, c: Container = Depends(container
         if body.source_attempt_id:
             return c.shot_pipeline().render_from_attempt_draft(shot_id, body.source_attempt_id, seed=body.seed)
         return c.shot_pipeline().render(
-            shot_id, use_pose=body.use_pose, pose_asset_uri=body.pose_asset_uri, seed=body.seed
+            shot_id, use_pose=body.use_pose, pose_asset_uri=body.pose_asset_uri, seed=body.seed,
+            camera_lock=CameraLockRequest(**body.camera_lock.model_dump()) if body.camera_lock else None
         )
+    except CameraLockError as e:
+        raise HTTPException(status_code=http_status_for_camera_code(e.code),
+                            detail={"code": e.code, "message": str(e)}) from e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except ComfyError as e:
@@ -135,8 +151,9 @@ def get_prompt_template(shot_id: str, c: Container = Depends(container)) -> dict
         raise HTTPException(status_code=404, detail=str(e)) from e
 
 
-def _attempt_detail(attempt: Any) -> dict[str, Any]:
+def _attempt_detail(attempt: Any, c: Container) -> dict[str, Any]:
     return {
+        "camera_stale": c.camera_lock_service().attempt_camera_staleness(attempt),
         "id": attempt.id,
         "render_plan_id": attempt.render_plan_id,
         "based_on_shot_revision": attempt.based_on_shot_revision,
@@ -174,7 +191,7 @@ def list_generation_attempts(shot_id: str, c: Container = Depends(container)) ->
 def get_generation_attempt(attempt_id: str, c: Container = Depends(container)) -> dict[str, Any]:
     try:
         attempt = c.shot_pipeline().get_attempt(attempt_id)
-        return _attempt_detail(attempt)
+        return _attempt_detail(attempt, c)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
