@@ -29,11 +29,18 @@ class LetteringLayer:
 
     font_resolved: dict | None = None
 
+    tail_variant: str | None = None
+
     def __post_init__(self):
         if self.font_profile is None:
             from .fonts import KIND_DEFAULTS
 
             self.font_profile = KIND_DEFAULTS.get(self.kind, "manga_dialogue")
+        if self.tail_variant not in {None, "none", "short", "full"}:
+            raise ValueError("Invalid tail variant")
+        if self.tail_mode == "none":
+            self.tail_variant = "none"
+            self.tail_tip_xy_norm = None
         if self.tail_mode not in {"auto", "none"}:
             raise ValueError("Invalid tail mode")
         if self.kind not in {"speech_bubble", "inner_voice", "narration", "sfx"}:

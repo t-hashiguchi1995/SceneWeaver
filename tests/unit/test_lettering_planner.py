@@ -117,14 +117,15 @@ def test_demo_oval_width_and_fit(tmp_path):
 
     face = (0.33, 0.04, 0.67, 0.32)
     assert overlap(bubble.bbox_xyxy_norm, face) == 0
-    assert (
-        segment_interior_length(
-            tail_start(bubble.bbox_xyxy_norm, bubble.tail_tip_xy_norm),
-            bubble.tail_tip_xy_norm,
-            face,
+    if bubble.tail_tip_xy_norm is not None:
+        assert (
+            segment_interior_length(
+                tail_start(bubble.bbox_xyxy_norm, bubble.tail_tip_xy_norm),
+                bubble.tail_tip_xy_norm,
+                face,
+            )
+            < 1e-12
         )
-        < 1e-12
-    )
     for layer in layout.layers:
         a, b, c, d = layer.bbox_xyxy_norm
         assert min(a, b, 1 - c, 1 - d) >= 0.01
@@ -161,7 +162,8 @@ def test_tail_none_and_unavoidable_crossing():
         blocks=[{"kind": "speech_bubble", "text": "台詞", "anchor_xy_norm": (0.5, 0.5)}],
         protected_regions_norm=[(0, 0, 1, 1)],
     )
-    assert "tail_crosses_protected:block_1" in layout.warnings
+    assert layout.layers[0].tail_variant == "none"
+    assert "tail_crosses_protected:block_1" not in layout.warnings
     layout = plan_layout(
         image_w=800,
         image_h=800,

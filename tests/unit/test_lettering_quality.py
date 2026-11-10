@@ -118,7 +118,11 @@ def test_overflow_and_interference():
     layout.warnings = ["text_overflow:speech"]
     result = evaluate_layout(layout, 1536, 1536)
     codes = {f["code"]: f["severity"] for f in result["gate_a"]["findings"]}
-    assert codes == {"text_overflow": "critical", "text_interference": "major"}
+    assert codes == {
+        "text_overflow": "critical",
+        "text_interference": "major",
+        "tail_too_long": "major",
+    }
     assert result["gate_a"]["status"] == "FAIL"
 
 
@@ -147,7 +151,7 @@ def test_pixel_geometry_boundary_and_generic_penalty():
     )
     region["role"] = "face"
     face = evaluate_layout(layout, 1000, 500, [region])
-    hit = face["gate_a"]["findings"][0]
+    hit = next(f for f in face["gate_a"]["findings"] if f["code"] == "face_tail_intrusion")
     assert hit["intersection_px"] == pytest.approx(100)
 
 

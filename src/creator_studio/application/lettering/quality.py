@@ -11,8 +11,10 @@ from .planner import overlap, segment_interior_length, tail_start
 # Provisional thresholds; calibrate against reviewed manga pages before production use.
 PROFILES = {
     "manga_single_character_v1": {
-        "tail_good": 0.12,
-        "tail_bad": 0.20,
+        # Length / min(canvas): <=8%, <=12%, <=15%, <=20%, then 15.
+        "tail_bands": ((0.08, 100), (0.12, 85), (0.15, 60), (0.20, 35)),
+        "tail_good": 0.08,
+        "tail_bad": 0.15,
         "aspect_good": 3.0,
         "aspect_bad": 4.5,
         "height_good": 0.38,
@@ -68,6 +70,8 @@ def evaluate_layout(
     scale = (image_w, image_h, image_w, image_h)
     px = lambda box: tuple(a * d for a, d in zip(box, scale))
     norm = lambda box: [a / d for a, d in zip(box, scale)]
+    speech = [v for v in layout.layers if v.kind == "speech_bubble"]
+    solo = len({v.speaker_id for v in speech}) == 1
     text_layers = [v for v in layout.layers if v.text]
 
     def finding(code, layer, region=None, intersection=None, box=None, severity="critical"):
@@ -102,20 +106,28 @@ def evaluate_layout(
         if overflow:
             finding("text_overflow", layer, box=box)
         tip = layer.tail_tip_xy_norm or layer.anchor_xy_norm
-        has_tail = layer.kind == "speech_bubble" and layer.tail_mode == "auto" and tip
+        has_tail = (
+            layer.kind == "speech_bubble"
+            and layer.tail_mode == "auto"
+            and layer.tail_variant != "none"
+            and tip
+        )
         start = end = None
         if has_tail and box:
             end = tuple(a * d for a, d in zip(tip, scale))
             start = tail_start(box, end)
             ratio = math.dist(start, end) / min(image_w, image_h)
-            score = (
-                100
-                if ratio <= p["tail_good"]
-                else 100 - 45 * (ratio - p["tail_good"]) / (p["tail_bad"] - p["tail_good"])
-                if ratio <= p["tail_bad"]
-                else max(0, 55 - (ratio - p["tail_bad"]) * 200)
+            # Tight tail bands: 8%, 12%, 15%, 20% of the shorter canvas side.
+            score = next(
+                (score for limit, score in p["tail_bands"] if ratio <= limit + 1e-12),
+                15,
             )
             tails.append(score)
+            if ratio > 0.15:
+                finding("tail_too_long", layer, severity="major")
+                findings[-1]["ratio"] = ratio
+        elif layer.kind == "speech_bubble" and layer.tail_variant == "none":
+            tails.append(100 if solo else 70)
         generic_crossing = False
         for region in regions:
             rbox = px(region["bbox_xyxy_norm"])
@@ -215,6 +227,7 @@ def evaluate_layout(
     if not regions and any(
         v.kind == "speech_bubble"
         and v.tail_mode == "auto"
+        and v.tail_variant != "none"
         and (v.anchor_xy_norm or v.tail_tip_xy_norm)
         for v in layout.layers
     ):

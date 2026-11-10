@@ -96,7 +96,12 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
         raise ValueError("Invalid canvas or margin")
     result = LetteringLayout(uuid4().hex, "", {"width": image_w, "height": image_h})
     m = max(0.01, margin_norm)
-    protected_regions_norm = sorted(tuple(p) for p in protected_regions_norm)
+    # Preserve caller order: the first protected box is face-critical. All
+    # interior crossings are ranked before soft costs, including face crossings.
+    protected_regions_norm = [tuple(p) for p in protected_regions_norm]
+    blocks = [asdict(b) if is_dataclass(b) else dict(b) for b in blocks]
+    speech = [b for b in blocks if b["kind"] == "speech_bubble"]
+    solo = len(speech) == 1 or len({b.get("speaker_id") for b in speech}) == 1
     region_w, region_h = (0.5 - 2 * m) * image_w, (0.5 - 2 * m) * image_h
     for index, block in enumerate(blocks):
         data = asdict(block) if is_dataclass(block) else dict(block)
@@ -185,51 +190,91 @@ def plan_layout(*, image_w, image_h, blocks, protected_regions_norm=(), margin_n
         for box, protected in boxes:
             x, y = box[:2]
             placed = sum(overlap(box, p.bbox_xyxy_norm) for p in result.layers)
-            tip = layer.tail_tip_xy_norm
-            crossing = (
-                sum(
-                    segment_interior_length(tail_start(box, tip), tip, p)
-                    for p in protected_regions_norm
+            full_tip = layer.tail_tip_xy_norm
+            variants = [("none", None)]
+            if full_tip is not None:
+                start = tail_start(box, full_tip)
+                length = math.hypot(
+                    (full_tip[0] - start[0]) * image_w,
+                    (full_tip[1] - start[1]) * image_h,
                 )
-                if tip
-                else 0
-            )
-            margin_bonus = 0.0001 if min(x, y, 1 - box[2], 1 - box[3]) >= 0.02 - 1e-12 else 0
-            # Keep crossings primary; discourage long tails in pixel space.
-            tail_ratio = (
-                math.dist(
-                    tuple(a * d for a, d in zip(tail_start(box, tip), (image_w, image_h))),
-                    tuple(a * d for a, d in zip(tip, (image_w, image_h))),
+                fraction = min(1, 0.08 * min(image_w, image_h) / length) if length else 1
+                short_tip = tuple(a + fraction * (b - a) for a, b in zip(start, full_tip))
+                variants += [("short", short_tip), ("full", full_tip)]
+            for variant, tip in variants:
+                # Crossing ranks ahead of all soft preferences, including clarity.
+                preference = (
+                    {"none": -0.12, "short": -0.06, "full": 0}[variant]
+                    if solo
+                    else (0.15 if variant == "none" and full_tip else 0)
                 )
-                / min(image_w, image_h)
-                if tip
-                else 0
-            )
-            anchor_distance = (
-                math.hypot(
-                    ((box[0] + box[2]) / 2 - layer.anchor_xy_norm[0]) * image_w,
-                    ((box[1] + box[3]) / 2 - layer.anchor_xy_norm[1]) * image_h,
+                crossing = (
+                    sum(
+                        segment_interior_length(tail_start(box, tip), tip, p)
+                        for p in protected_regions_norm
+                    )
+                    if tip
+                    else 0
                 )
-                / min(image_w, image_h)
-                if tip and layer.anchor_xy_norm
-                else 0
-            )
-            tail_cost = (
-                0.01 * anchor_distance
-                + 0.5 * max(0, tail_ratio - 0.12)
-                + 3 * max(0, tail_ratio - 0.20)
-            )
-            candidates.append(
+                margin_bonus = 0.0001 if min(x, y, 1 - box[2], 1 - box[3]) >= 0.02 - 1e-12 else 0
+                # Keep crossings primary; discourage long tails in pixel space.
+                tail_ratio = (
+                    math.dist(
+                        tuple(a * d for a, d in zip(tail_start(box, tip), (image_w, image_h))),
+                        tuple(a * d for a, d in zip(tip, (image_w, image_h))),
+                    )
+                    / min(image_w, image_h)
+                    if tip
+                    else 0
+                )
+                anchor_distance = (
+                    math.hypot(
+                        ((box[0] + box[2]) / 2 - layer.anchor_xy_norm[0]) * image_w,
+                        ((box[1] + box[3]) / 2 - layer.anchor_xy_norm[1]) * image_h,
+                    )
+                    / min(image_w, image_h)
+                    if tip and layer.anchor_xy_norm
+                    else 0
+                )
+                tail_cost = (
+                    0.01 * anchor_distance
+                    + 0.5 * max(0, tail_ratio - 0.12)
+                    + 3 * max(0, tail_ratio - 0.20)
+                )
+                candidates.append(
+                    (
+                        crossing,
+                        100 * crossing
+                        + 3 * protected
+                        + 2 * placed
+                        + tail_cost
+                        - margin_bonus
+                        + preference,
+                        box,
+                        protected,
+                        variant,
+                        tip,
+                    )
+                )
+        # Ambiguity is unavoidable when no clean drawn tail is available.
+        if not solo and not any(c[4] != "none" and c[0] <= 1e-12 for c in candidates):
+            candidates = [
                 (
                     crossing,
-                    100 * crossing + 3 * protected + 2 * placed + tail_cost - margin_bonus,
+                    cost - (0.15 if variant == "none" and layer.tail_tip_xy_norm else 0),
                     box,
                     protected,
+                    variant,
+                    tip,
                 )
-            )
-        crosses, _, layer.bbox_xyxy_norm, protected = min(
+                for crossing, cost, box, protected, variant, tip in candidates
+            ]
+        crosses, _, layer.bbox_xyxy_norm, protected, variant, tip = min(
             candidates, key=lambda c: (c[0] > 1e-12, c[0] if c[0] > 1e-12 else 0, c[1])
         )
+        if layer.kind == "speech_bubble":
+            layer.tail_variant = variant
+            layer.tail_tip_xy_norm = tip
         left, top, right, bottom = layer.bbox_xyxy_norm
         layer.font_px, _, layer.fit_feasible, _ = fit_text(
             layer,

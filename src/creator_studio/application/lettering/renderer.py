@@ -72,8 +72,19 @@ def _shape(draw, layer, w, h, size, anchor):
             draw.ellipse((radius, radius, w - radius, h - radius), fill=color)
 
 
-def _tail(draw, layer, w, h, size, anchor, origin):
-    if layer.tail_mode == "none" or layer.shape != "oval" or min(w, h) < 7:
+def tail_base_width(length_px, canvas_min_px):
+    """Scale the 9..30 px base band from the 1536 px reference canvas."""
+    scale = canvas_min_px / 1536
+    return max(9 * scale, min(30 * scale, 0.30 * length_px))
+
+
+def _tail(draw, layer, w, h, size, anchor, origin, canvas_min_px):
+    if (
+        layer.tail_mode == "none"
+        or layer.tail_variant == "none"
+        or layer.shape != "oval"
+        or min(w, h) < 7
+    ):
         return
     if anchor is not None and (
         ((anchor[0] - w / 2) / max(1, w / 2 - 3)) ** 2
@@ -83,10 +94,14 @@ def _tail(draw, layer, w, h, size, anchor, origin):
         cx, cy = w / 2, h / 2
         dx, dy = anchor[0] - cx, anchor[1] - cy
         angle = math.atan2(dy / max(1, h / 2 - 3), dx / max(1, w / 2 - 3))
-        delta = min(0.25, size * 0.5 / max(w, h))
+        rx, ry = w / 2 - 4, h / 2 - 4
+        edge = (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
+        base_px = tail_base_width(math.dist(edge, anchor), canvas_min_px)
+        # Solve for an ellipse chord with the requested pixel width.
+        chord_radius = math.hypot(rx * math.sin(angle), ry * math.cos(angle))
+        delta = math.asin(min(1, base_px / (2 * chord_radius)))
         base = [
-            (cx + (w / 2 - 4) * math.cos(a), cy + (h / 2 - 4) * math.sin(a))
-            for a in (angle - delta, angle + delta)
+            (cx + rx * math.cos(a), cy + ry * math.sin(a)) for a in (angle - delta, angle + delta)
         ]
         base = [(x + origin[0], y + origin[1]) for x, y in base]
         anchor = (anchor[0] + origin[0], anchor[1] + origin[1])
@@ -126,7 +141,7 @@ def render_lettering(base_image, layout):
         anchor = None if tip is None else (tip[0] * width - left, tip[1] * height - top)
         _shape(draw, layer, w, h, size, None)
         tail = Image.new("RGBA", result.size)
-        _tail(ImageDraw.Draw(tail), layer, w, h, size, anchor, (left, top))
+        _tail(ImageDraw.Draw(tail), layer, w, h, size, anchor, (left, top), min(width, height))
         inset_x, inset_y = text_insets(layer, w, h)
         color = (
             "white"
@@ -147,17 +162,21 @@ def render_lettering(base_image, layout):
                         (char, left + round(x), top + round(y), size, size)
                     )
                     if halo:
-                        halo_glyph = glyph_tile(char, font, "white")
-                        for dx, dy in ((-2, -2), (-2, 2), (2, -2), (2, 2)):
+                        halo_glyph = glyph_tile(char, font, (255, 255, 255, 140))
+                        for dx, dy in ((-1, -1), (-1, 1), (1, -1), (1, 1)):
                             tile.alpha_composite(halo_glyph, (round(x + dx), round(y + dy)))
                     tile.alpha_composite(glyph, (round(x), round(y)))
         else:
             for i, line in enumerate(lines):
                 xy = (inset_x + pad, inset_y + pad + i * size * 1.4)
                 if halo:
-                    for dx, dy in ((-2, -2), (-2, 2), (2, -2), (2, 2)):
+                    for dx, dy in ((-1, -1), (-1, 1), (1, -1), (1, 1)):
                         draw.text(
-                            (xy[0] + dx, xy[1] + dy), line, font=font, fill="white", anchor="lt"
+                            (xy[0] + dx, xy[1] + dy),
+                            line,
+                            font=font,
+                            fill=(255, 255, 255, 140),
+                            anchor="lt",
                         )
                 draw.text(
                     xy,
