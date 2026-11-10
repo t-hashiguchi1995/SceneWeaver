@@ -1,3 +1,4 @@
+import { CameraLockPanel } from '../components/CameraLockPanel'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
@@ -384,6 +385,8 @@ export function ShotStudioPage() {
           {t('prompt:semanticSave')}
         </button>
       </div>
+
+      <CameraLockPanel projectId={projectId ?? ''} shotId={shotId} />
 
       <div className="stack" data-testid="shot-prompt-section">
         <h2>{t('generation:promptSection')}</h2>
