@@ -44,9 +44,14 @@ class FakeImageBackend:
         self._registry_path = registry_path
         self._use_workflow_compiler = use_workflow_compiler
 
+    def camera_lock_available(self) -> bool:
+        # Fake cannot resolve AssetStore anchors/masks, so camera-lock renders are unavailable.
+        return False
+
     def capabilities(self) -> set[str]:
         return {
             "BaseRender",
+            "CameraLockedRender",
             "PoseControlledRender",
             "LayoutGuidedRender",
             "OutfitTryOn",

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from PIL import Image
 
 from creator_studio.adapters.image.comfy_errors import (
     ComfyError,
@@ -34,7 +35,9 @@ _PNG = (
     b"\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
 )
 
-_IMAGE_SLOT_KEYS = {"character_image", "garment_image", "pose_image", "image"}
+_IMAGE_SLOT_KEYS = {
+    "character_image", "garment_image", "pose_image", "image", "anchor_image", "edit_mask_image",
+}
 
 
 class ComfyImageBackend:
@@ -63,8 +66,12 @@ class ComfyImageBackend:
         self._poll_interval = poll_interval_seconds
         self._jobs: dict[str, dict[str, Any]] = {}
 
+    def camera_lock_available(self) -> bool:
+        return self._store is not None
+
     def capabilities(self) -> set[str]:
         return {
+            "CameraLockedRender",
             "BaseRender",
             "PoseControlledRender",
             "LayoutGuidedRender",
@@ -90,6 +97,30 @@ class ComfyImageBackend:
             return ValidationResult(ok=False, errors=[str(exc)])
         except (FileNotFoundError, ValueError, KeyError) as exc:
             return ValidationResult(ok=False, errors=[str(exc)])
+        if plan.capability == "CameraLockedRender":
+            errors: list[str] = []
+            sizes: dict[str, tuple[int, int]] = {}
+            for slot in ("anchor_image", "edit_mask_image"):
+                value = plan.slots.get(slot)
+                if not isinstance(value, str) or not value.startswith("asset://"):
+                    errors.append(f"REFERENCE_ASSET_INVALID: {slot} must be an asset:// URI")
+            if self._store is None:
+                errors.append("REFERENCE_ASSET_INVALID: asset store required for camera lock slots")
+            if not errors:
+                for slot in ("anchor_image", "edit_mask_image"):
+                    try:
+                        with Image.open(self._store.path_for_uri(plan.slots[slot])) as image:
+                            image.load()
+                            sizes[slot] = image.size
+                    except Exception as exc:
+                        errors.append(f"REFERENCE_ASSET_INVALID: {slot}: {exc}")
+                if not errors and sizes["anchor_image"] != sizes["edit_mask_image"]:
+                    errors.append(
+                        "REFERENCE_ASSET_INVALID: anchor/mask size mismatch "
+                        f"{sizes['anchor_image']} != {sizes['edit_mask_image']}"
+                    )
+            if errors:
+                return ValidationResult(ok=False, errors=errors)
         return ValidationResult(ok=True)
 
     def submit(self, plan: RenderPlanDTO) -> ExternalJobRef:
