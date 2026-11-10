@@ -5,12 +5,19 @@ import json
 import pytest
 from PIL import Image
 
+from creator_studio.adapters.image import FakeImageBackend
 from creator_studio.application.assets.store_asset import StoreBytesCommand
 from creator_studio.application.camera.face_visibility import FaceVisibilityResult
 from creator_studio.application.camera.lock_service import CameraLockRequest, CameraLockService
 from creator_studio.application.projects.create_project import CreateProjectCommand
+from creator_studio.application.shots.pipeline import ShotPipeline
 from creator_studio.domain.asset import AssetKind
 from creator_studio.domain.camera.errors import CameraLockError
+
+
+class NoCameraBackend(FakeImageBackend):
+    def capabilities(self):
+        return super().capabilities() - {"CameraLockedRender"}
 
 
 class Checker:
@@ -194,8 +201,17 @@ def test_render_capability_gate(container):
     _svc, s, r, _, _ = bound(container)
     with container.uow() as uow:
         count = len(uow.generation_attempts.list_for_shot(s.id))
+    pipeline = ShotPipeline(
+        container.uow(),
+        container.llm(),
+        NoCameraBackend(delay_ms=0),
+        container.asset_store,
+        container.prompts,
+        container.prompt_renderer(),
+        camera_lock_service=container.camera_lock_service(),
+    )
     with pytest.raises(CameraLockError) as error:
-        container.shot_pipeline().render(
+        pipeline.render(
             s.id, camera_lock=CameraLockRequest(enabled=True, expected_rig_revision=r.revision)
         )
     assert error.value.code == "CAMERA_LOCK_CAPABILITY_UNAVAILABLE"
