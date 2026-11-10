@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from creator_studio.application.camera.qc import CameraQCService
+
 import hashlib
 import json
 import secrets
@@ -67,6 +69,7 @@ class ShotPipeline:
         prompts: PromptRegistry | None = None,
         renderer: PromptRenderer | None = None,
         camera_lock_service: CameraLockService | None = None,
+        camera_qc_service=None,
     ) -> None:
         self._uow = uow
         self._llm = llm
@@ -76,6 +79,7 @@ class ShotPipeline:
         self._renderer = renderer or PromptRenderer()
         self._compiler = PromptCompiler()
         self._camera = camera_lock_service or CameraLockService(uow, store)
+        self._camera_qc = camera_qc_service or CameraQCService(uow, store)
 
     def plan_shot(self, beat_id: str) -> ShotDTO:
         with self._uow as uow:
@@ -382,7 +386,16 @@ class ShotPipeline:
             )
             uow.generation_attempts.add(attempt)
             uow.commit()
+            qc_result = {}
+            if capability == "CameraLockedRender" and outputs:
+                try:
+                    reports = self._camera_qc.run_for_attempt(attempt.id)
+                    qc_result["camera_qc"] = [{"candidate_asset_id": r.candidate_asset_id,
+                        "decision": r.decision, "reason_codes": r.reason_codes} for r in reports]
+                except Exception as exc:
+                    qc_result["camera_qc_error"] = str(exc)
             return {
+                **qc_result,
                 "shot_id": str(shot.id),
                 "shot_revision": shot.revision,
                 "render_plan_id": plan.id,

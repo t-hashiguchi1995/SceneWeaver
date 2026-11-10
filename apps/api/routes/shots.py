@@ -210,3 +210,27 @@ def replay_generation(attempt_id: str, body: ReplayBody, c: Container = Depends(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except ComfyError as exc:
         raise HTTPException(status_code=502, detail={"code": exc.code.value, "message": str(exc)}) from exc
+
+
+@router.get("/generations/{attempt_id}/camera-qc")
+def get_camera_qc(attempt_id: str, candidate_asset_id: str | None = None,
+                  c: Container = Depends(container)) -> dict[str, Any]:
+    try:
+        attempt = c.shot_pipeline().get_attempt(attempt_id)
+        if candidate_asset_id is not None and candidate_asset_id not in attempt.output_asset_ids:
+            raise ValueError("candidate asset not found")
+        reports = c.camera_qc_service().list_reports(attempt_id)
+        return {"attempt_id": attempt_id, "items": [r.to_dict() for r in reports
+                if candidate_asset_id is None or r.candidate_asset_id == candidate_asset_id]}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/generations/{attempt_id}/camera-qc")
+def run_camera_qc(attempt_id: str, c: Container = Depends(container)) -> dict[str, Any]:
+    try:
+        reports = c.camera_qc_service().run_for_attempt(attempt_id)
+        return {"attempt_id": attempt_id, "items": [r.to_dict() for r in reports]}
+    except ValueError as exc:
+        status = 400 if str(exc) == "attempt has no camera lock provenance" else 404
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
