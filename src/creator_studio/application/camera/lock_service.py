@@ -337,6 +337,58 @@ class CameraLockService:
             anchor = self._anchor(uow, rig)
             return anchor is not None and anchor.sha256 != payload.get("anchor_sha256")
 
+    def resolve_render_inputs(
+        self, shot_id: str, req: CameraLockRequest, *, uow: UnitOfWork | None = None
+    ) -> dict[str, object]:
+        """Resolve anchor/edit-mask/pose asset URIs for a camera-lock render.
+
+        Assumes validate_render_request already passed. Anchor and edit mask
+        must match the rig frame pixel-for-pixel.
+        """
+        if uow is None:
+            with self._uow as opened:
+                return self.resolve_render_inputs(shot_id, req, uow=opened)
+        binding = self._binding(uow, shot_id)
+        rig_id = req.rig_id or (binding.rig_id if binding else None)
+        if rig_id is None:
+            raise CameraLockError(CAMERA_LOCK_NOT_BOUND, "camera lock has no rig binding")
+        rig = uow.camera_rigs.get(rig_id)
+        if rig is None:
+            raise CameraLockError(CAMERA_RIG_NOT_FOUND, "camera rig not found")
+        frame_size = (rig.frame["width"], rig.frame["height"])
+
+        def image_uri(asset_id: str | None, label: str) -> str:
+            asset = uow.assets.get(asset_id) if asset_id else None
+            if asset is None:
+                raise CameraLockError(REFERENCE_ASSET_INVALID, f"{label} asset not found")
+            try:
+                data = self._store.path_for_uri(asset.uri).read_bytes()
+                with Image.open(io.BytesIO(data)) as image:
+                    image.load()
+                    if image.size != frame_size:
+                        raise ValueError(f"{label} size {image.size} != rig frame {frame_size}")
+            except Exception as exc:
+                raise CameraLockError(REFERENCE_ASSET_INVALID, str(exc)) from exc
+            return asset.uri
+
+        anchor_uri = image_uri(rig.anchor_asset_id, "anchor")
+        mask_id = req.edit_mask_asset_id or (binding.edit_mask_asset_id if binding else None)
+        if mask_id is None:
+            raise CameraLockError(
+                REFERENCE_ASSET_INVALID, "edit mask is required for camera lock render"
+            )
+        edit_mask_uri = image_uri(mask_id, "edit mask")
+        pose_id = req.pose_asset_id or (binding.pose_asset_id if binding else None)
+        pose = uow.assets.get(pose_id) if pose_id else None
+        if pose_id and pose is None:
+            raise CameraLockError(REFERENCE_ASSET_INVALID, "pose asset not found")
+        return {
+            "anchor_uri": anchor_uri,
+            "edit_mask_uri": edit_mask_uri,
+            "pose_uri": pose.uri if pose else None,
+            "frame": rig.frame,
+        }
+
     def validate_render_request(self, shot_id, req, *, uow=None):
         if uow is None:
             with self._uow as opened:

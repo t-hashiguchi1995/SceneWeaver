@@ -10,12 +10,17 @@ from typing import Any
 import yaml
 
 from creator_studio.application.assets.tag_asset import schedule_asset_tagging
+from creator_studio.application.camera.composition import composite_protected_background
 from creator_studio.application.camera.lock_service import CameraLockRequest, CameraLockService
 from creator_studio.application.image.runner import candidate_count_for_backend, submit_wait_collect
 from creator_studio.application.prompt.context import resolve_prompt_context
 from creator_studio.application.prompt.drafts import capability_for_shot
 from creator_studio.application.prompt.renderer import PromptRenderer
 from creator_studio.domain.asset import Asset, AssetKind, ReviewDecision
+from creator_studio.domain.camera.errors import (
+    CAMERA_LOCK_CAPABILITY_UNAVAILABLE,
+    CameraLockError,
+)
 from creator_studio.domain.ids import BeatId
 from creator_studio.domain.prompt import PromptDraft, compute_context_hash, compute_prompt_hash
 from creator_studio.domain.shot import GenerationAttempt, RenderPlan, ShotSpec
@@ -146,6 +151,18 @@ class ShotPipeline:
         with self._uow as uow:
             if camera_lock is not None and camera_lock.enabled:
                 self._camera.validate_render_request(shot_id, camera_lock, uow=uow)
+            camera_inputs = None
+            if camera_lock is not None and camera_lock.enabled and _replay is None:
+                available = "CameraLockedRender" in self._image.capabilities()
+                probe = getattr(self._image, "camera_lock_available", None)
+                if callable(probe):
+                    available = available and bool(probe())
+                if not available:
+                    raise CameraLockError(
+                        CAMERA_LOCK_CAPABILITY_UNAVAILABLE,
+                        "selected image backend does not provide CameraLockedRender",
+                    )
+                camera_inputs = self._camera.resolve_render_inputs(shot_id, camera_lock, uow=uow)
             shot = uow.shots.get(shot_id)
             if shot is None:
                 raise ValueError("shot not found")
@@ -159,6 +176,8 @@ class ShotPipeline:
             if _replay is not None:
                 capability = str(_replay["capability"])
                 use_pose = capability == "PoseControlledRender"
+            elif camera_inputs is not None:
+                capability = "CameraLockedRender"
             elif use_pose:
                 capability = "PoseControlledRender"
             else:
@@ -187,13 +206,21 @@ class ShotPipeline:
             prompt_hash = compute_prompt_hash(final_positive, final_negative)
             compiled = {"positive": final_positive, "negative": final_negative}
 
+            refs = deepcopy(_replay["refs"]) if _replay else ({"pose": pose_asset_uri} if pose_asset_uri else {})
+            if camera_inputs is not None:
+                refs = {
+                    "anchor_image": camera_inputs["anchor_uri"],
+                    "edit_mask_image": camera_inputs["edit_mask_uri"],
+                }
+                if camera_inputs.get("pose_uri"):
+                    refs["pose_image"] = camera_inputs["pose_uri"]
             plan = RenderPlan.create(
                 shot.id,
                 based_revision,
                 capability=capability,
                 provider="pending",
                 template_id=workflow_template_id,
-                refs=deepcopy(_replay["refs"]) if _replay else ({"pose": pose_asset_uri} if pose_asset_uri else {}),
+                refs=refs,
             )
             uow.render_plans.add(plan)
             slots: dict[str, Any] = {
@@ -209,6 +236,13 @@ class ShotPipeline:
                 slots["control_strength"] = float(
                     shot.render_spec.get("control_strength", 1.0)
                 )
+            if camera_inputs is not None:
+                slots["anchor_image"] = camera_inputs["anchor_uri"]
+                slots["edit_mask_image"] = camera_inputs["edit_mask_uri"]
+                if camera_inputs.get("pose_uri"):
+                    slots["pose_image"] = camera_inputs["pose_uri"]
+                if "denoise_strength" in shot.render_spec:
+                    slots["denoise_strength"] = float(shot.render_spec["denoise_strength"])
             if _replay:
                 slots = deepcopy(_replay["slots"])
             if draft.assembly_metadata.get("model_modifiers") and not _replay:
@@ -271,8 +305,11 @@ class ShotPipeline:
             for artifact in artifacts:
                 meta = artifact.metadata or {}
                 workflow_hash = str(meta.get("workflow_hash") or workflow_hash)
+                data = artifact.bytes_data
+                if capability == "CameraLockedRender":
+                    data = self._composite_camera_output(dto, data)
                 blob = self._store.put_bytes(
-                    artifact.bytes_data,
+                    data,
                     relative_dir="generated",
                     filename="shot.png",
                 )
@@ -333,6 +370,8 @@ class ShotPipeline:
                 camera_provenance = self._camera.camera_provenance(shot_id, uow=uow)
                 if camera_provenance is not None:
                     attempt_payload.update(camera_provenance)
+                    if capability == "CameraLockedRender":
+                        attempt_payload["camera_lock_workflow_hash"] = workflow_hash or None
             attempt = GenerationAttempt.create(
                 plan.id,
                 based_revision,
@@ -357,6 +396,11 @@ class ShotPipeline:
                 "final_positive_prompt": final_positive,
                 "final_negative_prompt": final_negative,
             }
+
+    def _composite_camera_output(self, dto: RenderPlanDTO, data: bytes) -> bytes:
+        anchor = self._store.path_for_uri(dto.slots["anchor_image"]).read_bytes()
+        mask = self._store.path_for_uri(dto.slots["edit_mask_image"]).read_bytes()
+        return composite_protected_background(anchor, data, mask)
 
     def render_from_attempt_draft(self, shot_id: str, attempt_id: str, *, seed: int | None = None) -> dict[str, Any]:
         """Keep the historical render controls while submitting the current edited draft."""
