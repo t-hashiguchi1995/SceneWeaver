@@ -9,7 +9,7 @@ from PIL import Image
 
 from creator_studio.application.camera.face_visibility import (
     FaceVisibilityChecker,
-    YuNetFaceVisibilityChecker,
+    YoloFaceVisibilityChecker,
 )
 from creator_studio.domain.camera.errors import (
     ANCHOR_FACE_INVALID,
@@ -47,7 +47,7 @@ class CameraLockService:
     ):
         self._uow = uow
         self._store = store
-        self._checker = checker if checker is not None else YuNetFaceVisibilityChecker()
+        self._checker = checker if checker is not None else YoloFaceVisibilityChecker()
 
     @staticmethod
     def _frame(width, height):

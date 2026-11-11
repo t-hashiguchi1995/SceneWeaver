@@ -9,7 +9,7 @@ from creator_studio.domain.ids import new_id
 
 from . import composition
 from .device_checker import CameraDeviceChecker, OllamaCameraDeviceChecker
-from .face_visibility import YuNetFaceVisibilityChecker
+from .face_visibility import YoloFaceVisibilityChecker
 from .qc_profile import (
     ANCHOR_MISSING,
     CAMERA_DEVICE_IN_FRAME,
@@ -117,7 +117,7 @@ class CameraQCService:
         self, uow, store, face_checker=None, device_checker: CameraDeviceChecker | None = None
     ):
         self._uow, self._store = uow, store
-        self._face = face_checker if face_checker is not None else YuNetFaceVisibilityChecker()
+        self._face = face_checker if face_checker is not None else YoloFaceVisibilityChecker()
         self._device = device_checker if device_checker is not None else OllamaCameraDeviceChecker()
 
     def face_visibility(self, candidate, policy):
