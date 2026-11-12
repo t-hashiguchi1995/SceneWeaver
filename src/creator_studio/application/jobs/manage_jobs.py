@@ -49,10 +49,20 @@ class JobDTO:
     snapshot_hash: str | None
     snapshot_schema_version: int | None
     execution_snapshot: dict | None
+    submission_correlation_key: str | None = None
+    submission_provider: str | None = None
+    submission_attempt: int | None = None
+    submission_intended_at: str | None = None
 
 
 def to_dto(job: Job) -> JobDTO:
     return JobDTO(
+        submission_correlation_key=job.submission_correlation_key,
+        submission_provider=job.submission_provider,
+        submission_attempt=job.submission_attempt,
+        submission_intended_at=(
+            job.submission_intended_at.isoformat() if job.submission_intended_at else None
+        ),
         snapshot_hash=job.snapshot_hash,
         snapshot_schema_version=job.snapshot_schema_version,
         execution_snapshot=job.execution_snapshot.to_dict() if job.execution_snapshot else None,

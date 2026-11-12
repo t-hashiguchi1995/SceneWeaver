@@ -45,6 +45,10 @@ class JobOut(BaseModel):
     snapshot_hash: str | None = None
     snapshot_schema_version: int | None = None
     execution_snapshot: dict[str, Any] | None = None
+    submission_correlation_key: str | None = None
+    submission_provider: str | None = None
+    submission_attempt: int | None = None
+    submission_intended_at: str | None = None
 
 
 class CapabilityOut(BaseModel):

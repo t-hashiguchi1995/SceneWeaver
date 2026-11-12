@@ -33,6 +33,12 @@ class SqlAlchemyJobRepository:
         ).first()
         return job_from_row(row) if row else None
 
+    def get_by_submission_correlation_key(self, key: str) -> Job | None:
+        row = self._session.scalars(
+            select(JobRow).where(JobRow.submission_correlation_key == key)
+        ).first()
+        return job_from_row(row) if row else None
+
     def list(self, *, limit: int = 100) -> list[Job]:
         rows = self._session.scalars(
             select(JobRow).order_by(JobRow.created_at.desc()).limit(limit)

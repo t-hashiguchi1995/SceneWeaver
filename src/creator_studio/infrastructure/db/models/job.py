@@ -31,3 +31,5 @@ class JobRow(Base):
     snapshot_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     snapshot_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     snapshot_schema_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    submission_intent_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    submission_correlation_key: Mapped[str | None] = mapped_column(String(256), nullable=True)

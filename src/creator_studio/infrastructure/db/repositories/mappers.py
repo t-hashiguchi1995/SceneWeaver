@@ -10,7 +10,7 @@ from creator_studio.domain.camera.models import (
     ShotCameraBinding,
 )
 from creator_studio.domain.ids import AssetId, JobId, ProjectId, ShotId
-from creator_studio.domain.job import Job, JobKind, JobStatus
+from creator_studio.domain.job import Job, JobKind, JobStatus, SubmissionIntent
 from creator_studio.domain.project import Project, ProjectStatus
 from creator_studio.domain.shot.execution_snapshot import ExecutionSnapshot
 from creator_studio.infrastructure.db.models import AssetRow, JobRow, ProjectRow
@@ -46,6 +46,8 @@ def project_from_row(row: ProjectRow) -> Project:
 
 def job_to_row(job: Job) -> JobRow:
     return JobRow(
+        submission_intent_json=job.submission_intent.to_json() if job.submission_intent else None,
+        submission_correlation_key=job.submission_correlation_key,
         snapshot_json=job.execution_snapshot.canonical_json() if job.execution_snapshot else None,
         snapshot_hash=job.snapshot_hash,
         snapshot_schema_version=job.snapshot_schema_version,
@@ -68,6 +70,16 @@ def job_to_row(job: Job) -> JobRow:
 
 
 def job_from_row(row: JobRow) -> Job:
+    intent = None
+    if row.submission_intent_json is not None:
+        try:
+            intent = SubmissionIntent.from_json(row.submission_intent_json)
+        except (ValueError, TypeError) as exc:
+            raise ValueError("corrupt submission_intent") from exc
+    if row.submission_correlation_key is not None and (
+        intent is None or row.submission_correlation_key != intent.correlation_key
+    ):
+        raise ValueError("corrupt submission_intent: correlation_key mismatch")
     snapshot = None
     if row.snapshot_json is not None:
         try:
@@ -77,6 +89,7 @@ def job_from_row(row: JobRow) -> Job:
         if row.snapshot_hash is not None and snapshot.snapshot_hash != row.snapshot_hash:
             raise ValueError("corrupt execution_snapshot: snapshot_hash mismatch")
     return Job(
+        submission_intent=intent,
         execution_snapshot=snapshot,
         id=JobId(row.id),
         kind=JobKind(row.kind),
@@ -99,6 +112,12 @@ def job_from_row(row: JobRow) -> Job:
 def apply_job_to_row(job: Job, row: JobRow) -> None:
     if row.snapshot_hash is not None and job.snapshot_hash != row.snapshot_hash:
         raise ValueError("execution_snapshot is frozen after enqueue")
+    if row.submission_correlation_key is not None and (
+        job.submission_correlation_key != row.submission_correlation_key
+    ):
+        raise ValueError("submission_intent is frozen after recording")
+    row.submission_intent_json = job.submission_intent.to_json() if job.submission_intent else None
+    row.submission_correlation_key = job.submission_correlation_key
     row.snapshot_json = job.execution_snapshot.canonical_json() if job.execution_snapshot else None
     row.snapshot_hash = job.snapshot_hash
     row.snapshot_schema_version = job.snapshot_schema_version

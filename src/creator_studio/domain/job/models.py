@@ -6,6 +6,7 @@ from enum import StrEnum
 from typing import Any
 
 from creator_studio.domain.ids import JobId, new_id
+from creator_studio.domain.job.submission import SubmissionIntent
 from creator_studio.domain.shot.execution_snapshot import ExecutionSnapshot
 from creator_studio.domain.timeutil import utc_now
 
@@ -49,6 +50,8 @@ class Job:
 
     execution_snapshot: ExecutionSnapshot | None = None
 
+    submission_intent: SubmissionIntent | None = None
+
     def __setattr__(self, name: str, value: Any) -> None:
         if name == "execution_snapshot":
             existing = self.__dict__.get(name)
@@ -56,7 +59,29 @@ class Job:
                 if value is None or value.snapshot_hash != existing.snapshot_hash:
                     raise ValueError("execution_snapshot is frozen after enqueue")
                 return
+        if name == "submission_intent":
+            existing = self.__dict__.get(name)
+            if existing is not None:
+                if value is None or value.correlation_key != existing.correlation_key:
+                    raise ValueError("submission_intent is frozen after recording")
+                return
         object.__setattr__(self, name, value)
+
+    @property
+    def submission_correlation_key(self) -> str | None:
+        return self.submission_intent.correlation_key if self.submission_intent else None
+
+    @property
+    def submission_provider(self) -> str | None:
+        return self.submission_intent.provider if self.submission_intent else None
+
+    @property
+    def submission_attempt(self) -> int | None:
+        return self.submission_intent.attempt if self.submission_intent else None
+
+    @property
+    def submission_intended_at(self) -> datetime | None:
+        return self.submission_intent.intended_at if self.submission_intent else None
 
     @property
     def snapshot_hash(self) -> str | None:
