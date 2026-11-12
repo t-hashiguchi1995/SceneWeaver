@@ -9,8 +9,12 @@ from sse_starlette.sse import EventSourceResponse
 
 from apps.api.deps import container
 from apps.api.schemas import JobCreate, JobOut
-from creator_studio.application.jobs.manage_jobs import EnqueueJobCommand
+from creator_studio.application.jobs.manage_jobs import (
+    EnqueueJobCommand,
+    IdempotencyConflictError,
+)
 from creator_studio.domain.job import JobKind
+from creator_studio.domain.shot.execution_snapshot import ExecutionSnapshot
 from creator_studio.infrastructure.container import Container
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
@@ -26,13 +30,23 @@ def enqueue_job(body: JobCreate, c: Container = Depends(container)) -> JobOut:
         kind = JobKind(body.kind)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"unknown job kind: {body.kind}") from e
-    dto = c.enqueue_job().execute(
-        EnqueueJobCommand(
-            kind=kind,
-            payload=body.payload,
-            idempotency_key=body.idempotency_key,
+    snapshot = None
+    if body.execution_snapshot is not None:
+        try:
+            snapshot = ExecutionSnapshot.from_dict(body.execution_snapshot)
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e)) from e
+    try:
+        dto = c.enqueue_job().execute(
+            EnqueueJobCommand(
+                kind=kind,
+                payload=body.payload,
+                idempotency_key=body.idempotency_key,
+                execution_snapshot=snapshot,
+            )
         )
-    )
+    except IdempotencyConflictError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
     return _to_out(dto)
 
 

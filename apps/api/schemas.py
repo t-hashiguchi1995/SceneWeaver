@@ -23,6 +23,7 @@ class JobCreate(BaseModel):
     kind: str = "stub"
     payload: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str | None = None
+    execution_snapshot: dict[str, Any] | None = None
 
 
 class JobOut(BaseModel):
@@ -41,6 +42,9 @@ class JobOut(BaseModel):
     error_message: str | None
     created_at: str
     updated_at: str
+    snapshot_hash: str | None = None
+    snapshot_schema_version: int | None = None
+    execution_snapshot: dict[str, Any] | None = None
 
 
 class CapabilityOut(BaseModel):

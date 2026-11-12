@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from creator_studio.domain.asset import Asset, AssetKind
 from creator_studio.domain.camera.models import (
     CameraAnchor,
@@ -10,6 +12,7 @@ from creator_studio.domain.camera.models import (
 from creator_studio.domain.ids import AssetId, JobId, ProjectId, ShotId
 from creator_studio.domain.job import Job, JobKind, JobStatus
 from creator_studio.domain.project import Project, ProjectStatus
+from creator_studio.domain.shot.execution_snapshot import ExecutionSnapshot
 from creator_studio.infrastructure.db.models import AssetRow, JobRow, ProjectRow
 from creator_studio.infrastructure.db.models.camera import (
     CameraAnchorRow,
@@ -43,6 +46,9 @@ def project_from_row(row: ProjectRow) -> Project:
 
 def job_to_row(job: Job) -> JobRow:
     return JobRow(
+        snapshot_json=job.execution_snapshot.canonical_json() if job.execution_snapshot else None,
+        snapshot_hash=job.snapshot_hash,
+        snapshot_schema_version=job.snapshot_schema_version,
         id=str(job.id),
         kind=job.kind.value,
         status=job.status.value,
@@ -62,7 +68,16 @@ def job_to_row(job: Job) -> JobRow:
 
 
 def job_from_row(row: JobRow) -> Job:
+    snapshot = None
+    if row.snapshot_json is not None:
+        try:
+            snapshot = ExecutionSnapshot.from_dict(json.loads(row.snapshot_json))
+        except (ValueError, TypeError) as exc:
+            raise ValueError("corrupt execution_snapshot") from exc
+        if row.snapshot_hash is not None and snapshot.snapshot_hash != row.snapshot_hash:
+            raise ValueError("corrupt execution_snapshot: snapshot_hash mismatch")
     return Job(
+        execution_snapshot=snapshot,
         id=JobId(row.id),
         kind=JobKind(row.kind),
         status=JobStatus(row.status),
@@ -82,6 +97,11 @@ def job_from_row(row: JobRow) -> Job:
 
 
 def apply_job_to_row(job: Job, row: JobRow) -> None:
+    if row.snapshot_hash is not None and job.snapshot_hash != row.snapshot_hash:
+        raise ValueError("execution_snapshot is frozen after enqueue")
+    row.snapshot_json = job.execution_snapshot.canonical_json() if job.execution_snapshot else None
+    row.snapshot_hash = job.snapshot_hash
+    row.snapshot_schema_version = job.snapshot_schema_version
     row.kind = job.kind.value
     row.status = job.status.value
     row.payload_json = job.payload

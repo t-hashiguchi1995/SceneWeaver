@@ -4,14 +4,29 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
 
+from sqlalchemy.exc import IntegrityError
+
 from creator_studio.domain.ids import JobId
 from creator_studio.domain.job import Job, JobKind, JobStatus
+from creator_studio.domain.shot.execution_snapshot import (
+    ExecutionSnapshot,
+    IdempotencyAction,
+    decide_idempotency,
+)
 from creator_studio.domain.timeutil import utc_now
 from creator_studio.ports.unit_of_work import UnitOfWork
 
 
 class FencingError(RuntimeError):
     """The job has been claimed by a newer attempt."""
+
+
+class IdempotencyConflictError(RuntimeError):
+    http_status = 409
+
+    def __init__(self, message: str, *, existing_job_id: str | None = None) -> None:
+        super().__init__(message)
+        self.existing_job_id = existing_job_id
 
 
 @dataclass
@@ -31,10 +46,16 @@ class JobDTO:
     error_message: str | None
     created_at: str
     updated_at: str
+    snapshot_hash: str | None
+    snapshot_schema_version: int | None
+    execution_snapshot: dict | None
 
 
 def to_dto(job: Job) -> JobDTO:
     return JobDTO(
+        snapshot_hash=job.snapshot_hash,
+        snapshot_schema_version=job.snapshot_schema_version,
+        execution_snapshot=job.execution_snapshot.to_dict() if job.execution_snapshot else None,
         id=str(job.id),
         kind=job.kind.value,
         status=job.status.value,
@@ -59,6 +80,7 @@ class EnqueueJobCommand:
     payload: dict[str, Any] | None = None
     idempotency_key: str | None = None
     max_attempts: int = 3
+    execution_snapshot: ExecutionSnapshot | None = None
 
 
 class EnqueueJob:
@@ -70,16 +92,38 @@ class EnqueueJob:
             if cmd.idempotency_key:
                 existing = uow.jobs.get_by_idempotency_key(cmd.idempotency_key)
                 if existing:
-                    return to_dto(existing)
+                    return self._existing_dto(existing, cmd.execution_snapshot)
             job = Job.create(
                 cmd.kind,
                 cmd.payload,
                 idempotency_key=cmd.idempotency_key,
                 max_attempts=cmd.max_attempts,
+                execution_snapshot=cmd.execution_snapshot,
             )
-            uow.jobs.add(job)
-            uow.commit()
+            try:
+                uow.jobs.add(job)
+                uow.commit()
+            except IntegrityError:
+                uow.rollback()
+                if cmd.idempotency_key:
+                    existing = uow.jobs.get_by_idempotency_key(cmd.idempotency_key)
+                    if existing is not None:
+                        return self._existing_dto(existing, cmd.execution_snapshot)
+                raise
             return to_dto(job)
+
+    @staticmethod
+    def _existing_dto(existing: Job, incoming: ExecutionSnapshot | None) -> JobDTO:
+        if incoming is None:
+            return to_dto(existing)
+        if existing.execution_snapshot is not None:
+            decision = decide_idempotency(str(existing.id), existing.execution_snapshot, incoming)
+            if decision.action == IdempotencyAction.REUSE_EXISTING:
+                return to_dto(existing)
+        raise IdempotencyConflictError(
+            "Idempotency key already belongs to a job with a different or missing snapshot",
+            existing_job_id=str(existing.id),
+        )
 
 
 class ListJobs:

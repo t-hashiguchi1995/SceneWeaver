@@ -6,6 +6,7 @@ from enum import StrEnum
 from typing import Any
 
 from creator_studio.domain.ids import JobId, new_id
+from creator_studio.domain.shot.execution_snapshot import ExecutionSnapshot
 from creator_studio.domain.timeutil import utc_now
 
 
@@ -46,6 +47,25 @@ class Job:
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)
 
+    execution_snapshot: ExecutionSnapshot | None = None
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "execution_snapshot":
+            existing = self.__dict__.get(name)
+            if existing is not None:
+                if value is None or value.snapshot_hash != existing.snapshot_hash:
+                    raise ValueError("execution_snapshot is frozen after enqueue")
+                return
+        object.__setattr__(self, name, value)
+
+    @property
+    def snapshot_hash(self) -> str | None:
+        return self.execution_snapshot.snapshot_hash if self.execution_snapshot else None
+
+    @property
+    def snapshot_schema_version(self) -> int | None:
+        return self.execution_snapshot.schema_version if self.execution_snapshot else None
+
     @classmethod
     def create(
         cls,
@@ -54,6 +74,7 @@ class Job:
         *,
         idempotency_key: str | None = None,
         max_attempts: int = 3,
+        execution_snapshot: ExecutionSnapshot | None = None,
     ) -> Job:
         now = utc_now()
         return cls(
@@ -62,6 +83,7 @@ class Job:
             payload=payload or {},
             idempotency_key=idempotency_key,
             max_attempts=max_attempts,
+            execution_snapshot=execution_snapshot,
             created_at=now,
             updated_at=now,
         )
