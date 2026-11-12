@@ -1,0 +1,20 @@
+id: plate_stylize_depth_v1
+backend: comfyui
+capability: DepthGuidedStylize
+required_model_id: anima_plate_stylize_depth
+workflow_file: workflows/comfy/plate_stylize_depth.api.json
+# Depth-guided variant (img2img + Anima-LLLite depth patch); plate_stylize_v1 stays unchanged.
+required_slots: [source_image, depth_image, positive, negative, seed, steps, cfg, denoise]
+slots:
+  source_image: { node: "100", input: "image" }
+  depth_image: { node: "101", input: "image" }
+  positive: { node: "6", input: "text" }
+  negative: { node: "7", input: "text" }
+  seed: { node: "12", input: "seed" }
+  steps: { node: "12", input: "steps" }
+  cfg: { node: "12", input: "cfg" }
+  denoise: { node: "12", input: "denoise" }
+  depth_strength: { node: "71", input: "strength" }
+  candidate_count: { node: "103", input: "amount" }
+outputs:
+  images: ["90"]
