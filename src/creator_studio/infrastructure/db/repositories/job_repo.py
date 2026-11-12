@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.orm import Session
 
 from creator_studio.domain.ids import JobId
@@ -54,11 +54,14 @@ class SqlAlchemyJobRepository:
         now: datetime,
     ) -> Job | None:
         """Atomically claim one queued or expired-lease running job."""
-        claimable = or_(
-            JobRow.status == JobStatus.QUEUED.value,
-            (JobRow.status == JobStatus.RUNNING.value)
-            & (JobRow.leased_until.is_not(None))
-            & (JobRow.leased_until < now),
+        claimable = and_(
+            JobRow.attempts < JobRow.max_attempts,
+            or_(
+                JobRow.status == JobStatus.QUEUED.value,
+                (JobRow.status == JobStatus.RUNNING.value)
+                & (JobRow.leased_until.is_not(None))
+                & (JobRow.leased_until < now),
+            ),
         )
         candidate = self._session.scalars(
             select(JobRow).where(claimable).order_by(JobRow.created_at.asc()).limit(1)

@@ -10,6 +10,10 @@ from creator_studio.domain.timeutil import utc_now
 from creator_studio.ports.unit_of_work import UnitOfWork
 
 
+class FencingError(RuntimeError):
+    """The job has been claimed by a newer attempt."""
+
+
 @dataclass
 class JobDTO:
     id: str
@@ -120,11 +124,15 @@ class ClaimAndRunStubJob:
             uow.commit()
             return to_dto(job)
 
-    def heartbeat(self, job_id: str) -> None:
+    def heartbeat(self, job_id: str, *, expected_attempts: int | None = None) -> None:
         now = utc_now()
         with self._uow as uow:
             job = uow.jobs.get(JobId(job_id))
-            if job is None or job.lease_owner != self._worker_id:
+            if job is None:
+                return
+            if expected_attempts is not None and job.attempts != expected_attempts:
+                raise FencingError("job claim generation mismatch")
+            if job.lease_owner != self._worker_id:
                 return
             job.heartbeat_at = now
             job.leased_until = now + timedelta(seconds=self._lease_seconds)
@@ -149,12 +157,20 @@ class ClaimAndRunStubJob:
             uow.commit()
             return to_dto(job)
 
-    def succeed(self, job_id: str, *, progress: dict[str, Any] | None = None) -> JobDTO:
+    def succeed(
+        self,
+        job_id: str,
+        *,
+        progress: dict[str, Any] | None = None,
+        expected_attempts: int | None = None,
+    ) -> JobDTO:
         now = utc_now()
         with self._uow as uow:
             job = uow.jobs.get(JobId(job_id))
             if job is None:
                 raise ValueError("job not found")
+            if expected_attempts is not None and job.attempts != expected_attempts:
+                raise FencingError("job claim generation mismatch")
             job.progress = progress or {"percent": 100}
             job.status = JobStatus.SUCCEEDED
             job.lease_owner = None
@@ -165,12 +181,16 @@ class ClaimAndRunStubJob:
             uow.commit()
             return to_dto(job)
 
-    def fail(self, job_id: str, message: str) -> JobDTO:
+    def fail(
+        self, job_id: str, message: str, *, expected_attempts: int | None = None
+    ) -> JobDTO:
         now = utc_now()
         with self._uow as uow:
             job = uow.jobs.get(JobId(job_id))
             if job is None:
                 raise ValueError("job not found")
+            if expected_attempts is not None and job.attempts != expected_attempts:
+                raise FencingError("job claim generation mismatch")
             if job.attempts >= job.max_attempts:
                 job.status = JobStatus.FAILED
             else:
